@@ -1,0 +1,23 @@
+name: board_datetime_picker
+description: >-
+  Picker to select date and time for Flutter.  
+  It is both a calendar and a picker, offering a variety of options as a package.  
+version: 1.0.0
+homepage: https://github.com/mytooyo/board_datetime_picker
+
+environment:
+  sdk: '>=2.19.5 <3.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.18.0
+  collection: ^1.17.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
