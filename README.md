@@ -9,8 +9,7 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 
 |Standard|Wide|
 |---|---|
-|![standard](example/board_datetime_picker_standard.gif)|![wide](example/board_datetime_picker_wide.gif)|
-
+|![standard](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_standard.gif)|![wide](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_wide.gif)|
 ## Getting Started 
 In order to add board_datetime_picker package to your project add this line to your pubspec.yaml file
 
