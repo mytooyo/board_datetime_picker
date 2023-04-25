@@ -179,6 +179,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
   late Animation<double> _pickerFormAnimation;
 
   final GlobalKey calendarKey = GlobalKey();
+  final GlobalKey<BoardDateTimeHeaderState> _headerKey = GlobalKey();
 
   /// Picker-wide Constraints
   late BoxConstraints _constraints;
@@ -299,6 +300,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
     pickerType = type;
     dateState = ValueNotifier(d);
     dateState.addListener(notify);
+    _headerKey.currentState?.setup(dateState, rebuild: true);
   }
 
   /// Notification of change to caller.
@@ -566,12 +568,14 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
         textColor: textColor,
         activeColor: activeColor,
         activeTextColor: activeTextColor,
+        languages: widget.options.languages,
       ),
     );
   }
 
   Widget get _header {
     return BoardDateTimeHeader(
+      key: _headerKey,
       wide: isWide,
       dateState: dateState,
       pickerType: pickerType,
@@ -598,6 +602,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
       textColor: textColor,
       activeColor: activeColor,
       activeTextColor: activeTextColor,
+      languages: widget.options.languages,
     );
   }
 }

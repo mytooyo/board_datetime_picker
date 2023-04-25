@@ -15,7 +15,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.0.0
+    board_datetime_picker: 1.0.2
 ```
 
 ## Usage
@@ -86,6 +86,7 @@ All properties are optional.
 |activeColor|Color|Use the color of the currently selected date or button in the calendar as a color to indicate the selection status. default is `Theme.of(context).primaryColor`|
 |activeTextColor|Color|activeColor is used as the background color and activeTextColor as the text color. default color is white.|
 |backgroundDecoration|BoxDecoration|BoxDecoration of the widget displayed on the backmost side of the picker. If not specified, it will be a standard BoxDecoration with the color specified in the normal backgroundColor (default).|
+|languages|BoardPickerLanguages|Language information for text displayed in the picker. Default is `en`|
 
 Sample of gradient background: 
 ```dart

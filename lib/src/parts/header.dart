@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.textColor,
     required this.activeColor,
     required this.activeTextColor,
+    required this.languages,
   });
 
   /// Wide mode display flag
@@ -71,25 +73,28 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Active Text Color
   final Color activeTextColor;
 
+  /// Class for specifying language information to be used in the picker
+  final BoardPickerLanguages languages;
+
   @override
-  State<BoardDateTimeHeader> createState() => _BoardDateTimeHeaderState();
+  State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
 
-class _BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
+class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   bool isToday = true;
   bool isTommorow = false;
 
+  late ValueNotifier<DateTime> dateState;
+
   @override
   void initState() {
-    widget.dateState.addListener(changeListener);
-    judgeDay();
-
+    setup(widget.dateState);
     super.initState();
   }
 
   @override
   void dispose() {
-    widget.dateState.removeListener(changeListener);
+    dateState.removeListener(changeListener);
     super.dispose();
   }
 
@@ -97,10 +102,20 @@ class _BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     setState(() => judgeDay());
   }
 
+  void setup(ValueNotifier<DateTime> state, {bool rebuild = false}) {
+    dateState = state;
+    dateState.addListener(changeListener);
+    if (rebuild) {
+      changeListener();
+    } else {
+      judgeDay();
+    }
+  }
+
   void judgeDay() {
     final now = DateTime.now();
-    isToday = widget.dateState.value.compareDate(now);
-    isTommorow = widget.dateState.value.compareDate(now.add(
+    isToday = dateState.value.compareDate(now);
+    isTommorow = dateState.value.compareDate(now.add(
       const Duration(days: 1),
     ));
   }
@@ -174,14 +189,14 @@ class _BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
         ),
       _textButton(
         context,
-        'TODAY',
+        widget.languages.today,
         () => widget.onChangeDate(DateTime.now()),
         selected: isToday,
       ),
       SizedBox(width: widget.wide ? 20 : 12),
       _textButton(
         context,
-        'TOMORROW',
+        widget.languages.tommorow,
         () {
           widget.onChangeDate(DateTime.now().add(const Duration(days: 1)));
         },
@@ -195,7 +210,7 @@ class _BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       const SizedBox(width: 24),
       _textButton(
         context,
-        'NOW',
+        widget.languages.now,
         () => widget.onChangTime(DateTime.now()),
       ),
     ];

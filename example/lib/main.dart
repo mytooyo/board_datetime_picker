@@ -45,19 +45,20 @@ class _MyHomePageState extends State<MyHomePage> {
       controller: controller,
       resizeBottom: true,
       options: BoardDateTimeOptions(
-          // backgroundColor: Colors.black,
-          // textColor: Colors.white,
-          // foregroundColor: const Color(0xff303030),
-          // activeColor: Colors.blueGrey,
-          // backgroundDecoration: const BoxDecoration(
-          //   gradient: LinearGradient(
-          //     colors: <Color>[
-          //       Color(0xff1A2980),
-          //       Color(0xff26D0CE),
-          //     ],
-          //   ),
-          // ),
-          ),
+        // backgroundColor: Colors.black,
+        // textColor: Colors.white,
+        // foregroundColor: const Color(0xff303030),
+        // activeColor: Colors.blueGrey,
+        // backgroundDecoration: const BoxDecoration(
+        //   gradient: LinearGradient(
+        //     colors: <Color>[
+        //       Color(0xff1A2980),
+        //       Color(0xff26D0CE),
+        //     ],
+        //   ),
+        // ),
+        languages: const BoardPickerLanguages.en(),
+      ),
       builder: (context) {
         return Scaffold(
           appBar: AppBar(

@@ -1,3 +1,4 @@
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +13,7 @@ class CalendarWidget extends StatefulWidget {
     required this.wide,
     required this.activeColor,
     required this.activeTextColor,
+    required this.languages,
   });
 
   final bool wide;
@@ -21,15 +23,13 @@ class CalendarWidget extends StatefulWidget {
   final Color? textColor;
   final Color activeColor;
   final Color activeTextColor;
+  final BoardPickerLanguages languages;
 
   @override
   State<CalendarWidget> createState() => _CalendarWidgetState();
 }
 
 class _CalendarWidgetState extends State<CalendarWidget> {
-  /// Weekdays header display
-  static final weekdays = ['SUN', 'MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT'];
-
   /// Calendar PageeController
   final pageController = PageController(initialPage: 999);
   final int initialPage = 999;
@@ -212,6 +212,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   /// Display day of the week
   Widget _weekdays() {
+    final weekdays = widget.languages.weekdays;
     return Container(
       height: 24,
       margin: const EdgeInsets.only(top: 20),
