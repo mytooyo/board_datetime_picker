@@ -1,4 +1,3 @@
-import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/board_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,19 +32,19 @@ class ItemWidgetState extends State<ItemWidget> {
   late TextEditingController textController;
 
   /// Picker list
-  List<int> list = [];
+  Map<int, int> map = {};
 
-  int selected = 0;
+  int selectedIndex = 0;
   bool isTextEditing = false;
 
   @override
   void initState() {
-    list = widget.option.list;
-    selected = widget.option.selected;
+    map = widget.option.map;
+    selectedIndex = widget.option.selectedIndex;
     scrollController = FixedExtentScrollController(
-      initialItem: widget.option.getIndex(),
+      initialItem: selectedIndex,
     );
-    textController = TextEditingController(text: '$selected');
+    textController = TextEditingController(text: '${map[selectedIndex]}');
 
     super.initState();
   }
@@ -59,29 +58,29 @@ class ItemWidgetState extends State<ItemWidget> {
 
   void onChange(int index) {
     setState(() {
-      selected = widget.option.getValueFromIndex(index);
+      selectedIndex = index;
     });
-    textController.text = '$selected';
+    textController.text = '${map[selectedIndex]}';
   }
 
   void toAnimateChange(int index, {bool button = false}) {
-    if (!widget.option.list.contains(index)) return;
+    if (!widget.option.map.keys.contains(index)) return;
 
-    selected = index;
+    selectedIndex = index;
     scrollController.animateToItem(
-      widget.option.getIndex(index: selected),
+      index,
       duration: duration,
       curve: Curves.easeIn,
     );
   }
 
-  void updateState(List<int> newList) {
+  void updateState(Map<int, int> newMap, int newIndex) {
     setState(() {
-      list = newList;
-      if (widget.option.getIndex(index: selected) >= list.length) {
-        selected = list.last;
+      map = newMap;
+      if (selectedIndex != newIndex) {
+        selectedIndex = newIndex;
         scrollController.animateToItem(
-          widget.option.getIndex(index: selected),
+          selectedIndex,
           duration: duration,
           curve: Curves.easeIn,
         );
@@ -127,7 +126,7 @@ class ItemWidgetState extends State<ItemWidget> {
                       onSelectedItemChanged: onChange,
                       childDelegate: ListWheelChildListDelegate(
                         children: [
-                          for (final i in list) _item(i),
+                          for (final i in map.keys) _item(i),
                         ],
                       ),
                     ),
@@ -137,14 +136,14 @@ class ItemWidgetState extends State<ItemWidget> {
                       final currentIndex = scrollController.selectedItem;
                       final indexOffset = (clickOffset / itemSize).round();
                       final newIndex = currentIndex + indexOffset;
-                      toAnimateChange(list[newIndex]);
+                      toAnimateChange(newIndex);
                     },
                   ),
                 ),
                 onNotification: (info) {
                   if (info is ScrollEndNotification) {
                     // Change callback
-                    widget.onChange(selected);
+                    widget.onChange(selectedIndex);
                   }
                   return true;
                 },
@@ -192,19 +191,26 @@ class ItemWidgetState extends State<ItemWidget> {
                 textAlign: TextAlign.center,
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(widget.option.maxLength),
-                  if (widget.option.type != DateType.year)
-                    AllowTextInputFormatter(list),
+                  AllowTextInputFormatter(map.values.toList()),
                 ],
                 onChanged: (text) {
                   try {
                     final data = int.parse(text);
-                    // Performed only if the entered value is in the list
-                    if (!widget.option.list.contains(data)) return;
+
+                    // Get index from input value
+                    int index = -1;
+                    for (final key in map.keys) {
+                      if (map[key]! == data) {
+                        index = key;
+                        break;
+                      }
+                    }
+                    if (index < 0) return;
 
                     // Animated wheel movement
-                    toAnimateChange(data);
+                    toAnimateChange(index);
                     // Change callback
-                    widget.onChange(data);
+                    widget.onChange(index);
                   } catch (_) {
                     return;
                   }
@@ -233,7 +239,7 @@ class ItemWidgetState extends State<ItemWidget> {
     TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
           color: widget.textColor,
         );
-    if (selected == i) {
+    if (selectedIndex == i) {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
         fontSize: 17,
@@ -251,7 +257,7 @@ class ItemWidgetState extends State<ItemWidget> {
       child: Opacity(
         opacity: opacity,
         child: Text(
-          '$i',
+          '${map[i]}',
           style: textStyle,
         ),
       ),

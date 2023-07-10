@@ -70,6 +70,8 @@ Those without [required] are optional.
 |pickerType  |DateTimePickerType|Display picker type. `datetime`, `date`. `time`. default is `datetime`.|
 |breakpoint  |double|Breakpoints for switching between Wide and Standard modes. default is `800`.|
 |initialDate |DateTime|Date and time of initial display. default is `DateTime.now()`.|
+|minimumDate |DateTime|Minimum date in the selectable range. default is `DateTime(1970, 1, 1, 0, 0)`.|
+|maximumDate |DateTime|Maximum date in the selectable range. default is `DateTime(2050, 12, 31, 23, 59)`.|
 |resizeBottom|bool|Flag whether to resize the bottom of the specified Builder. If true, the picker is displayed under the builder in `Column`. default is `true`.|
 |options     |BoardDateTimeOptions|Class for defining options related to the UI used by [BoardDateTimeBuilder].|
 

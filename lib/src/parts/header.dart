@@ -24,6 +24,8 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.activeColor,
     required this.activeTextColor,
     required this.languages,
+    required this.minimumDate,
+    required this.maximumDate,
   });
 
   /// Wide mode display flag
@@ -76,13 +78,19 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Class for specifying language information to be used in the picker
   final BoardPickerLanguages languages;
 
+  /// Minimum Date
+  final DateTime minimumDate;
+
+  /// Maximum Date
+  final DateTime maximumDate;
+
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
 
 class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   bool isToday = true;
-  bool isTommorow = false;
+  bool isTomorrow = false;
 
   late ValueNotifier<DateTime> dateState;
 
@@ -115,7 +123,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   void judgeDay() {
     final now = DateTime.now();
     isToday = dateState.value.compareDate(now);
-    isTommorow = dateState.value.compareDate(now.add(
+    isTomorrow = dateState.value.compareDate(now.add(
       const Duration(days: 1),
     ));
   }
@@ -167,6 +175,8 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   }
 
   List<Widget> _dateItems(BuildContext context) {
+    final today = DateTime.now();
+    final tomorrow = today.add(const Duration(days: 1));
     return [
       if (widget.wide)
         const SizedBox(width: 24)
@@ -187,25 +197,32 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
             color: widget.textColor,
           ),
         ),
-      _textButton(
-        context,
-        widget.languages.today,
-        () => widget.onChangeDate(DateTime.now()),
-        selected: isToday,
-      ),
-      SizedBox(width: widget.wide ? 20 : 12),
-      _textButton(
-        context,
-        widget.languages.tommorow,
-        () {
-          widget.onChangeDate(DateTime.now().add(const Duration(days: 1)));
-        },
-        selected: isTommorow,
-      ),
+      if (today.isWithinRange(widget.minimumDate, widget.maximumDate))
+        _textButton(
+          context,
+          widget.languages.today,
+          () => widget.onChangeDate(DateTime.now()),
+          selected: isToday,
+        ),
+      if (tomorrow.isWithinRange(widget.minimumDate, widget.maximumDate)) ...[
+        SizedBox(width: widget.wide ? 20 : 12),
+        _textButton(
+          context,
+          widget.languages.tomorrow,
+          () {
+            widget.onChangeDate(DateTime.now().add(const Duration(days: 1)));
+          },
+          selected: isTomorrow,
+        ),
+      ],
     ];
   }
 
   List<Widget> _timeItems(BuildContext context) {
+    if (DateTime.now().isWithinRange(widget.minimumDate, widget.maximumDate)) {
+      return [];
+    }
+
     return [
       const SizedBox(width: 24),
       _textButton(

@@ -15,7 +15,11 @@ class BoardDateTimeController {
   final GlobalKey<_BoardDateTimeContentState> _key = GlobalKey();
 
   void open(DateTimePickerType openType, DateTime val) {
-    _key.currentState?.open(val, openType);
+    _key.currentState?.open(date: val, pickerType: openType);
+  }
+
+  void openPicker({DateTimePickerType? openType, DateTime? date}) {
+    _key.currentState?.open(date: date, pickerType: openType);
   }
 
   void close() {
@@ -66,6 +70,8 @@ class BoardDateTimeBuilder extends StatefulWidget {
     required this.onChange,
     this.pickerType = DateTimePickerType.datetime,
     this.initialDate,
+    this.minimumDate,
+    this.maximumDate,
     this.breakpoint = 800,
     this.options,
     this.resizeBottom = true,
@@ -85,6 +91,12 @@ class BoardDateTimeBuilder extends StatefulWidget {
 
   /// #### Date of initial selection state.
   final DateTime? initialDate;
+
+  /// #### Minimum selectable dates
+  final DateTime? minimumDate;
+
+  /// #### Maximum selectable dates
+  final DateTime? maximumDate;
 
   /// #### Display picker type.
   final DateTimePickerType pickerType;
@@ -110,6 +122,8 @@ class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
         onChange: widget.onChange,
         pickerType: widget.pickerType,
         initialDate: widget.initialDate,
+        minimumDate: widget.minimumDate,
+        maximumDate: widget.maximumDate,
         breakpoint: widget.breakpoint,
         options: widget.options ?? BoardDateTimeOptions(),
       );
@@ -146,9 +160,11 @@ class _BoardDateTimeContent extends StatefulWidget {
     required this.builder,
     required this.controller,
     required this.onChange,
-    this.pickerType = DateTimePickerType.datetime,
-    this.initialDate,
-    this.breakpoint = 800,
+    required this.pickerType,
+    required this.initialDate,
+    required this.minimumDate,
+    required this.maximumDate,
+    required this.breakpoint,
     required this.options,
   }) : super(key: controller._key);
 
@@ -157,6 +173,8 @@ class _BoardDateTimeContent extends StatefulWidget {
   final double breakpoint;
   final void Function(DateTime) onChange;
   final DateTime? initialDate;
+  final DateTime? minimumDate;
+  final DateTime? maximumDate;
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
 
@@ -238,7 +256,8 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
         );
 
     /// Set up options
-    setupOptions(widget.initialDate ?? DateTime.now(), widget.pickerType);
+    DateTime initialDate = widget.initialDate ?? DateTime.now();
+    setupOptions(rangeDate(initialDate), widget.pickerType);
 
     super.initState();
   }
@@ -252,14 +271,29 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
     super.dispose();
   }
 
+  /// Checks and corrects if the specified date is within range
+  DateTime rangeDate(DateTime date) {
+    DateTime d = date;
+    if (widget.minimumDate != null && d.isBefore(widget.minimumDate!)) {
+      d = widget.minimumDate!;
+    }
+    if (widget.maximumDate != null && d.isAfter(widget.maximumDate!)) {
+      d = widget.maximumDate!;
+    }
+    return d;
+  }
+
   /// Open Picker
-  void open(DateTime date, DateTimePickerType pickerType) {
+  void open({DateTime? date, DateTimePickerType? pickerType}) {
+    final d = date ?? dateState.value;
+    final pt = pickerType ?? widget.pickerType;
+
     setState(() {
-      setupOptions(date, pickerType);
+      setupOptions(rangeDate(d), pt);
     });
 
     // If the calendar was displayed in the time display specification, return it.
-    if (pickerType == DateTimePickerType.time &&
+    if (pt == DateTimePickerType.time &&
         _calendarAnimationController.isCompleted) {
       _calendarAnimationController.reset();
     }
@@ -275,17 +309,20 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
 
   /// Setup of field options
   void setupOptions(DateTime d, DateTimePickerType type) {
+    final minDate = widget.minimumDate;
+    final maxDate = widget.maximumDate;
+
     options = [
       if ([DateTimePickerType.date, DateTimePickerType.datetime]
           .contains(type)) ...[
-        BoardPickerItemOption.init(DateType.year, d),
-        BoardPickerItemOption.init(DateType.month, d),
-        BoardPickerItemOption.init(DateType.day, d),
+        BoardPickerItemOption.init(DateType.year, d, minDate, maxDate),
+        BoardPickerItemOption.init(DateType.month, d, minDate, maxDate),
+        BoardPickerItemOption.init(DateType.day, d, minDate, maxDate),
       ],
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
-        BoardPickerItemOption.init(DateType.hour, d),
-        BoardPickerItemOption.init(DateType.minute, d),
+        BoardPickerItemOption.init(DateType.hour, d, minDate, maxDate),
+        BoardPickerItemOption.init(DateType.minute, d, minDate, maxDate),
       ],
     ];
 
@@ -304,7 +341,12 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
   }
 
   /// Notification of change to caller.
-  void notify() => widget.onChange(dateState.value);
+  void notify() {
+    for (var element in options) {
+      element.updateList(dateState.value);
+    }
+    widget.onChange(dateState.value);
+  }
 
   /// FocusNode (keyboard) listener
   void keyboardListener() {
@@ -331,42 +373,61 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
 
   /// Handling of date changes made by the picker
   void onChangeByPicker(BoardPickerItemOption opt, int index) {
-    final day = DateTimeUtil.getExistsDate(options, opt, index);
+    // Update option class values to selected values
+    opt.selectedIndex = index;
+    DateTime newVal = opt.calcDate(dateState.value);
+
+    final data = opt.map[index]!;
+    final day = DateTimeUtil.getExistsDate(options, opt, data);
     if (day != null) {
       final dayOpt = options.firstWhere((x) => x.type == DateType.day);
-      dayOpt.updateList(day);
-      dateState.value = dayOpt.calcDate(dateState.value);
+      final newDate = dayOpt.calcDate(newVal);
+      newVal = DateTimeUtil.rangeDate(
+        newDate,
+        widget.minimumDate,
+        widget.maximumDate,
+      );
+      dayOpt.updateDayMap(day, newVal);
     }
-
-    // Update option class values to selected values
-    opt.selected = index;
-    dateState.value = opt.calcDate(dateState.value);
+    dateState.value = opt.calcDate(newVal);
   }
 
   /// Process date changes from calendar or header
   void changeDate(DateTime val) {
+    DateTime newVal = DateTimeUtil.rangeDate(
+      val,
+      widget.minimumDate,
+      widget.maximumDate,
+    );
+
     for (final x in options) {
-      if (x.type == DateType.year && x.selected != val.year) {
-        x.changeDate(val);
-      } else if (x.type == DateType.month && x.selected != val.month) {
-        x.changeDate(val);
-      } else if (x.type == DateType.day && x.selected != val.day) {
-        x.changeDate(val);
+      if (x.type == DateType.year && x.value != newVal.year) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.month && x.value != newVal.month) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.day && x.value != newVal.day) {
+        x.changeDate(newVal);
       }
     }
-    dateState.value = val;
+    dateState.value = newVal;
   }
 
   /// Process time changes from header
   void changeTime(DateTime val) {
+    DateTime newVal = DateTimeUtil.rangeDate(
+      val,
+      widget.minimumDate,
+      widget.maximumDate,
+    );
+
     for (final x in options) {
-      if (x.type == DateType.hour && x.selected != val.hour) {
-        x.changeDate(val);
-      } else if (x.type == DateType.minute && x.selected != val.minute) {
-        x.changeDate(val);
+      if (x.type == DateType.hour && x.value != newVal.hour) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.minute && x.value != newVal.minute) {
+        x.changeDate(newVal);
       }
     }
-    dateState.value = val;
+    dateState.value = newVal;
   }
 
   /// Close Keyboard
@@ -569,6 +630,8 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
         activeColor: activeColor,
         activeTextColor: activeTextColor,
         languages: widget.options.languages,
+        minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
+        maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
       ),
     );
   }
@@ -603,6 +666,8 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
       activeColor: activeColor,
       activeTextColor: activeTextColor,
       languages: widget.options.languages,
+      minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
+      maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
     );
   }
 }

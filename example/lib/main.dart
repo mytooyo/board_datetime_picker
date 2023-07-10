@@ -59,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // ),
         languages: const BoardPickerLanguages.en(),
       ),
+      minimumDate: DateTime(2023, 12, 15),
+      maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
@@ -147,6 +149,8 @@ class _ItemWidgetState extends State<ItemWidget> {
       child: InkWell(
         onTap: () {
           widget.controller.open(widget.type, d);
+          // Open without date specification
+          // widget.controller.openPicker();
           widget.onOpen(widget.type);
         },
         child: Padding(

@@ -59,7 +59,7 @@ class BoardPickerLanguages {
 
   /// Button text to move date to tomorrow.
   /// Default is [TOMORROW].
-  final String tommorow;
+  final String tomorrow;
 
   /// Button text to move date/time to current time
   /// Default is [NOW].
@@ -68,7 +68,7 @@ class BoardPickerLanguages {
   const BoardPickerLanguages({
     this.weekdays = _enWeekdays,
     this.today = _enToday,
-    this.tommorow = _enTommorow,
+    this.tomorrow = _enTomorrow,
     this.now = _enNow,
   }) : assert(weekdays.length == 7);
 
@@ -76,18 +76,18 @@ class BoardPickerLanguages {
   const BoardPickerLanguages.en()
       : weekdays = _enWeekdays,
         today = _enToday,
-        tommorow = _enTommorow,
+        tomorrow = _enTomorrow,
         now = _enNow;
 
   /// Constructor in Japanese notation
   const BoardPickerLanguages.ja()
       : weekdays = const ['日', '月', '火', '水', '木', '金', '土'],
         today = '今日',
-        tommorow = '明日',
+        tomorrow = '明日',
         now = '現在';
 
   static const _enWeekdays = ['SUN', 'MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT'];
   static const _enToday = 'TODAY';
-  static const _enTommorow = 'TOMORROW';
+  static const _enTomorrow = 'TOMORROW';
   static const _enNow = 'NOW';
 }
