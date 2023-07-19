@@ -10,6 +10,7 @@ class BoardDateTimeOptions {
     this.activeTextColor,
     this.backgroundDecoration,
     this.languages = const BoardPickerLanguages.en(),
+    this.customOptions,
   });
 
   /// #### Picker Background Color
@@ -44,6 +45,16 @@ class BoardDateTimeOptions {
 
   /// Class for specifying language information to be used in the picker
   final BoardPickerLanguages languages;
+
+  /// Option to specify items to be displayed in the picker by date and time.
+  /// Only time can be specified.
+  ///
+  /// example:
+  /// ```
+  /// customOptions: BoardPickerCustomOptions.every15minutes(),
+  /// ```
+  /// Picker will show [0, 15, 30, 45].
+  final BoardPickerCustomOptions? customOptions;
 }
 
 /// Class for specifying the language to be displayed
@@ -90,4 +101,36 @@ class BoardPickerLanguages {
   static const _enToday = 'TODAY';
   static const _enTomorrow = 'TOMORROW';
   static const _enNow = 'NOW';
+}
+
+/// Class specifying custom items to be displayed in the picker.
+/// (time only)
+class BoardPickerCustomOptions {
+  /// List to be displayed in the picker of the year.
+  // final List<int> years;
+
+  /// List to be displayed in the picker of the month.
+  // final List<int> months;
+
+  /// List to be displayed in the picker of the day.
+  // final List<int> days;
+
+  /// List to be displayed in the picker of the hour.
+  final List<int> hours;
+
+  /// List to be displayed in the picker of the minute.
+  final List<int> minutes;
+
+  BoardPickerCustomOptions({
+    // this.years = const [],
+    // this.months = const [],
+    // this.days = const [],
+    this.hours = const [],
+    this.minutes = const [],
+  });
+
+  /// Picker display every 15 minutes
+  factory BoardPickerCustomOptions.every15minutes() => BoardPickerCustomOptions(
+        minutes: [0, 15, 30, 45],
+      );
 }

@@ -4,10 +4,10 @@ import 'package:board_datetime_picker/src/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
+import 'options/board_option.dart';
 import 'parts/during_calendar.dart';
 import 'parts/header.dart';
 import 'utils/board_enum.dart';
-import 'utils/board_option.dart';
 
 /// Controller for displaying, hiding, and updating the value of the picker
 class BoardDateTimeController {
@@ -215,6 +215,13 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
   /// [ValueNotifier] to manage the Datetime under selection
   late ValueNotifier<DateTime> dateState;
 
+  /// Flag to keep track of whether the date has been updated
+  /// in the Picker at least once.
+  bool _changedDate = false;
+
+  /// Date and time of initial display
+  late DateTime initialDate;
+
   // Color Schema
   Color get backgroundColor =>
       widget.options.backgroundColor ??
@@ -256,8 +263,9 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
         );
 
     /// Set up options
-    DateTime initialDate = widget.initialDate ?? DateTime.now();
-    setupOptions(rangeDate(initialDate), widget.pickerType);
+    initialDate = widget.initialDate ?? DateTime.now();
+    final d = rangeDate(initialDate);
+    setupOptions(d, widget.pickerType);
 
     super.initState();
   }
@@ -285,11 +293,17 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
 
   /// Open Picker
   void open({DateTime? date, DateTimePickerType? pickerType}) {
-    final d = date ?? dateState.value;
+    final d = rangeDate(date ?? dateState.value);
     final pt = pickerType ?? widget.pickerType;
 
+    // Notification to match the date to be displayed
+    // if the specified date differs from the date to be initially displayed.
+    if (!_changedDate && d.compareTo(initialDate) != 0) {
+      widget.onChange(dateState.value);
+    }
+
     setState(() {
-      setupOptions(rangeDate(d), pt);
+      setupOptions(d, pt);
     });
 
     // If the calendar was displayed in the time display specification, return it.
@@ -312,17 +326,19 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
     final minDate = widget.minimumDate;
     final maxDate = widget.maximumDate;
 
+    final opts = widget.options.customOptions;
+
     options = [
       if ([DateTimePickerType.date, DateTimePickerType.datetime]
           .contains(type)) ...[
-        BoardPickerItemOption.init(DateType.year, d, minDate, maxDate),
-        BoardPickerItemOption.init(DateType.month, d, minDate, maxDate),
-        BoardPickerItemOption.init(DateType.day, d, minDate, maxDate),
+        initItemOption(DateType.year, d, minDate, maxDate, null),
+        initItemOption(DateType.month, d, minDate, maxDate, null),
+        initItemOption(DateType.day, d, minDate, maxDate, null),
       ],
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
-        BoardPickerItemOption.init(DateType.hour, d, minDate, maxDate),
-        BoardPickerItemOption.init(DateType.minute, d, minDate, maxDate),
+        initItemOption(DateType.hour, d, minDate, maxDate, opts?.hours),
+        initItemOption(DateType.minute, d, minDate, maxDate, opts?.minutes),
       ],
     ];
 
@@ -346,6 +362,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
       element.updateList(dateState.value);
     }
     widget.onChange(dateState.value);
+    _changedDate = true;
   }
 
   /// FocusNode (keyboard) listener
@@ -388,6 +405,12 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
         widget.maximumDate,
       );
       dayOpt.updateDayMap(day, newVal);
+    } else {
+      newVal = DateTimeUtil.rangeDate(
+        newVal,
+        widget.minimumDate,
+        widget.maximumDate,
+      );
     }
     dateState.value = opt.calcDate(newVal);
   }

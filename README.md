@@ -10,22 +10,26 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 |Standard|Wide|
 |---|---|
 |![standard](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_standard.gif)|![wide](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_wide.gif)|
-## Getting Started 
+
+## Getting Started
+
 In order to add board_datetime_picker package to your project add this line to your pubspec.yaml file
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.0.2
+    board_datetime_picker: 1.1.0
 ```
 
 ## Usage
 
 ### import
+
 ```dart
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 ```
 
 ### Exapmle
+
 ```dart
 final controller = BoardDateTimeController();
 
@@ -54,11 +58,12 @@ Widget build(BuildContext context) {
 ```
 
 ### Picker Type
-DateTimePickerType types include [date], [datetime], [time]. The picker to be displayed depends on the type selected.   
+
+DateTimePickerType types include [date], [datetime], [time]. The picker to be displayed depends on the type selected.
 Only [datetime] and [date] types can be displayed for calendars.
 
-
 ## Parameters
+
 In using `BoardDateTimeBuilder`, there are several parameters.  
 Those without [required] are optional.  
 
@@ -75,8 +80,8 @@ Those without [required] are optional.
 |resizeBottom|bool|Flag whether to resize the bottom of the specified Builder. If true, the picker is displayed under the builder in `Column`. default is `true`.|
 |options     |BoardDateTimeOptions|Class for defining options related to the UI used by [BoardDateTimeBuilder].|
 
-
 ### BoardDateTimeOptions
+
 Introduce the definition of the property class that controls UI among the `BoardDateTimeBuilder`'s parameters.  
 All properties are optional.  
 
@@ -89,8 +94,10 @@ All properties are optional.
 |activeTextColor|Color|activeColor is used as the background color and activeTextColor as the text color. default color is white.|
 |backgroundDecoration|BoxDecoration|BoxDecoration of the widget displayed on the backmost side of the picker. If not specified, it will be a standard BoxDecoration with the color specified in the normal backgroundColor (default).|
 |languages|BoardPickerLanguages|Language information for text displayed in the picker. Default is `en`|
+|customOptions|BoardPickerCustomOptions|Option to specify items to be displayed in the picker by date and time. Only time can be specified. Default is `null`|
 
-Sample of gradient background: 
+Sample of gradient background:
+
 ```dart
 options: BoardDateTimeOptions(
     backgroundDecoration: const BoxDecoration(
@@ -106,7 +113,7 @@ options: BoardDateTimeOptions(
 
 ## LICENSE
 
-```
+```text
 BSD 3-Clause License
 
 Copyright (c) 2023, mytooyo

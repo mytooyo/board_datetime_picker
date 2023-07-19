@@ -1,10 +1,31 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/parts/item.dart';
+import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
-import '../parts/item.dart';
-import 'board_enum.dart';
+import 'board_custom_option.dart';
+
+BoardPickerItemOption initItemOption(
+  DateType type,
+  DateTime date,
+  DateTime? minimum,
+  DateTime? maximum,
+  List<int>? customList,
+) {
+  if (customList != null && customList.isNotEmpty) {
+    return BoardPickerCustomItemOption.init(
+      type,
+      customList,
+      date,
+      minimum,
+      maximum,
+    );
+  } else {
+    return BoardPickerItemOption.init(type, date, minimum, maximum);
+  }
+}
 
 class BoardPickerItemOption {
   BoardPickerItemOption({
@@ -183,7 +204,7 @@ class BoardPickerItemOption {
     final tmp = value;
     // Generate new maps
     map = minmaxList(type, date, minimumDate, maximumDate);
-    _updateState(tmp, date);
+    updateState(tmp, date);
   }
 
   void updateDayMap(int maxDay, DateTime newDate) {
@@ -206,10 +227,10 @@ class BoardPickerItemOption {
       index++;
     }
     map = newMap;
-    _updateState(tmp, newDate);
+    updateState(tmp, newDate);
   }
 
-  void _updateState(int tmpValue, DateTime date) {
+  void updateState(int tmpValue, DateTime date) {
     // Get the index of the value that was selected
     // before the update and update it to that value
     final index = getIndexFromValue(tmpValue);
@@ -285,11 +306,11 @@ class BoardPickerItemOption {
     }
   }
 
-  DateTime calcDate(DateTime date, {int? index}) {
+  DateTime calcDate(DateTime date) {
     switch (type) {
       case DateType.year:
         return DateTime(
-          map[index ?? selectedIndex]!,
+          map[selectedIndex]!,
           date.month,
           date.day,
           date.hour,
@@ -298,7 +319,7 @@ class BoardPickerItemOption {
       case DateType.month:
         return DateTime(
           date.year,
-          map[index ?? selectedIndex]!,
+          map[selectedIndex]!,
           date.day,
           date.hour,
           date.minute,
@@ -307,7 +328,7 @@ class BoardPickerItemOption {
         return DateTime(
           date.year,
           date.month,
-          map[index ?? selectedIndex]!,
+          map[selectedIndex]!,
           date.hour,
           date.minute,
         );
@@ -316,7 +337,7 @@ class BoardPickerItemOption {
           date.year,
           date.month,
           date.day,
-          map[index ?? selectedIndex]!,
+          map[selectedIndex]!,
           date.minute,
         );
       case DateType.minute:
@@ -325,7 +346,7 @@ class BoardPickerItemOption {
           date.month,
           date.day,
           date.hour,
-          map[index ?? selectedIndex]!,
+          map[selectedIndex]!,
         );
     }
   }

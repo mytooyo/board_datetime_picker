@@ -1,4 +1,4 @@
-import 'package:board_datetime_picker/src/utils/board_option.dart';
+import 'package:board_datetime_picker/src/options/board_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,14 +46,21 @@ class ItemWidgetState extends State<ItemWidget> {
     );
     textController = TextEditingController(text: '${map[selectedIndex]}');
 
+    widget.option.focusNode.addListener(focusListener);
+
     super.initState();
   }
 
   @override
   void dispose() {
+    widget.option.focusNode.removeListener(focusListener);
     scrollController.dispose();
     textController.dispose();
     super.dispose();
+  }
+
+  void focusListener() {
+    onChangeText(textController.text, toDefault: true);
   }
 
   void onChange(int index) {
@@ -194,26 +201,7 @@ class ItemWidgetState extends State<ItemWidget> {
                   AllowTextInputFormatter(map.values.toList()),
                 ],
                 onChanged: (text) {
-                  try {
-                    final data = int.parse(text);
-
-                    // Get index from input value
-                    int index = -1;
-                    for (final key in map.keys) {
-                      if (map[key]! == data) {
-                        index = key;
-                        break;
-                      }
-                    }
-                    if (index < 0) return;
-
-                    // Animated wheel movement
-                    toAnimateChange(index);
-                    // Change callback
-                    widget.onChange(index);
-                  } catch (_) {
-                    return;
-                  }
+                  onChangeText(text);
                 },
               ),
             ),
@@ -221,6 +209,38 @@ class ItemWidgetState extends State<ItemWidget> {
         ],
       ),
     );
+  }
+
+  /// Processing when text is changed
+  void onChangeText(String text, {bool toDefault = false}) {
+    try {
+      final data = int.parse(text);
+
+      // Get index from input value
+      int index = -1;
+      for (final key in map.keys) {
+        if (map[key]! == data) {
+          index = key;
+          break;
+        }
+      }
+      if (toDefault) {
+        if (index == selectedIndex) return;
+        if (index < 0) {
+          index = selectedIndex;
+          textController.text = map[index]!.toString();
+        }
+      } else {
+        if (index < 0) return;
+      }
+
+      // Animated wheel movement
+      toAnimateChange(index);
+      // Change callback
+      widget.onChange(index);
+    } catch (_) {
+      return;
+    }
   }
 
   Widget _centerAlign(Widget child) {
@@ -277,8 +297,14 @@ class AllowTextInputFormatter extends TextInputFormatter {
   ) {
     try {
       final value = int.parse(newValue.text);
+
       if (!list.contains(value)) {
-        return oldValue;
+        final x = list.where(
+          (x) => x.toString().contains(newValue.text),
+        );
+        if (x.isEmpty) {
+          return oldValue;
+        }
       }
     } catch (_) {
       return oldValue;
