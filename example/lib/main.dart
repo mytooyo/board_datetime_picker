@@ -58,8 +58,13 @@ class _MyHomePageState extends State<MyHomePage> {
         //   ),
         // ),
         languages: const BoardPickerLanguages.en(),
+        // customOptions: BoardPickerCustomOptions.every15minutes(),
+        customOptions: BoardPickerCustomOptions(
+          hours: [0, 6, 12, 18],
+          minutes: [0, 15, 30, 45],
+        ),
       ),
-      minimumDate: DateTime(2023, 12, 15),
+      minimumDate: DateTime(2023, 12, 15, 0, 15),
       maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
         return Scaffold(
@@ -148,10 +153,10 @@ class _ItemWidgetState extends State<ItemWidget> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          widget.controller.open(widget.type, d);
           // Open without date specification
           // widget.controller.openPicker();
           widget.onOpen(widget.type);
+          widget.controller.open(widget.type, d);
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),

@@ -1,4 +1,4 @@
-import 'package:board_datetime_picker/src/utils/board_option.dart';
+import 'package:board_datetime_picker/src/options/board_option.dart';
 
 import 'board_enum.dart';
 
@@ -193,5 +193,21 @@ extension DateTimeExtension on DateTime {
   /// Check if the date is within the specified range
   bool isWithinRange(DateTime minimum, DateTime maximum) {
     return isAfter(minimum) && isBefore(maximum);
+  }
+
+  /// Obtain a value of a specified type from DateTime
+  int valFromType(DateType type) {
+    switch (type) {
+      case DateType.year:
+        return year;
+      case DateType.month:
+        return month;
+      case DateType.day:
+        return day;
+      case DateType.hour:
+        return hour;
+      case DateType.minute:
+        return minute;
+    }
   }
 }
