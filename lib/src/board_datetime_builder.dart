@@ -299,7 +299,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
     // Notification to match the date to be displayed
     // if the specified date differs from the date to be initially displayed.
     if (!_changedDate && d.compareTo(initialDate) != 0) {
-      widget.onChange(dateState.value);
+      widget.onChange(widget.initialDate == null ? d : dateState.value);
     }
 
     setState(() {

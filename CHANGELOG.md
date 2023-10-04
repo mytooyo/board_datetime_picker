@@ -1,3 +1,7 @@
+## 1.1.1
+* [Bug fix] Fixed a bug that caused the value passed in the change callback 
+  to be the current date and time when the picker is displayed if no initial date and time is specified.
+
 ## 1.1.0
 
 * Added option to specify the value to be displayed or selectable for the time picker.
