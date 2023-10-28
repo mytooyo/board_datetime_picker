@@ -6,6 +6,7 @@ export 'src/board_datetime_builder.dart'
     show BoardDateTimeController, BoardDateTimeBuilder;
 export 'src/board_datetime_options.dart'
     show BoardDateTimeOptions, BoardPickerLanguages, BoardPickerCustomOptions;
+export 'src/board_datetime_widget.dart' show showBoardDateTimePicker;
 export 'src/utils/board_enum.dart' show DateTimePickerType;
 
 class BoardDateFormat {

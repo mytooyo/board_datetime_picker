@@ -11,13 +11,16 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 |---|---|
 |![standard](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_standard.gif)|![wide](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_wide.gif)|
 
+### Modal Bottom Sheet
+![modal](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png)
+
 ## Getting Started
 
 In order to add board_datetime_picker package to your project add this line to your pubspec.yaml file
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.1.0
+    board_datetime_picker: 1.2.0
 ```
 
 ## Usage
@@ -29,6 +32,8 @@ import 'package:board_datetime_picker/board_datetime_picker.dart';
 ```
 
 ### Exapmle
+
+#### Builder
 
 ```dart
 final controller = BoardDateTimeController();
@@ -55,6 +60,34 @@ Widget build(BuildContext context) {
         }
     );
 }
+```
+
+#### Modal
+
+```dart
+final result = await showBoardDateTimePicker(
+  context: context,
+  pickerType: DateTimePickerType.datetime,
+)
+```
+
+Example of handling by button press.  
+```dart
+ElevatedButton(
+  child: Text(
+    BoardDateFormat('yyyy/MM/dd').format(date),
+  ),
+  onPressed: () {
+    final result = await showBoardDateTimePicker(
+      context: context,
+      pickerType: DateTimePickerType.datetime,
+    );
+    if (result != null) {
+      setState(() => d = result);
+    }
+  },
+)
+
 ```
 
 ### Picker Type
