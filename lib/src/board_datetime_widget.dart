@@ -32,6 +32,7 @@ Future<DateTime?> showBoardDateTimePicker({
   required BuildContext context,
   required DateTimePickerType pickerType,
   ValueNotifier<DateTime>? valueNotifier,
+  void Function(DateTime)? onChanged,
   DateTime? initialDate,
   DateTime? minimumDate,
   DateTime? maximumDate,
@@ -82,6 +83,7 @@ Future<DateTime?> showBoardDateTimePicker({
           maximumDate: maximumDate,
           options: opt,
           valueNotifier: valueNotifier,
+          onChanged: onChanged,
         ),
       );
     },
@@ -97,6 +99,7 @@ class _BoardDateTimeWidget extends StatefulWidget {
     required this.pickerType,
     this.options = const BoardDateTimeOptions(),
     this.valueNotifier,
+    this.onChanged,
   });
 
   final double breakpoint;
@@ -106,6 +109,7 @@ class _BoardDateTimeWidget extends StatefulWidget {
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
   final ValueNotifier<DateTime>? valueNotifier;
+  final void Function(DateTime)? onChanged;
 
   @override
   State<_BoardDateTimeWidget> createState() => _BoardDateTimeWidgetState();
@@ -126,6 +130,7 @@ class _BoardDateTimeWidgetState extends State<_BoardDateTimeWidget> {
       onChange: (val) {
         date = val;
         widget.valueNotifier?.value = val;
+        widget.onChanged?.call(val);
       },
       pickerType: widget.pickerType,
       options: widget.options,
