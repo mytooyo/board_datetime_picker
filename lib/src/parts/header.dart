@@ -26,6 +26,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.languages,
     required this.minimumDate,
     required this.maximumDate,
+    required this.modal,
   });
 
   /// Wide mode display flag
@@ -83,6 +84,9 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// Maximum Date
   final DateTime maximumDate;
+
+  /// Modal Flag
+  final bool modal;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -159,16 +163,24 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
               ),
             ),
           ),
-          Opacity(
-            opacity: 0.6,
-            child: IconButton(
-              onPressed: () {
-                widget.onClose();
-              },
-              icon: const Icon(Icons.close_rounded),
-              color: widget.textColor,
-            ),
-          ),
+          widget.modal
+              ? IconButton(
+                  onPressed: () {
+                    widget.onClose();
+                  },
+                  icon: const Icon(Icons.check_circle_rounded),
+                  color: widget.activeColor,
+                )
+              : Opacity(
+                  opacity: 0.6,
+                  child: IconButton(
+                    onPressed: () {
+                      widget.onClose();
+                    },
+                    icon: const Icon(Icons.close_rounded),
+                    color: widget.textColor,
+                  ),
+                ),
         ],
       ),
     );

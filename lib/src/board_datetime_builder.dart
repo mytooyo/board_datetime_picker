@@ -116,16 +116,15 @@ class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
   @override
   Widget build(BuildContext context) {
     Widget child() {
-      return _BoardDateTimeContent(
-        builder: widget.builder,
-        controller: widget.controller,
+      return BoardDateTimeContent(
+        key: widget.controller._key,
         onChange: widget.onChange,
         pickerType: widget.pickerType,
         initialDate: widget.initialDate,
         minimumDate: widget.minimumDate,
         maximumDate: widget.maximumDate,
         breakpoint: widget.breakpoint,
-        options: widget.options ?? BoardDateTimeOptions(),
+        options: widget.options ?? const BoardDateTimeOptions(),
       );
     }
 
@@ -155,10 +154,9 @@ class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
   }
 }
 
-class _BoardDateTimeContent extends StatefulWidget {
-  _BoardDateTimeContent({
-    required this.builder,
-    required this.controller,
+class BoardDateTimeContent extends StatefulWidget {
+  const BoardDateTimeContent({
+    super.key,
     required this.onChange,
     required this.pickerType,
     required this.initialDate,
@@ -166,10 +164,10 @@ class _BoardDateTimeContent extends StatefulWidget {
     required this.maximumDate,
     required this.breakpoint,
     required this.options,
-  }) : super(key: controller._key);
+    this.modal = false,
+    this.onCloseModal,
+  });
 
-  final DateTimeBuilderWidget builder;
-  final BoardDateTimeController controller;
   final double breakpoint;
   final void Function(DateTime) onChange;
   final DateTime? initialDate;
@@ -178,11 +176,17 @@ class _BoardDateTimeContent extends StatefulWidget {
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
 
+  /// Flag whether modal display is performed
+  final bool modal;
+
+  /// Callback for closing a modal
+  final void Function()? onCloseModal;
+
   @override
-  State<_BoardDateTimeContent> createState() => _BoardDateTimeContentState();
+  State<BoardDateTimeContent> createState() => _BoardDateTimeContentState();
 }
 
-class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
+class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     with TickerProviderStateMixin {
   /// Controller to perform picker show/hide animation
   late AnimationController _openAnimationController;
@@ -239,6 +243,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
     _openAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
+      value: widget.modal ? 1.0 : 0,
     );
 
     _keyboardAnimationController = AnimationController(
@@ -318,7 +323,16 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
 
   /// Close Picker
   void close() {
-    _openAnimationController.reverse();
+    if (widget.modal) {
+      // if modal, close modal sheets
+      if (widget.onCloseModal == null) {
+        Navigator.of(context).pop();
+      } else {
+        widget.onCloseModal!.call();
+      }
+    } else {
+      _openAnimationController.reverse();
+    }
   }
 
   /// Setup of field options
@@ -584,7 +598,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
       return Container(
         height: 200 +
             (220 * _calendarAnimation.value) +
-            (_keyboadAnimation.value * 140),
+            (_keyboadAnimation.value * 160),
         decoration: widget.options.backgroundDecoration ??
             BoxDecoration(
               color: backgroundColor,
@@ -691,6 +705,7 @@ class _BoardDateTimeContentState extends State<_BoardDateTimeContent>
       languages: widget.options.languages,
       minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
       maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
+      modal: widget.modal,
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Class for defining options related to the UI used by [BoardDateTimeBuilder]
 class BoardDateTimeOptions {
-  BoardDateTimeOptions({
+  const BoardDateTimeOptions({
     this.backgroundColor,
     this.foregroundColor,
     this.textColor,

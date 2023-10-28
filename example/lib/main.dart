@@ -99,6 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     onOpen: (type) => opened = type,
                   ),
                   const SizedBox(height: 24),
+                  const ModalItem(),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -236,5 +238,67 @@ class _ItemWidgetState extends State<ItemWidget> {
       case DateTimePickerType.time:
         return 'HH:mm';
     }
+  }
+}
+
+class ModalItem extends StatefulWidget {
+  const ModalItem({super.key});
+
+  @override
+  State<ModalItem> createState() => _ModalItemState();
+}
+
+class _ModalItemState extends State<ModalItem> {
+  DateTime d = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(8),
+      color: Theme.of(context).cardColor,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () async {
+          final result = await showBoardDateTimePicker(
+            context: context,
+            pickerType: DateTimePickerType.datetime,
+          );
+          if (result != null) {
+            setState(() => d = result);
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          child: Row(
+            children: [
+              Material(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                borderRadius: BorderRadius.circular(4),
+                child: const SizedBox(
+                  height: 36,
+                  width: 36,
+                  child: Center(
+                    child: Icon(
+                      Icons.open_in_browser_rounded,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Text(
+                  BoardDateFormat('yyyy/MM/dd HH:mm').format(d),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Text(
+                'Show Dialog',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

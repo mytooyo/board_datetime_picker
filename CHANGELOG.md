@@ -1,3 +1,6 @@
+## 1.2.0
+* Added `showBoardDateTimePicker` function for modal bottom sheet.
+
 ## 1.1.1
 * [Bug fix] Fixed a bug that caused the value passed in the change callback 
   to be the current date and time when the picker is displayed if no initial date and time is specified.
