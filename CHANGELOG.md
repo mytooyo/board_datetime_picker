@@ -1,3 +1,6 @@
+## 1.2.1
+* Supported locale. The option `weekdays` has been deprecated accordingly.
+
 ## 1.2.0
 * Added `showBoardDateTimePicker` function for modal bottom sheet.
 

@@ -62,7 +62,11 @@ class BoardPickerLanguages {
   /// Day of the week to be displayed at the top of the calendar.
   /// Error if number of list items is other than 7.
   /// Default is ['SUN', 'MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT'].
-  final List<String> weekdays;
+  ///
+  /// Deprecated since v1.2.1.
+  /// Be sure to use the locale. We will remove it in the next version
+  @Deprecated('Deprecated since v1.2.1')
+  final List<String>? weekdays;
 
   /// Button text to move date to today.
   /// Default is [TODAY].
@@ -76,31 +80,45 @@ class BoardPickerLanguages {
   /// Default is [NOW].
   final String now;
 
-  const BoardPickerLanguages({
-    this.weekdays = _enWeekdays,
-    this.today = _enToday,
-    this.tomorrow = _enTomorrow,
-    this.now = _enNow,
-  }) : assert(weekdays.length == 7);
+  /// Locale to be displayed in the calendar
+  /// Default is [en]
+  final String locale;
 
-  /// Constructor in English notation
-  const BoardPickerLanguages.en()
-      : weekdays = _enWeekdays,
-        today = _enToday,
-        tomorrow = _enTomorrow,
-        now = _enNow;
-
-  /// Constructor in Japanese notation
-  const BoardPickerLanguages.ja()
-      : weekdays = const ['日', '月', '火', '水', '木', '金', '土'],
-        today = '今日',
-        tomorrow = '明日',
-        now = '現在';
-
-  static const _enWeekdays = ['SUN', 'MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT'];
   static const _enToday = 'TODAY';
   static const _enTomorrow = 'TOMORROW';
   static const _enNow = 'NOW';
+
+  const BoardPickerLanguages({
+    this.weekdays,
+    this.today = _enToday,
+    this.tomorrow = _enTomorrow,
+    this.now = _enNow,
+    this.locale = 'en',
+  });
+
+  /// Constructor in English notation
+  const BoardPickerLanguages.en()
+      : weekdays = null,
+        today = _enToday,
+        tomorrow = _enTomorrow,
+        now = _enNow,
+        locale = 'en';
+
+  /// Constructor in Japanese notation
+  const BoardPickerLanguages.ja()
+      : weekdays = null,
+        today = '今日',
+        tomorrow = '明日',
+        now = '現在',
+        locale = 'ja';
+
+  /// Constructor in Italian notation
+  const BoardPickerLanguages.it()
+      : weekdays = null,
+        today = 'oggi',
+        tomorrow = 'domani',
+        now = 'adesso',
+        locale = 'it';
 }
 
 /// Class specifying custom items to be displayed in the picker.

@@ -20,7 +20,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.2.0
+    board_datetime_picker: 1.2.1
 ```
 
 ## Usage
@@ -142,6 +142,22 @@ options: BoardDateTimeOptions(
         ),
     ),
 ),
+```
+
+#### Language Option
+By default, English, Japanese, and Italian definitions are prepared.  
+If you want to use other languages, define the `BoardPickerLanguages` class and set it as an option.
+Bellow is an example of using French.
+
+```dart
+option = BoardDateTimeOptions(
+  languages: BoardPickerLanguages(
+    locale: 'fr',
+    today: 'Aujourd’hui',
+    tomorrow: 'Demain',
+    now: 'Maintenant',
+  ),
+);
 ```
 
 ## LICENSE

@@ -15,14 +15,13 @@ class _CustomLanguageSampleApp extends State<CustomLanguageSampleApp> {
 
   @override
   Widget build(BuildContext context) {
-    final languages = BoardPickerLanguages(
-      weekdays: ['dom.', 'lun.', 'mar.', 'merc.', 'gio.', 'ven.', 'sab.'],
+    const languages = BoardPickerLanguages(
       today: 'Oggi',
       tomorrow: 'Domani',
       now: 'il corrente',
     );
 
-    final options = BoardDateTimeOptions(
+    const options = BoardDateTimeOptions(
       languages: languages,
     );
 

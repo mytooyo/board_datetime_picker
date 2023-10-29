@@ -1,7 +1,7 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -262,6 +262,9 @@ class _ModalItemState extends State<ModalItem> {
           final result = await showBoardDateTimePicker(
             context: context,
             pickerType: DateTimePickerType.datetime,
+            options: const BoardDateTimeOptions(
+              languages: BoardPickerLanguages.en(),
+            ),
           );
           if (result != null) {
             setState(() => d = result);
