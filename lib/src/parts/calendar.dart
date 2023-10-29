@@ -220,7 +220,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
       child: Row(
         children: [
           Text(
-            DateFormat('MMMM').format(date),
+            DateFormat.MMMM(widget.languages.locale).format(date),
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: widget.textColor,
@@ -230,7 +230,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           Opacity(
             opacity: 0.4,
             child: Text(
-              DateFormat('yyyy').format(date),
+              DateFormat.y(widget.languages.locale).format(date),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: widget.textColor,
                   ),
@@ -244,7 +244,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   /// Display day of the week
   Widget _weekdays() {
-    final weekdays = widget.languages.weekdays;
+    final weekdays = widget.languages.weekdays ??
+        DateFormat.EEEE(widget.languages.locale).dateSymbols.SHORTWEEKDAYS;
     return Container(
       height: 24,
       margin: const EdgeInsets.only(top: 20),

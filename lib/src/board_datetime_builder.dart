@@ -3,6 +3,7 @@ import 'package:board_datetime_picker/src/parts/calendar.dart';
 import 'package:board_datetime_picker/src/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'options/board_option.dart';
 import 'parts/during_calendar.dart';
@@ -240,6 +241,8 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
   @override
   void initState() {
+    initializeDateFormatting();
+
     _openAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),

@@ -12,7 +12,7 @@ export 'src/utils/board_enum.dart' show DateTimePickerType;
 class BoardDateFormat {
   BoardDateFormat(this.f);
   final String f;
-  String format(DateTime d) {
-    return DateFormat(f).format(d);
+  String format(DateTime d, [String? locale]) {
+    return DateFormat(f, locale).format(d);
   }
 }
