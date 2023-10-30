@@ -128,6 +128,7 @@ All properties are optional.
 |backgroundDecoration|BoxDecoration|BoxDecoration of the widget displayed on the backmost side of the picker. If not specified, it will be a standard BoxDecoration with the color specified in the normal backgroundColor (default).|
 |languages|BoardPickerLanguages|Language information for text displayed in the picker. Default is `en`|
 |customOptions|BoardPickerCustomOptions|Option to specify items to be displayed in the picker by date and time. Only time can be specified. Default is `null`|
+|startDayOfWeek|int|First day of the week in the calendar. Defailt is `DateTime.sunday`|
 
 Sample of gradient background:
 

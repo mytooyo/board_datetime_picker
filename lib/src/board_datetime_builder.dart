@@ -672,6 +672,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
         languages: widget.options.languages,
         minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
         maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
+        startDayOfWeek: widget.options.startDayOfWeek,
       ),
     );
   }
