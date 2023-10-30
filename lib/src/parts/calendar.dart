@@ -61,7 +61,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     /// Calculate the number of pages to display in the calendar
     /// from the minimum and maximum dates
     int count = (widget.maximumDate.year - widget.minimumDate.year + 1) * 12;
-    count -= (widget.maximumDate.month - 1);
+    count -= (widget.minimumDate.month - 1);
     count -= (12 - widget.maximumDate.month);
     pageCount = count;
 
@@ -308,7 +308,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   /// Widget to display date item
   Widget _monthItem(DateTime first, int i, bool disabled) {
-    final z = first.add(Duration(days: i - 1));
+    final z = first.addDay(i - 1);
     final selected = z.compareDate(selectedDate);
 
     return Material(
