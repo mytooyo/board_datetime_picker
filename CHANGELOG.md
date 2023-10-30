@@ -1,3 +1,8 @@
+## 1.3.0
+* Support daylight saving time.
+* Support for changing the start day of the week.
+* Support for changing the date format of the picker.
+
 ## 1.2.1
 * Supported locale. The option `weekdays` has been deprecated accordingly.
 

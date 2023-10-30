@@ -67,7 +67,7 @@ class BoardDateTimeOptions {
   /// ```
   final int startDayOfWeek;
 
-  /// Date and time format for pickers.
+  /// Date format for pickers.
   /// Specify if you want to change the display order of year, month, date.
   ///
   /// - y: Year
