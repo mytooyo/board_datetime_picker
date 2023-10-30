@@ -16,6 +16,7 @@ class CalendarWidget extends StatefulWidget {
     required this.languages,
     required this.minimumDate,
     required this.maximumDate,
+    required this.startDayOfWeek,
   });
 
   final bool wide;
@@ -28,6 +29,7 @@ class CalendarWidget extends StatefulWidget {
   final BoardPickerLanguages languages;
   final DateTime minimumDate;
   final DateTime maximumDate;
+  final int startDayOfWeek;
 
   @override
   State<CalendarWidget> createState() => _CalendarWidgetState();
@@ -244,8 +246,22 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   /// Display day of the week
   Widget _weekdays() {
-    final weekdays = widget.languages.weekdays ??
+    List<String> weekdays = widget.languages.weekdays ??
         DateFormat.EEEE(widget.languages.locale).dateSymbols.SHORTWEEKDAYS;
+
+    List<int> weekdayVals = DateTimeUtil.weekdayVals;
+    final baseWeekday = widget.startDayOfWeek;
+    {
+      final first = weekdays.sublist(baseWeekday);
+      final last = weekdays.sublist(0, baseWeekday);
+      weekdays = first + last;
+    }
+    {
+      final first = weekdayVals.sublist(baseWeekday);
+      final last = weekdayVals.sublist(0, baseWeekday);
+      weekdayVals = first + last;
+    }
+
     return Container(
       height: 24,
       margin: const EdgeInsets.only(top: 20),
@@ -257,7 +273,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                 child: Text(
                   weekdays[i],
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: textColor(i, false),
+                        color: textColor(weekdayVals[i], false),
                       ),
                 ),
               ),
@@ -271,18 +287,17 @@ class _CalendarWidgetState extends State<CalendarWidget> {
   List<Widget> _generateCalendarOfMonth(DateTime date) {
     // Get beginning of month and end of month
     final x = DateTime(date.year, date.month, 1);
-    final y = DateTime(date.year, date.month + 1, 1).add(
-      const Duration(days: -1),
-    );
+    final y = DateTime(date.year, date.month + 1, 1).addDay(-1);
 
     List<Widget> list = [];
     final first = x.weekday;
-    // Add a Container to display a blank space
-    // if the first day of the week is not Sunday.
-    if (first != 7) {
-      for (var i = 0; i < first; i++) {
-        list.add(Container());
-      }
+
+    final baseWeekday = widget.startDayOfWeek;
+    // Get how far away the first day of the week is from Sunday
+    final h = DateTime.daysPerWeek - baseWeekday;
+    final d = h + (first >= 7 ? 0 : first);
+    for (var i = 0; i < d; i++) {
+      list.add(Container());
     }
 
     // Inactive if less than the specified minimum date on the first page

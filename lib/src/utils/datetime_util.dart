@@ -15,6 +15,9 @@ class DateTimeUtil {
   /// Default Maximum Date
   static DateTime defaultMaxDate = DateTime(maximumYear, 12, 31, 23, 59);
 
+  /// List of days of the week beginning on Sunday
+  static List<int> weekdayVals = [7, 1, 2, 3, 4, 5, 6];
+
   /// Update the date when the year or month is changed.
   /// Therefore, get the last date that exists in year and month.
   static int? getExistsDate(

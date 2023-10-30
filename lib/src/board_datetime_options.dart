@@ -11,6 +11,7 @@ class BoardDateTimeOptions {
     this.backgroundDecoration,
     this.languages = const BoardPickerLanguages.en(),
     this.customOptions,
+    this.startDayOfWeek = DateTime.sunday,
   });
 
   /// #### Picker Background Color
@@ -55,6 +56,15 @@ class BoardDateTimeOptions {
   /// ```
   /// Picker will show [0, 15, 30, 45].
   final BoardPickerCustomOptions? customOptions;
+
+  /// First day of the week in the calendar.
+  /// Defailt is `DateTime.sunday`.
+  ///
+  /// example:
+  /// ```dart
+  /// calendarStartWeekday: DateTime.monday,
+  /// ```
+  final int startDayOfWeek;
 }
 
 /// Class for specifying the language to be displayed
