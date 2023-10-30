@@ -127,9 +127,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   void judgeDay() {
     final now = DateTime.now();
     isToday = dateState.value.compareDate(now);
-    isTomorrow = dateState.value.compareDate(now.add(
-      const Duration(days: 1),
-    ));
+    isTomorrow = dateState.value.compareDate(now.addDay(1));
   }
 
   @override
@@ -188,7 +186,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
 
   List<Widget> _dateItems(BuildContext context) {
     final today = DateTime.now();
-    final tomorrow = today.add(const Duration(days: 1));
+    final tomorrow = today.addDay(1);
     return [
       if (widget.wide)
         const SizedBox(width: 24)
@@ -222,7 +220,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           context,
           widget.languages.tomorrow,
           () {
-            widget.onChangeDate(DateTime.now().add(const Duration(days: 1)));
+            widget.onChangeDate(DateTime.now().addDay(1));
           },
           selected: isTomorrow,
         ),

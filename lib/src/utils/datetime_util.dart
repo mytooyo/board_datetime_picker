@@ -40,7 +40,7 @@ class DateTimeUtil {
 
     month += 1;
     if (month > 12) month = 1;
-    final date = DateTime(year, month, 1).add(const Duration(days: -1));
+    final date = DateTime(year, month, 1).addDay(-1);
 
     return date.day;
   }
@@ -63,6 +63,13 @@ class DateTimeUtil {
 }
 
 extension DateTimeExtension on DateTime {
+  /// Add day
+  /// Generate a new DateTime using the constructor of
+  /// DateTime to account for daylight saving time
+  DateTime addDay(int v) {
+    return DateTime(year, month, day + v);
+  }
+
   bool isMinimum(DateTime date, DateType dt, {bool equal = true}) {
     bool operator(a, b) {
       if (equal) {
@@ -182,7 +189,7 @@ extension DateTimeExtension on DateTime {
     } else if (diff < 0) {
       DateTime x0 = DateTime(date.year, date.month, 1);
       for (var i = 0; i < diff.abs(); i++) {
-        final y = x0.add(const Duration(days: -1));
+        final y = x0.addDay(-1);
         x0 = DateTime(y.year, y.month, 1);
       }
       date = x0;
