@@ -5,7 +5,11 @@ import 'package:intl/intl.dart';
 export 'src/board_datetime_builder.dart'
     show BoardDateTimeController, BoardDateTimeBuilder;
 export 'src/board_datetime_options.dart'
-    show BoardDateTimeOptions, BoardPickerLanguages, BoardPickerCustomOptions;
+    show
+        BoardDateTimeOptions,
+        BoardPickerLanguages,
+        BoardPickerCustomOptions,
+        PickerFormat;
 export 'src/board_datetime_widget.dart' show showBoardDateTimePicker;
 export 'src/utils/board_enum.dart' show DateTimePickerType;
 

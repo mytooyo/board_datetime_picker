@@ -129,6 +129,7 @@ All properties are optional.
 |languages|BoardPickerLanguages|Language information for text displayed in the picker. Default is `en`|
 |customOptions|BoardPickerCustomOptions|Option to specify items to be displayed in the picker by date and time. Only time can be specified. Default is `null`|
 |startDayOfWeek|int|First day of the week in the calendar. Defailt is `DateTime.sunday`|
+|pickerFormat|String|Date format for pickers. Specify if you want to change the display order of year, month, date. Default is `ymd`|
 
 Sample of gradient background:
 

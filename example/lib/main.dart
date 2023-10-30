@@ -265,6 +265,7 @@ class _ModalItemState extends State<ModalItem> {
             options: const BoardDateTimeOptions(
               languages: BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
+              pickerFormat: PickerFormat.ymd,
             ),
           );
           if (result != null) {

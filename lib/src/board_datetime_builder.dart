@@ -345,13 +345,35 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
     final opts = widget.options.customOptions;
 
+    List<BoardPickerItemOption> ymdOptions = [];
+
+    if (DateTimePickerType.time != type) {
+      // Check the value specified in the picker format.
+      // Error if a value other than y, m, or d is specified
+      final pickerFormat = widget.options.pickerFormat;
+      final reg = RegExp('^(?=.*y)(?=.*m)(?=.*d)');
+      assert(reg.hasMatch(pickerFormat));
+
+      for (final pf in pickerFormat.characters) {
+        if (pf == 'y') {
+          ymdOptions.add(
+            initItemOption(DateType.year, d, minDate, maxDate, null),
+          );
+        } else if (pf == 'm') {
+          ymdOptions.add(
+            initItemOption(DateType.month, d, minDate, maxDate, null),
+          );
+        } else if (pf == 'd') {
+          ymdOptions.add(
+            initItemOption(DateType.day, d, minDate, maxDate, null),
+          );
+        }
+      }
+    }
+
     options = [
-      if ([DateTimePickerType.date, DateTimePickerType.datetime]
-          .contains(type)) ...[
-        initItemOption(DateType.year, d, minDate, maxDate, null),
-        initItemOption(DateType.month, d, minDate, maxDate, null),
-        initItemOption(DateType.day, d, minDate, maxDate, null),
-      ],
+      if ([DateTimePickerType.date, DateTimePickerType.datetime].contains(type))
+        ...ymdOptions,
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
         initItemOption(DateType.hour, d, minDate, maxDate, opts?.hours),

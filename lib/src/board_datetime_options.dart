@@ -12,6 +12,7 @@ class BoardDateTimeOptions {
     this.languages = const BoardPickerLanguages.en(),
     this.customOptions,
     this.startDayOfWeek = DateTime.sunday,
+    this.pickerFormat = PickerFormat.ymd,
   });
 
   /// #### Picker Background Color
@@ -65,6 +66,17 @@ class BoardDateTimeOptions {
   /// calendarStartWeekday: DateTime.monday,
   /// ```
   final int startDayOfWeek;
+
+  /// Date and time format for pickers.
+  /// Specify if you want to change the display order of year, month, date.
+  ///
+  /// - y: Year
+  /// - m: Month
+  /// - d: Day
+  ///
+  /// Default is `PickerFormat.ymd`
+  ///
+  final BoardDateTimePickerFormat pickerFormat;
 }
 
 /// Class for specifying the language to be displayed
@@ -161,4 +173,18 @@ class BoardPickerCustomOptions {
   factory BoardPickerCustomOptions.every15minutes() => BoardPickerCustomOptions(
         minutes: [0, 15, 30, 45],
       );
+}
+
+typedef BoardDateTimePickerFormat = String;
+
+/// Definition of possible values for the picker format
+class PickerFormat {
+  /// year - month - day
+  static const BoardDateTimePickerFormat ymd = 'ymd';
+
+  /// month - day - yaer
+  static const BoardDateTimePickerFormat mdy = 'mdy';
+
+  /// day - month - yaer
+  static const BoardDateTimePickerFormat dmy = 'dmy';
 }
