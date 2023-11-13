@@ -661,6 +661,9 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
             foregroundColor: foregroundColor,
             textColor: textColor,
             onChange: (index) => onChangeByPicker(x, index),
+            showedKeyboard: () {
+              return keyboardHeightRatio < 0.5;
+            },
           ),
         );
       },
