@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/parts/calendar.dart';
 import 'package:board_datetime_picker/src/parts/item.dart';
@@ -114,8 +116,13 @@ class BoardDateTimeBuilder extends StatefulWidget {
 }
 
 class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
+  /// Variables to manage keyboard height
+  ValueNotifier<double> keyboardHeightNotifier = ValueNotifier(0);
+
   @override
   Widget build(BuildContext context) {
+    keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
+
     Widget child() {
       return BoardDateTimeContent(
         key: widget.controller._key,
@@ -126,6 +133,7 @@ class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
         maximumDate: widget.maximumDate,
         breakpoint: widget.breakpoint,
         options: widget.options ?? const BoardDateTimeOptions(),
+        keyboardHeightNotifier: keyboardHeightNotifier,
       );
     }
 
@@ -167,6 +175,7 @@ class BoardDateTimeContent extends StatefulWidget {
     required this.options,
     this.modal = false,
     this.onCloseModal,
+    this.keyboardHeightNotifier,
   });
 
   final double breakpoint;
@@ -176,6 +185,7 @@ class BoardDateTimeContent extends StatefulWidget {
   final DateTime? maximumDate;
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
+  final ValueNotifier<double>? keyboardHeightNotifier;
 
   /// Flag whether modal display is performed
   final bool modal;
@@ -191,10 +201,6 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     with TickerProviderStateMixin {
   /// Controller to perform picker show/hide animation
   late AnimationController _openAnimationController;
-
-  /// Animation that detects and resizes the keyboard display
-  late AnimationController _keyboardAnimationController;
-  late Animation<double> _keyboadAnimation;
 
   /// Animation to show/hide the calendar
   late AnimationController _calendarAnimationController;
@@ -227,6 +233,12 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   /// Date and time of initial display
   late DateTime initialDate;
 
+  /// Variables to manage keyboard height
+  late ValueNotifier<double> keyboardHeightNotifier;
+
+  /// Get the value of the keyboard within your own class or
+  bool get isSelfKeyboardNotifier => widget.keyboardHeightNotifier == null;
+
   // Color Schema
   Color get backgroundColor =>
       widget.options.backgroundColor ??
@@ -243,20 +255,13 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   void initState() {
     initializeDateFormatting();
 
+    keyboardHeightNotifier = widget.keyboardHeightNotifier ?? ValueNotifier(0);
+
     _openAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
       value: widget.modal ? 1.0 : 0,
     );
-
-    _keyboardAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-
-    _keyboadAnimation = _keyboardAnimationController.drive(curve).drive(
-          Tween<double>(begin: 1.0, end: 0.0),
-        );
 
     _calendarAnimationController = AnimationController(
       vsync: this,
@@ -281,7 +286,6 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   @override
   void dispose() {
     _openAnimationController.dispose();
-    _keyboardAnimationController.dispose();
     _calendarAnimationController.dispose();
     dateState.removeListener(notify);
     super.dispose();
@@ -320,7 +324,6 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       _calendarAnimationController.reset();
     }
 
-    _keyboardAnimationController.reset();
     _openAnimationController.forward();
   }
 
@@ -406,15 +409,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
   /// FocusNode (keyboard) listener
   void keyboardListener() {
-    // Retrieve the field item in focus
-    final opts = options.where((x) => x.focusNode.hasFocus).toList();
-
-    // if not has focus
-    if (opts.isEmpty && _keyboardAnimationController.isCompleted) {
-      _keyboardAnimationController.reverse();
-    } else if (opts.isNotEmpty && _keyboardAnimationController.value == 0.0) {
-      _keyboardAnimationController.forward();
-    }
+    // empty
   }
 
   /// Year focusNode (keyboard) listener
@@ -499,8 +494,16 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     }
   }
 
+  /// Ratio assuming a maximum keyboard height
+  double get keyboardHeightRatio =>
+      1 - (min(160, keyboardHeightNotifier.value) / 160);
+
   @override
   Widget build(BuildContext context) {
+    if (isSelfKeyboardNotifier) {
+      keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         _constraints = constraints;
@@ -523,19 +526,16 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
         sizeFactor: animation,
         axis: Axis.vertical,
         axisAlignment: -1.0,
-        child: AnimatedBuilder(
-          animation: _keyboardAnimationController,
-          builder: isWide ? _widebuilder : _standardBuilder,
-        ),
+        child: isWide ? _widebuilder() : _standardBuilder(),
       ),
     );
   }
 
   /// Widget for wide size
-  Widget _widebuilder(BuildContext context, Widget? child) {
+  Widget _widebuilder() {
     return Container(
-      height: (pickerType == DateTimePickerType.time ? 240 : 328) +
-          (_keyboadAnimation.value * 160),
+      height: (pickerType == DateTimePickerType.time ? 240 : 304) +
+          (keyboardHeightRatio * 160),
       decoration: widget.options.backgroundDecoration ??
           BoxDecoration(
             color: backgroundColor,
@@ -569,7 +569,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
                     ),
                     Positioned.fill(
                       child: Visibility(
-                        visible: _keyboadAnimation.value < 0.5,
+                        visible: keyboardHeightRatio < 0.5,
                         child: DuringCalendarWidget(
                           closeKeyboard: closeKeyboard,
                           backgroundColor: foregroundColor,
@@ -597,7 +597,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   }
 
   /// Widget for standard size
-  Widget _standardBuilder(BuildContext context, Widget? child) {
+  Widget _standardBuilder() {
     Widget contents() {
       return Stack(
         children: [
@@ -623,7 +623,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       return Container(
         height: 200 +
             (220 * _calendarAnimation.value) +
-            (_keyboadAnimation.value * 160),
+            (keyboardHeightRatio * 160),
         decoration: widget.options.backgroundDecoration ??
             BoxDecoration(
               color: backgroundColor,
@@ -661,6 +661,9 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
             foregroundColor: foregroundColor,
             textColor: textColor,
             onChange: (index) => onChangeByPicker(x, index),
+            showedKeyboard: () {
+              return keyboardHeightRatio < 0.5;
+            },
           ),
         );
       },
@@ -705,7 +708,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       wide: isWide,
       dateState: dateState,
       pickerType: pickerType,
-      keyboadAnimation: _keyboadAnimation,
+      keyboardHeightRatio: keyboardHeightRatio,
       calendarAnimation: _calendarAnimation,
       onCalendar: () {
         if (_calendarAnimationController.value == 0.0) {

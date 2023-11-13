@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:board_datetime_picker/src/options/board_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,18 +11,21 @@ class ItemWidget extends StatefulWidget {
     required this.onChange,
     required this.foregroundColor,
     required this.textColor,
+    required this.showedKeyboard,
   });
 
   final BoardPickerItemOption option;
   final void Function(int) onChange;
   final Color foregroundColor;
   final Color? textColor;
+  final bool Function() showedKeyboard;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
 }
 
-class ItemWidgetState extends State<ItemWidget> {
+class ItemWidgetState extends State<ItemWidget>
+    with SingleTickerProviderStateMixin {
   final double itemSize = 44;
   final duration = const Duration(milliseconds: 200);
   final borderRadius = BorderRadius.circular(12);
@@ -31,11 +36,19 @@ class ItemWidgetState extends State<ItemWidget> {
   /// TextField Controller
   late TextEditingController textController;
 
+  /// Correction Animation Controller
+  late AnimationController correctAnimationController;
+  late Animation<Color?> correctColor;
+
   /// Picker list
   Map<int, int> map = {};
 
   int selectedIndex = 0;
   bool isTextEditing = false;
+
+  /// Timer for debouncing process
+  Timer? debouceTimer;
+  Timer? wheelDebouceTimer;
 
   @override
   void initState() {
@@ -45,8 +58,26 @@ class ItemWidgetState extends State<ItemWidget> {
       initialItem: selectedIndex,
     );
     textController = TextEditingController(text: '${map[selectedIndex]}');
+    textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: textController.text.length),
+    );
 
     widget.option.focusNode.addListener(focusListener);
+
+    correctAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    correctColor = ColorTween(
+      begin: widget.foregroundColor,
+      end: Colors.redAccent.withOpacity(0.8),
+    ).animate(correctAnimationController);
+
+    correctAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        correctAnimationController.reverse();
+      }
+    });
 
     super.initState();
   }
@@ -60,14 +91,33 @@ class ItemWidgetState extends State<ItemWidget> {
   }
 
   void focusListener() {
-    onChangeText(textController.text, toDefault: true);
+    changeText(textController.text, toDefault: true);
   }
 
   void onChange(int index) {
     setState(() {
       selectedIndex = index;
     });
-    textController.text = '${map[selectedIndex]}';
+
+    void setText() {
+      final text = '${map[selectedIndex]}';
+      if (textController.text != text) {
+        textController.text = text;
+      }
+      debouceTimer?.cancel();
+      debouceTimer = null;
+    }
+
+    // Debounce process to prevent inadvertent text updates when in focus
+    if (widget.option.focusNode.hasFocus) {
+      debouceTimer?.cancel();
+      // Ignore empty characters as they do not need to be scrolled.
+      if (textController.text != '') {
+        debouceTimer = Timer(const Duration(milliseconds: 300), setText);
+      }
+    } else {
+      setText();
+    }
   }
 
   void toAnimateChange(int index, {bool button = false}) {
@@ -97,23 +147,24 @@ class ItemWidgetState extends State<ItemWidget> {
 
   @override
   Widget build(BuildContext context) {
-    textController.selection = TextSelection.fromPosition(
-      TextPosition(offset: textController.text.length),
-    );
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Stack(
         children: [
           Align(
             alignment: Alignment.center,
-            child: Material(
-              color: widget.foregroundColor,
-              borderRadius: borderRadius,
-              child: SizedBox(
-                height: itemSize,
-                width: double.infinity,
-              ),
+            child: AnimatedBuilder(
+              animation: correctAnimationController,
+              builder: (context, child) {
+                return Material(
+                  color: correctColor.value,
+                  borderRadius: borderRadius,
+                  child: SizedBox(
+                    height: itemSize,
+                    width: double.infinity,
+                  ),
+                );
+              },
             ),
           ),
           Positioned.fill(
@@ -138,8 +189,14 @@ class ItemWidgetState extends State<ItemWidget> {
                       ),
                     ),
                     onTapUp: (details) {
-                      final clickOffset =
-                          details.localPosition.dy - (itemSize * 5 / 2);
+                      double clickOffset;
+                      if (widget.showedKeyboard()) {
+                        clickOffset =
+                            details.localPosition.dy - (itemSize * 3 / 2);
+                      } else {
+                        clickOffset =
+                            details.localPosition.dy - (itemSize * 5 / 2);
+                      }
                       final currentIndex = scrollController.selectedItem;
                       final indexOffset = (clickOffset / itemSize).round();
                       final newIndex = currentIndex + indexOffset;
@@ -182,10 +239,11 @@ class ItemWidgetState extends State<ItemWidget> {
             visible: isTextEditing,
             child: _centerAlign(
               TextField(
+                key: ValueKey(widget.option.type.name),
                 controller: textController,
                 focusNode: widget.option.focusNode,
                 keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.only(bottom: 4, left: 2),
@@ -198,11 +256,9 @@ class ItemWidgetState extends State<ItemWidget> {
                 textAlign: TextAlign.center,
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(widget.option.maxLength),
-                  AllowTextInputFormatter(map.values.toList()),
+                  // AllowTextInputFormatter(map.values.toList()),
                 ],
-                onChanged: (text) {
-                  onChangeText(text);
-                },
+                onChanged: onChangeText,
               ),
             ),
           ),
@@ -211,8 +267,8 @@ class ItemWidgetState extends State<ItemWidget> {
     );
   }
 
-  /// Processing when text is changed
-  void onChangeText(String text, {bool toDefault = false}) {
+  /// Converts input text to an index
+  int? _convertTextToIndex(String text) {
     try {
       final data = int.parse(text);
 
@@ -224,23 +280,56 @@ class ItemWidgetState extends State<ItemWidget> {
           break;
         }
       }
-      if (toDefault) {
-        if (index == selectedIndex) return;
-        if (index < 0) {
-          index = selectedIndex;
-          textController.text = map[index]!.toString();
-        }
-      } else {
-        if (index < 0) return;
-      }
-
-      // Animated wheel movement
-      toAnimateChange(index);
-      // Change callback
-      widget.onChange(index);
+      return index;
     } catch (_) {
-      return;
+      return null;
     }
+  }
+
+  /// Converts input text into an index and performs change notifications
+  void changeText(String text, {bool toDefault = false}) {
+    var index = _convertTextToIndex(text);
+
+    // If non-numeric or empty, set to the first value
+    if (index == null) {
+      index = selectedIndex;
+      textController.text = map[index]!.toString();
+    }
+
+    if (toDefault) {
+      if (index == selectedIndex) return;
+      if (index < 0) {
+        index = selectedIndex;
+        textController.text = map[index]!.toString();
+
+        // If corrected, animation is performed
+        correctAnimationController.forward();
+      }
+    } else {
+      if (index < 0) return;
+    }
+
+    // Animated wheel movement
+    toAnimateChange(index);
+    // Change callback
+    widget.onChange(index);
+  }
+
+  /// Processing when text is changed
+  void onChangeText(String text) {
+    wheelDebouceTimer?.cancel();
+
+    final index = _convertTextToIndex(text);
+    if (index == null || index < 0) return;
+    // Animated wheel movement
+    wheelDebouceTimer = Timer(
+      const Duration(milliseconds: 200),
+      () {
+        wheelDebouceTimer?.cancel();
+        wheelDebouceTimer = null;
+        toAnimateChange(index);
+      },
+    );
   }
 
   Widget _centerAlign(Widget child) {

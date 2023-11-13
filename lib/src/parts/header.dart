@@ -11,7 +11,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.wide,
     required this.dateState,
     required this.pickerType,
-    required this.keyboadAnimation,
+    required this.keyboardHeightRatio,
     required this.calendarAnimation,
     required this.onCalendar,
     required this.onChangeDate,
@@ -39,7 +39,7 @@ class BoardDateTimeHeader extends StatefulWidget {
   final DateTimePickerType pickerType;
 
   /// Animation that detects and resizes the keyboard display
-  final Animation<double> keyboadAnimation;
+  final double keyboardHeightRatio;
 
   /// Animation to show/hide the calendar
   final Animation<double> calendarAnimation;
@@ -147,9 +147,9 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
             ..._dateItems(context),
           Expanded(child: Container()),
           Visibility(
-            visible: widget.keyboadAnimation.value == 0,
+            visible: widget.keyboardHeightRatio == 0,
             child: Opacity(
-              opacity: 0.8 * (1 - widget.keyboadAnimation.value),
+              opacity: 0.8 * (1 - widget.keyboardHeightRatio),
               child: IconButton(
                 onPressed: () {
                   widget.onKeyboadClose();
