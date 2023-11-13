@@ -1,3 +1,7 @@
+## 1.3.1
+* Fixed a problem with focus shifting and difficulty entering text when entering text.
+* Improved operability when using hardware keyboard
+
 ## 1.3.0
 * Support daylight saving time.
 * Support for changing the start day of the week.
