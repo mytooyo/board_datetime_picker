@@ -13,6 +13,10 @@ class BoardDateTimeOptions {
     this.customOptions,
     this.startDayOfWeek = DateTime.sunday,
     this.pickerFormat = PickerFormat.ymd,
+    this.showDateButton = true,
+    this.boardTitle,
+    this.boardTitleTextStyle,
+    this.pickerSubTitles,
   });
 
   /// #### Picker Background Color
@@ -77,6 +81,25 @@ class BoardDateTimeOptions {
   /// Default is `PickerFormat.ymd`
   ///
   final BoardDateTimePickerFormat pickerFormat;
+
+  /// Flag whether or not the button to set the date should be displayed.
+  /// If false, do not display buttons such as "today", "tomorrow", etc.
+  /// at the top of the picker, only the action buttons. Default is true.
+  ///
+  /// When setting to false, it is recommended to specify the title together.
+  final bool showDateButton;
+
+  /// Title to be displayed at the top of the picker
+  final String? boardTitle;
+
+  /// BoardTitle text style
+  final TextStyle? boardTitleTextStyle;
+
+  /// You can specify a subtitle for each item in the picker.
+  /// Default is unspecified and no subtitle is displayed.
+  ///
+  /// If specified halfway, defaults to the specified value.
+  final BoardDateTimeItemTitles? pickerSubTitles;
 }
 
 /// Class for specifying the language to be displayed
@@ -187,4 +210,32 @@ class PickerFormat {
 
   /// day - month - yaer
   static const BoardDateTimePickerFormat dmy = 'dmy';
+}
+
+/// Specify the title of each item to be displayed in the picker.
+///
+/// If none is specified, the item title is unspecified.
+/// The default value is used to compensate for the missing items.
+class BoardDateTimeItemTitles {
+  final String? year;
+  final String? month;
+  final String? day;
+  final String? hour;
+  final String? minute;
+
+  const BoardDateTimeItemTitles({
+    this.year,
+    this.month,
+    this.day,
+    this.hour,
+    this.minute,
+  });
+
+  bool get notSpecified {
+    return year == null &&
+        month == null &&
+        day == null &&
+        hour == null &&
+        minute == null;
+  }
 }

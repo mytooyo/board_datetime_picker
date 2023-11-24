@@ -41,10 +41,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BoardDateTimeBuilder(
+    return BoardDateTimeBuilder<BoardDateTimeResult>(
       controller: controller,
       resizeBottom: true,
-      options: BoardDateTimeOptions(
+      options: const BoardDateTimeOptions(
+        boardTitle: 'Board Picker',
+        languages: BoardPickerLanguages.en(),
         // backgroundColor: Colors.black,
         // textColor: Colors.white,
         // foregroundColor: const Color(0xff303030),
@@ -57,15 +59,15 @@ class _MyHomePageState extends State<MyHomePage> {
         //     ],
         //   ),
         // ),
-        languages: const BoardPickerLanguages.en(),
+        // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
         // customOptions: BoardPickerCustomOptions.every15minutes(),
-        customOptions: BoardPickerCustomOptions(
-          hours: [0, 6, 12, 18],
-          minutes: [0, 15, 30, 45],
-        ),
+        // customOptions: BoardPickerCustomOptions(
+        //   hours: [0, 6, 12, 18],
+        //   minutes: [0, 15, 30, 45],
+        // ),
       ),
-      minimumDate: DateTime(2023, 12, 15, 0, 15),
-      maximumDate: DateTime(2024, 12, 31),
+      // minimumDate: DateTime(2023, 12, 15, 0, 15),
+      // maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
@@ -107,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       },
+      onResult: (val) {},
       onChange: (val) {
         int index = -1;
         if (opened == DateTimePickerType.datetime) {
@@ -266,7 +269,10 @@ class _ModalItemState extends State<ModalItem> {
               languages: BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
+              boardTitle: 'Board Picker',
+              pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
             ),
+            onResult: (val) {},
           );
           if (result != null) {
             setState(() => d = result);

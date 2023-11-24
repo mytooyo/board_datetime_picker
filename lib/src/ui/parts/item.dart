@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:board_datetime_picker/src/options/board_option.dart';
+import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +12,8 @@ class ItemWidget extends StatefulWidget {
     required this.foregroundColor,
     required this.textColor,
     required this.showedKeyboard,
+    required this.wide,
+    required this.subTitle,
   });
 
   final BoardPickerItemOption option;
@@ -19,6 +21,8 @@ class ItemWidget extends StatefulWidget {
   final Color foregroundColor;
   final Color? textColor;
   final bool Function() showedKeyboard;
+  final bool wide;
+  final String? subTitle;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -49,6 +53,9 @@ class ItemWidgetState extends State<ItemWidget>
   /// Timer for debouncing process
   Timer? debouceTimer;
   Timer? wheelDebouceTimer;
+
+  /// Number of items to display in the list
+  int get wheelCount => widget.wide ? 7 : 5;
 
   @override
   void initState() {
@@ -149,117 +156,141 @@ class ItemWidgetState extends State<ItemWidget>
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Stack(
+      child: Column(
         children: [
-          Align(
-            alignment: Alignment.center,
-            child: AnimatedBuilder(
-              animation: correctAnimationController,
-              builder: (context, child) {
-                return Material(
-                  color: correctColor.value,
-                  borderRadius: borderRadius,
-                  child: SizedBox(
-                    height: itemSize,
-                    width: double.infinity,
-                  ),
-                );
-              },
-            ),
-          ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.center,
-              child: NotificationListener(
-                child: SizedBox(
-                  height: itemSize * 5,
-                  child: GestureDetector(
-                    child: ListWheelScrollView.useDelegate(
-                      controller: scrollController,
-                      physics: const FixedExtentScrollPhysics(),
-                      itemExtent: itemSize,
-                      diameterRatio: 8,
-                      perspective: 0.01,
-                      clipBehavior: Clip.antiAliasWithSaveLayer,
-                      onSelectedItemChanged: onChange,
-                      childDelegate: ListWheelChildListDelegate(
-                        children: [
-                          for (final i in map.keys) _item(i),
-                        ],
-                      ),
+          if (widget.subTitle != null) ...[
+            Container(
+              height: widget.wide ? 40 : 32,
+              width: double.infinity,
+              alignment: Alignment.bottomCenter,
+              padding: EdgeInsets.only(bottom: widget.wide ? 8 : 4),
+              child: Text(
+                widget.subTitle!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: widget.textColor?.withOpacity(0.5),
+                      fontWeight: FontWeight.bold,
                     ),
-                    onTapUp: (details) {
-                      double clickOffset;
-                      if (widget.showedKeyboard()) {
-                        clickOffset =
-                            details.localPosition.dy - (itemSize * 3 / 2);
-                      } else {
-                        clickOffset =
-                            details.localPosition.dy - (itemSize * 5 / 2);
-                      }
-                      final currentIndex = scrollController.selectedItem;
-                      final indexOffset = (clickOffset / itemSize).round();
-                      final newIndex = currentIndex + indexOffset;
-                      toAnimateChange(newIndex);
+              ),
+            ),
+          ],
+          Expanded(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: AnimatedBuilder(
+                    animation: correctAnimationController,
+                    builder: (context, child) {
+                      return Material(
+                        color: correctColor.value,
+                        borderRadius: borderRadius,
+                        child: SizedBox(
+                          height: itemSize,
+                          width: double.infinity,
+                        ),
+                      );
                     },
                   ),
                 ),
-                onNotification: (info) {
-                  if (info is ScrollEndNotification) {
-                    // Change callback
-                    widget.onChange(selectedIndex);
-                  }
-                  return true;
-                },
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    isTextEditing = true;
-                  });
-                  Future.delayed(const Duration(milliseconds: 10)).then((_) {
-                    widget.option.focusNode.requestFocus();
-                  });
-                },
-                borderRadius: borderRadius,
-                child: SizedBox(
-                  height: itemSize,
-                  width: double.infinity,
-                ),
-              ),
-            ),
-          ),
-          Visibility(
-            visible: isTextEditing,
-            child: _centerAlign(
-              TextField(
-                key: ValueKey(widget.option.type.name),
-                controller: textController,
-                focusNode: widget.option.focusNode,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.done,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.only(bottom: 4, left: 2),
-                ),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                      color: widget.textColor,
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: NotificationListener(
+                      child: SizedBox(
+                        height: itemSize * wheelCount,
+                        child: GestureDetector(
+                          child: ListWheelScrollView.useDelegate(
+                            controller: scrollController,
+                            physics: const FixedExtentScrollPhysics(),
+                            itemExtent: itemSize,
+                            diameterRatio: 8,
+                            perspective: 0.01,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            onSelectedItemChanged: onChange,
+                            childDelegate: ListWheelChildListDelegate(
+                              children: [
+                                for (final i in map.keys) _item(i),
+                              ],
+                            ),
+                          ),
+                          onTapUp: (details) {
+                            double clickOffset;
+                            if (widget.showedKeyboard()) {
+                              clickOffset =
+                                  details.localPosition.dy - (itemSize * 3 / 2);
+                            } else {
+                              clickOffset = details.localPosition.dy -
+                                  (itemSize * wheelCount / 2);
+                            }
+                            final currentIndex = scrollController.selectedItem;
+                            final indexOffset =
+                                (clickOffset / itemSize).round();
+                            final newIndex = currentIndex + indexOffset;
+                            toAnimateChange(newIndex);
+                          },
+                        ),
+                      ),
+                      onNotification: (info) {
+                        if (info is ScrollEndNotification) {
+                          // Change callback
+                          widget.onChange(selectedIndex);
+                        }
+                        return true;
+                      },
                     ),
-                textAlign: TextAlign.center,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(widget.option.maxLength),
-                  // AllowTextInputFormatter(map.values.toList()),
-                ],
-                onChanged: onChangeText,
-              ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          isTextEditing = true;
+                        });
+                        Future.delayed(const Duration(milliseconds: 10))
+                            .then((_) {
+                          widget.option.focusNode.requestFocus();
+                        });
+                      },
+                      borderRadius: borderRadius,
+                      child: SizedBox(
+                        height: itemSize,
+                        width: double.infinity,
+                      ),
+                    ),
+                  ),
+                ),
+                Visibility(
+                  visible: isTextEditing,
+                  child: _centerAlign(
+                    TextField(
+                      key: ValueKey(widget.option.type.name),
+                      controller: textController,
+                      focusNode: widget.option.focusNode,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(bottom: 4, left: 2),
+                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: widget.textColor,
+                          ),
+                      textAlign: TextAlign.center,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(
+                            widget.option.maxLength),
+                        // AllowTextInputFormatter(map.values.toList()),
+                      ],
+                      onChanged: onChangeText,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
