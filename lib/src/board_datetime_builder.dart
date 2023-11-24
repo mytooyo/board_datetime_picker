@@ -9,6 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'options/board_item_option.dart';
 import 'ui/parts/header.dart';
 import 'ui/picker_calendar_widget.dart';
+import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
 
 /// Controller for displaying, hiding, and updating the value of the picker
@@ -64,12 +65,14 @@ typedef DateTimeBuilderWidget = Widget Function(BuildContext context);
 ///   controller.open(DateTimePickerType.date, DateTime.now());
 /// }
 /// ```
-class BoardDateTimeBuilder extends StatefulWidget {
+class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
+    extends StatefulWidget {
   const BoardDateTimeBuilder({
     super.key,
     required this.builder,
     required this.controller,
-    required this.onChange,
+    this.onChange,
+    this.onResult,
     this.pickerType = DateTimePickerType.datetime,
     this.initialDate,
     this.minimumDate,
@@ -89,7 +92,11 @@ class BoardDateTimeBuilder extends StatefulWidget {
   final double breakpoint;
 
   /// #### Callback when date is changed.
-  final void Function(DateTime) onChange;
+  final void Function(DateTime)? onChange;
+
+  /// Callback to allow each value to be retrieved separately,
+  /// rather than having the result of the change be of type DateTime
+  final void Function(T)? onResult;
 
   /// #### Date of initial selection state.
   final DateTime? initialDate;
@@ -111,21 +118,43 @@ class BoardDateTimeBuilder extends StatefulWidget {
   final bool resizeBottom;
 
   @override
-  State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState();
+  State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();
 }
 
-class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
+class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
+    extends State<BoardDateTimeBuilder<T>> {
   /// Variables to manage keyboard height
   ValueNotifier<double> keyboardHeightNotifier = ValueNotifier(0);
+
+  @override
+  void initState() {
+    if (T.toString() != "BoardDateTimeCommonResult") {
+      void throwInvalidType() {
+        throw Exception('Oops..Type and type do not match.');
+      }
+
+      // Perform type checks
+      if (widget.pickerType == DateTimePickerType.datetime) {
+        if (T.toString() != "BoardDateTimeResult") throwInvalidType();
+      } else if (widget.pickerType == DateTimePickerType.date) {
+        if (T.toString() != "BoardDateResult") throwInvalidType();
+      } else if (widget.pickerType == DateTimePickerType.time) {
+        if (T.toString() != "BoardTimeResult") throwInvalidType();
+      }
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
 
     Widget child() {
-      return BoardDateTimeContent(
+      return BoardDateTimeContent<T>(
         key: widget.controller._key,
         onChange: widget.onChange,
+        onResult: widget.onResult,
         pickerType: widget.pickerType,
         initialDate: widget.initialDate,
         minimumDate: widget.minimumDate,
@@ -162,10 +191,12 @@ class _BoardDateTimeBuilderState extends State<BoardDateTimeBuilder> {
   }
 }
 
-class BoardDateTimeContent extends StatefulWidget {
+class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
+    extends StatefulWidget {
   const BoardDateTimeContent({
     super.key,
-    required this.onChange,
+    this.onChange,
+    this.onResult,
     required this.pickerType,
     required this.initialDate,
     required this.minimumDate,
@@ -178,7 +209,8 @@ class BoardDateTimeContent extends StatefulWidget {
   });
 
   final double breakpoint;
-  final void Function(DateTime) onChange;
+  final void Function(DateTime)? onChange;
+  final void Function(T)? onResult;
   final DateTime? initialDate;
   final DateTime? minimumDate;
   final DateTime? maximumDate;
@@ -193,11 +225,11 @@ class BoardDateTimeContent extends StatefulWidget {
   final void Function()? onCloseModal;
 
   @override
-  State<BoardDateTimeContent> createState() => _BoardDateTimeContentState();
+  State<BoardDateTimeContent> createState() => _BoardDateTimeContentState<T>();
 }
 
-class _BoardDateTimeContentState extends State<BoardDateTimeContent>
-    with TickerProviderStateMixin {
+class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
+    extends State<BoardDateTimeContent<T>> with TickerProviderStateMixin {
   /// Controller to perform picker show/hide animation
   late AnimationController _openAnimationController;
 
@@ -297,7 +329,9 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     // Notification to match the date to be displayed
     // if the specified date differs from the date to be initially displayed.
     if (!_changedDate && d.compareTo(initialDate) != 0) {
-      widget.onChange(widget.initialDate == null ? d : dateState.value);
+      final result = widget.initialDate == null ? d : dateState.value;
+      widget.onChange?.call(result);
+      widget.onResult?.call(BoardDateTimeCommonResult.init(pt, result) as T);
     }
 
     setState(() {
@@ -406,7 +440,10 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     for (var element in itemOptions) {
       element.updateList(dateState.value);
     }
-    widget.onChange(dateState.value);
+    widget.onChange?.call(dateState.value);
+    widget.onResult?.call(
+      BoardDateTimeCommonResult.init(pickerType, dateState.value) as T,
+    );
     _changedDate = true;
   }
 

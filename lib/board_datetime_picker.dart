@@ -11,7 +11,13 @@ export 'src/board_datetime_options.dart'
         BoardPickerCustomOptions,
         PickerFormat,
         BoardDateTimeItemTitles;
-export 'src/board_datetime_widget.dart' show showBoardDateTimePicker;
+export 'src/board_datetime_widget.dart'
+    show
+        showBoardDateTimePicker,
+        showBoardDateTimePickerForDateTime,
+        showBoardDateTimePickerForDate,
+        showBoardDateTimePickerForTime;
+export 'src/utils/board_datetime_result.dart';
 export 'src/utils/board_enum.dart' show DateTimePickerType;
 
 class BoardDateFormat {
