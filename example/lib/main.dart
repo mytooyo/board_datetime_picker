@@ -41,11 +41,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BoardDateTimeBuilder(
+    return BoardDateTimeBuilder<BoardDateTimeResult>(
       controller: controller,
       resizeBottom: true,
       options: const BoardDateTimeOptions(
         boardTitle: 'Board Picker',
+        languages: BoardPickerLanguages.en(),
         // backgroundColor: Colors.black,
         // textColor: Colors.white,
         // foregroundColor: const Color(0xff303030),
@@ -58,7 +59,6 @@ class _MyHomePageState extends State<MyHomePage> {
         //     ],
         //   ),
         // ),
-        languages: BoardPickerLanguages.en(),
         // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
         // customOptions: BoardPickerCustomOptions.every15minutes(),
         // customOptions: BoardPickerCustomOptions(
@@ -109,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         );
       },
+      onResult: (val) {},
       onChange: (val) {
         int index = -1;
         if (opened == DateTimePickerType.datetime) {
@@ -271,6 +272,7 @@ class _ModalItemState extends State<ModalItem> {
               boardTitle: 'Board Picker',
               pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
             ),
+            onResult: (val) {},
           );
           if (result != null) {
             setState(() => d = result);
