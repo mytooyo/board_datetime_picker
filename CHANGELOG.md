@@ -1,3 +1,7 @@
+## 1.4.0
+* Support for specifying picker title and item subtitle.
+* Support for getting results in other than DateTime.
+
 ## 1.3.1
 * Fixed a problem with focus shifting and difficulty entering text when entering text.
 * Improved operability when using hardware keyboard
