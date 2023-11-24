@@ -9,7 +9,8 @@ export 'src/board_datetime_options.dart'
         BoardDateTimeOptions,
         BoardPickerLanguages,
         BoardPickerCustomOptions,
-        PickerFormat;
+        PickerFormat,
+        BoardDateTimeItemTitles;
 export 'src/board_datetime_widget.dart' show showBoardDateTimePicker;
 export 'src/utils/board_enum.dart' show DateTimePickerType;
 

@@ -4,7 +4,7 @@ import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
-import 'board_option.dart';
+import 'board_item_option.dart';
 
 /// Options for customizing the items displayed in the picker.
 /// Create at each date and time.
@@ -17,6 +17,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     required super.selectedIndex,
     required super.minimumDate,
     required super.maximumDate,
+    required super.subTitle,
   });
 
   final List<int> customList;
@@ -27,6 +28,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
+    String? subTitle,
   ) {
     Map<int, int> map = {};
     int selected;
@@ -84,6 +86,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
       minimumDate: mi,
       maximumDate: ma,
       customList: customList,
+      subTitle: subTitle,
     );
   }
 

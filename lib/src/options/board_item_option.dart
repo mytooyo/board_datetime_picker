@@ -1,11 +1,11 @@
 import 'dart:math';
 
-import 'package:board_datetime_picker/src/parts/item.dart';
+import 'package:board_datetime_picker/src/ui/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
-import 'board_custom_option.dart';
+import 'board_custom_item_option.dart';
 
 BoardPickerItemOption initItemOption(
   DateType type,
@@ -13,6 +13,7 @@ BoardPickerItemOption initItemOption(
   DateTime? minimum,
   DateTime? maximum,
   List<int>? customList,
+  String? subTitle,
 ) {
   if (customList != null && customList.isNotEmpty) {
     return BoardPickerCustomItemOption.init(
@@ -21,9 +22,10 @@ BoardPickerItemOption initItemOption(
       date,
       minimum,
       maximum,
+      subTitle,
     );
   } else {
-    return BoardPickerItemOption.init(type, date, minimum, maximum);
+    return BoardPickerItemOption.init(type, date, minimum, maximum, subTitle);
   }
 }
 
@@ -35,6 +37,7 @@ class BoardPickerItemOption {
     required this.selectedIndex,
     required this.minimumDate,
     required this.maximumDate,
+    required this.subTitle,
   });
 
   /// [DateType] year, month, day, hour, minute
@@ -56,8 +59,10 @@ class BoardPickerItemOption {
   final DateTime minimumDate;
 
   /// Maximum year that can be specified
-
   final DateTime maximumDate;
+
+  /// Title to be displayed on item
+  final String? subTitle;
 
   /// Constractor
   factory BoardPickerItemOption.init(
@@ -65,6 +70,7 @@ class BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
+    String? subTitle,
   ) {
     Map<int, int> map = {};
     int selected;
@@ -75,10 +81,11 @@ class BoardPickerItemOption {
 
     switch (type) {
       case DateType.year:
-        return BoardPickerItemOption.year(date, minimum, maximum);
+        return BoardPickerItemOption.year(date, minimum, maximum, subTitle);
       case DateType.month:
         map = minmaxList(DateType.month, date, mi, ma);
         selected = indexFromValue(date.month, map);
+
         break;
       case DateType.day:
         map = minmaxList(DateType.day, date, mi, ma);
@@ -101,6 +108,7 @@ class BoardPickerItemOption {
       selectedIndex: selected,
       minimumDate: mi,
       maximumDate: ma,
+      subTitle: subTitle,
     );
   }
 
@@ -109,6 +117,7 @@ class BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
+    String? subTitle,
   ) {
     final minY = minimum?.year ?? DateTimeUtil.minimumYear;
 
@@ -124,6 +133,7 @@ class BoardPickerItemOption {
       selectedIndex: indexFromValue(max(date.year, minY), map),
       minimumDate: mi,
       maximumDate: ma,
+      subTitle: subTitle,
     );
   }
 

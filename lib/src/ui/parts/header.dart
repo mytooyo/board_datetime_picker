@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
+import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
@@ -133,7 +134,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.wide ? 72 : 52,
+      height: widget.wide ? 64 : 52,
       margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -220,7 +221,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           context,
           widget.languages.tomorrow,
           () {
-            widget.onChangeDate(DateTime.now().addDay(1));
+            widget.onChangeDate(DateTime.now().addDayWithTime(1));
           },
           selected: isTomorrow,
         ),
@@ -271,6 +272,209 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class BoardDateTimeNoneButtonHeader extends StatefulWidget {
+  const BoardDateTimeNoneButtonHeader({
+    super.key,
+    required this.options,
+    required this.wide,
+    required this.dateState,
+    required this.pickerType,
+    required this.keyboardHeightRatio,
+    required this.calendarAnimation,
+    required this.onCalendar,
+    required this.onKeyboadClose,
+    required this.onClose,
+    required this.modal,
+  });
+
+  final BoardDateTimeOptions options;
+
+  /// Wide mode display flag
+  final bool wide;
+
+  /// [ValueNotifier] to manage the Datetime under selection
+  final ValueNotifier<DateTime> dateState;
+
+  /// Display picker type.
+  final DateTimePickerType pickerType;
+
+  /// Animation that detects and resizes the keyboard display
+  final double keyboardHeightRatio;
+
+  /// Animation to show/hide the calendar
+  final Animation<double> calendarAnimation;
+
+  /// Callback show calendar
+  final void Function() onCalendar;
+
+  /// Keyboard close request
+  final void Function() onKeyboadClose;
+
+  /// Picker close request
+  final void Function() onClose;
+
+  /// Modal Flag
+  final bool modal;
+
+  @override
+  State<BoardDateTimeNoneButtonHeader> createState() =>
+      _BoardDateTimeNoneButtonHeaderState();
+}
+
+class _BoardDateTimeNoneButtonHeaderState
+    extends State<BoardDateTimeNoneButtonHeader> {
+  double get buttonSize => widget.wide ? 40 : 36;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: buttonSize + 8,
+      margin: const EdgeInsets.only(top: 12, left: 8, right: 8),
+      child: Row(
+        children: [
+          if (widget.pickerType != DateTimePickerType.time && !widget.wide) ...[
+            _iconButton(
+              icon: Icons.view_day_rounded,
+              bgColor: widget.options.getForegroundColor(context),
+              fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+              onTap: widget.onCalendar,
+              child: Transform.rotate(
+                angle: pi * 4 * widget.calendarAnimation.value,
+                child: Icon(
+                  widget.calendarAnimation.value > 0.5
+                      ? Icons.view_day_rounded
+                      : Icons.calendar_month_rounded,
+                  size: 20,
+                ),
+              ),
+            ),
+          ] else ...[
+            SizedBox(width: buttonSize),
+          ],
+          if (widget.keyboardHeightRatio == 0) SizedBox(width: buttonSize + 8),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: _title(),
+              ),
+            ),
+          ),
+          ..._rightButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _title() {
+    if (widget.options.boardTitle == null ||
+        widget.options.boardTitle!.isEmpty) {
+      return const SizedBox();
+    }
+    return FittedBox(
+      child: Text(
+        widget.options.boardTitle ?? '',
+        style: widget.options.boardTitleTextStyle ??
+            Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: widget.options.getTextColor(context),
+                  fontWeight: FontWeight.bold,
+                ),
+      ),
+    );
+  }
+
+  List<Widget> _rightButton() {
+    Widget? closeKeyboard;
+
+    if (widget.keyboardHeightRatio == 0) {
+      closeKeyboard = Visibility(
+        visible: widget.keyboardHeightRatio == 0,
+        child: _iconButton(
+          icon: Icons.keyboard_hide_rounded,
+          bgColor: widget.options.getForegroundColor(context),
+          fgColor: widget.options.getTextColor(context),
+          onTap: widget.onKeyboadClose,
+        ),
+      );
+    }
+
+    Widget child = widget.modal
+        ? _iconButton(
+            icon: Icons.check_circle_rounded,
+            bgColor: widget.options.getActiveColor(context),
+            fgColor: widget.options.getActiveTextColor(context),
+            onTap: widget.onClose,
+          )
+        : _iconButton(
+            icon: Icons.close_rounded,
+            bgColor: widget.options.getForegroundColor(context),
+            fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+            onTap: widget.onClose,
+          );
+
+    return [
+      if (closeKeyboard != null) ...[
+        closeKeyboard,
+        const SizedBox(width: 8),
+      ],
+      child,
+    ];
+  }
+
+  Widget _iconButton({
+    required IconData icon,
+    required Color? bgColor,
+    required Color? fgColor,
+    required void Function() onTap,
+    Widget? child,
+  }) {
+    return Material(
+      color: bgColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          height: buttonSize,
+          width: buttonSize,
+          alignment: Alignment.center,
+          child: child ??
+              Icon(
+                icon,
+                size: 20,
+                color: fgColor,
+              ),
+        ),
+      ),
+    );
+  }
+}
+
+class TopTitleWidget extends StatelessWidget {
+  const TopTitleWidget({super.key, required this.options});
+
+  final BoardDateTimeOptions options;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
+      alignment: Alignment.center,
+      child: Text(
+        options.boardTitle ?? '',
+        style: options.boardTitleTextStyle ??
+            Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: options.getTextColor(context),
+                  fontWeight: FontWeight.bold,
+                ),
+        maxLines: 1,
       ),
     );
   }

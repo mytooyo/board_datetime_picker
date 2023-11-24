@@ -1,4 +1,4 @@
-import 'package:board_datetime_picker/src/options/board_option.dart';
+import 'package:board_datetime_picker/src/options/board_item_option.dart';
 
 import 'board_enum.dart';
 
@@ -71,6 +71,10 @@ extension DateTimeExtension on DateTime {
   /// DateTime to account for daylight saving time
   DateTime addDay(int v) {
     return DateTime(year, month, day + v);
+  }
+
+  DateTime addDayWithTime(int v) {
+    return DateTime(year, month, day + v, hour, minute, second);
   }
 
   bool isMinimum(DateTime date, DateType dt, {bool equal = true}) {

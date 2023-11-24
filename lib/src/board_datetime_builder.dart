@@ -1,15 +1,14 @@
 import 'dart:math';
 
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
-import 'package:board_datetime_picker/src/parts/calendar.dart';
-import 'package:board_datetime_picker/src/parts/item.dart';
+import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import 'options/board_option.dart';
-import 'parts/during_calendar.dart';
-import 'parts/header.dart';
+import 'options/board_item_option.dart';
+import 'ui/parts/header.dart';
+import 'ui/picker_calendar_widget.dart';
 import 'utils/board_enum.dart';
 
 /// Controller for displaying, hiding, and updating the value of the picker
@@ -207,7 +206,6 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   late Animation<double> _calendarAnimation;
   late Animation<double> _pickerFormAnimation;
 
-  final GlobalKey calendarKey = GlobalKey();
   final GlobalKey<BoardDateTimeHeaderState> _headerKey = GlobalKey();
 
   /// Picker-wide Constraints
@@ -220,7 +218,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
   bool get isWide => _constraints.maxWidth >= widget.breakpoint;
 
   /// DatePicker Field Options
-  List<BoardPickerItemOption> options = [];
+  List<BoardPickerItemOption> itemOptions = [];
   late DateTimePickerType pickerType;
 
   /// [ValueNotifier] to manage the Datetime under selection
@@ -238,18 +236,6 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
   /// Get the value of the keyboard within your own class or
   bool get isSelfKeyboardNotifier => widget.keyboardHeightNotifier == null;
-
-  // Color Schema
-  Color get backgroundColor =>
-      widget.options.backgroundColor ??
-      Theme.of(context).scaffoldBackgroundColor;
-  Color get foregroundColor =>
-      widget.options.foregroundColor ?? Theme.of(context).cardColor;
-  Color? get textColor =>
-      widget.options.textColor ?? Theme.of(context).textTheme.bodyLarge?.color;
-  Color get activeColor =>
-      widget.options.activeColor ?? Theme.of(context).primaryColor;
-  Color get activeTextColor => widget.options.activeTextColor ?? Colors.white;
 
   @override
   void initState() {
@@ -359,32 +345,49 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
       for (final pf in pickerFormat.characters) {
         if (pf == 'y') {
+          final subTitle = widget.options.getSubTitle(DateType.year);
           ymdOptions.add(
-            initItemOption(DateType.year, d, minDate, maxDate, null),
+            initItemOption(DateType.year, d, minDate, maxDate, null, subTitle),
           );
         } else if (pf == 'm') {
+          final subTitle = widget.options.getSubTitle(DateType.month);
           ymdOptions.add(
-            initItemOption(DateType.month, d, minDate, maxDate, null),
+            initItemOption(DateType.month, d, minDate, maxDate, null, subTitle),
           );
         } else if (pf == 'd') {
+          final subTitle = widget.options.getSubTitle(DateType.day);
           ymdOptions.add(
-            initItemOption(DateType.day, d, minDate, maxDate, null),
+            initItemOption(DateType.day, d, minDate, maxDate, null, subTitle),
           );
         }
       }
     }
 
-    options = [
+    itemOptions = [
       if ([DateTimePickerType.date, DateTimePickerType.datetime].contains(type))
         ...ymdOptions,
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
-        initItemOption(DateType.hour, d, minDate, maxDate, opts?.hours),
-        initItemOption(DateType.minute, d, minDate, maxDate, opts?.minutes),
+        initItemOption(
+          DateType.hour,
+          d,
+          minDate,
+          maxDate,
+          opts?.hours,
+          widget.options.getSubTitle(DateType.hour),
+        ),
+        initItemOption(
+          DateType.minute,
+          d,
+          minDate,
+          maxDate,
+          opts?.minutes,
+          widget.options.getSubTitle(DateType.minute),
+        ),
       ],
     ];
 
-    for (final x in options) {
+    for (final x in itemOptions) {
       if (x.type == DateType.year) {
         x.focusNode.addListener(yearKeyboardListener);
       } else {
@@ -400,7 +403,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
   /// Notification of change to caller.
   void notify() {
-    for (var element in options) {
+    for (var element in itemOptions) {
       element.updateList(dateState.value);
     }
     widget.onChange(dateState.value);
@@ -417,7 +420,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     keyboardListener();
     // Checks the input when the focus is removed and changes to the year
     // and month of the current time if the value does not exist.
-    final opt = options.firstWhere((x) => x.type == DateType.year);
+    final opt = itemOptions.firstWhere((x) => x.type == DateType.year);
     if (opt.focusNode.hasFocus) return;
     opt.checkInputField();
   }
@@ -429,9 +432,9 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     DateTime newVal = opt.calcDate(dateState.value);
 
     final data = opt.map[index]!;
-    final day = DateTimeUtil.getExistsDate(options, opt, data);
+    final day = DateTimeUtil.getExistsDate(itemOptions, opt, data);
     if (day != null) {
-      final dayOpt = options.firstWhere((x) => x.type == DateType.day);
+      final dayOpt = itemOptions.firstWhere((x) => x.type == DateType.day);
       final newDate = dayOpt.calcDate(newVal);
       newVal = DateTimeUtil.rangeDate(
         newDate,
@@ -457,7 +460,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       widget.maximumDate,
     );
 
-    for (final x in options) {
+    for (final x in itemOptions) {
       if (x.type == DateType.year && x.value != newVal.year) {
         x.changeDate(newVal);
       } else if (x.type == DateType.month && x.value != newVal.month) {
@@ -477,7 +480,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       widget.maximumDate,
     );
 
-    for (final x in options) {
+    for (final x in itemOptions) {
       if (x.type == DateType.hour && x.value != newVal.hour) {
         x.changeDate(newVal);
       } else if (x.type == DateType.minute && x.value != newVal.minute) {
@@ -489,7 +492,7 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
 
   /// Close Keyboard
   void closeKeyboard() {
-    for (final x in options) {
+    for (final x in itemOptions) {
       if (x.focusNode.hasFocus) x.focusNode.unfocus();
     }
   }
@@ -520,189 +523,71 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
     final animation = _openAnimationController.drive(curve).drive(
           Tween<double>(begin: 0.0, end: 1.0),
         );
+
+    final args = PickerCalendarArgs(
+      dateState: dateState,
+      options: widget.options,
+      pickerType: pickerType,
+      listOptions: itemOptions,
+      minimumDate: widget.minimumDate,
+      maximumDate: widget.maximumDate,
+      headerBuilder: (ctx) => _header,
+      onChange: changeDate,
+      onChangeByPicker: onChangeByPicker,
+      keyboardHeightRatio: () => keyboardHeightRatio,
+    );
+
     return Visibility(
       visible: animation.value != 0.0,
       child: SizeTransition(
         sizeFactor: animation,
         axis: Axis.vertical,
         axisAlignment: -1.0,
-        child: isWide ? _widebuilder() : _standardBuilder(),
-      ),
-    );
-  }
-
-  /// Widget for wide size
-  Widget _widebuilder() {
-    return Container(
-      height: (pickerType == DateTimePickerType.time ? 240 : 304) +
-          (keyboardHeightRatio * 160),
-      decoration: widget.options.backgroundDecoration ??
-          BoxDecoration(
-            color: backgroundColor,
-          ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: [
-            if (pickerType != DateTimePickerType.time) ...[
-              Container(
-                width: 400,
-                decoration: BoxDecoration(
-                  color: foregroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                margin: const EdgeInsets.symmetric(
-                  vertical: 20,
-                  horizontal: 16,
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 24,
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: _calendar(
-                        background: foregroundColor,
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Visibility(
-                        visible: keyboardHeightRatio < 0.5,
-                        child: DuringCalendarWidget(
-                          closeKeyboard: closeKeyboard,
-                          backgroundColor: foregroundColor,
-                          textColor: textColor,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+        // child: isWide ? _widebuilder() : _standardBuilder(),
+        child: isWide
+            ? PickerCalendarWideWidget(
+                arguments: args,
+                closeKeyboard: closeKeyboard,
+              )
+            : PickerCalendarStandardWidget(
+                arguments: args,
+                calendarAnimationController: _calendarAnimationController,
+                calendarAnimation: _calendarAnimation,
+                pickerFormAnimation: _pickerFormAnimation,
               ),
-              const SizedBox(width: 16),
-            ],
-            Expanded(
-              child: Column(
-                children: [
-                  _header,
-                  Expanded(child: _picker),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Widget for standard size
-  Widget _standardBuilder() {
-    Widget contents() {
-      return Stack(
-        children: [
-          Visibility(
-            visible: _calendarAnimation.value != 0,
-            child: FadeTransition(
-              opacity: _calendarAnimation,
-              child: _calendar(background: backgroundColor),
-            ),
-          ),
-          Visibility(
-            visible: _calendarAnimation.value != 1,
-            child: FadeTransition(
-              opacity: _pickerFormAnimation,
-              child: _picker,
-            ),
-          ),
-        ],
-      );
-    }
-
-    Widget builder(BuildContext context, Widget? child) {
-      return Container(
-        height: 200 +
-            (220 * _calendarAnimation.value) +
-            (keyboardHeightRatio * 160),
-        decoration: widget.options.backgroundDecoration ??
-            BoxDecoration(
-              color: backgroundColor,
-            ),
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: SafeArea(
-          top: false,
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                _header,
-                Expanded(child: contents()),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return AnimatedBuilder(
-      animation: _calendarAnimationController,
-      builder: builder,
-    );
-  }
-
-  Widget get _picker {
-    final items = options.map(
-      (x) {
-        return Expanded(
-          flex: x.flex,
-          child: ItemWidget(
-            key: x.stateKey,
-            option: x,
-            foregroundColor: foregroundColor,
-            textColor: textColor,
-            onChange: (index) => onChangeByPicker(x, index),
-            showedKeyboard: () {
-              return keyboardHeightRatio < 0.5;
-            },
-          ),
-        );
-      },
-    ).toList();
-
-    return SizedBox(
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Row(
-          children: items,
-        ),
-      ),
-    );
-  }
-
-  Widget _calendar({Color? background}) {
-    return SizedBox(
-      child: CalendarWidget(
-        key: calendarKey,
-        dateState: dateState,
-        boxDecoration: BoxDecoration(
-          color: widget.options.backgroundDecoration != null && !isWide
-              ? widget.options.backgroundDecoration!.color
-              : background,
-        ),
-        onChange: changeDate,
-        wide: isWide,
-        textColor: textColor,
-        activeColor: activeColor,
-        activeTextColor: activeTextColor,
-        languages: widget.options.languages,
-        minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
-        maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
-        startDayOfWeek: widget.options.startDayOfWeek,
       ),
     );
   }
 
   Widget get _header {
+    void onCalendar() {
+      if (_calendarAnimationController.value == 0.0) {
+        for (final x in itemOptions) {
+          if (x.focusNode.hasFocus) {
+            x.focusNode.unfocus();
+          }
+        }
+        _calendarAnimationController.forward();
+      } else if (_calendarAnimationController.value == 1.0) {
+        _calendarAnimationController.reverse();
+      }
+    }
+
+    if (!widget.options.showDateButton) {
+      return BoardDateTimeNoneButtonHeader(
+        options: widget.options,
+        wide: isWide,
+        dateState: dateState,
+        pickerType: pickerType,
+        keyboardHeightRatio: keyboardHeightRatio,
+        calendarAnimation: _calendarAnimation,
+        onCalendar: onCalendar,
+        onKeyboadClose: closeKeyboard,
+        onClose: close,
+        modal: widget.modal,
+      );
+    }
+
     return BoardDateTimeHeader(
       key: _headerKey,
       wide: isWide,
@@ -710,27 +595,16 @@ class _BoardDateTimeContentState extends State<BoardDateTimeContent>
       pickerType: pickerType,
       keyboardHeightRatio: keyboardHeightRatio,
       calendarAnimation: _calendarAnimation,
-      onCalendar: () {
-        if (_calendarAnimationController.value == 0.0) {
-          for (final x in options) {
-            if (x.focusNode.hasFocus) {
-              x.focusNode.unfocus();
-            }
-          }
-          _calendarAnimationController.forward();
-        } else if (_calendarAnimationController.isCompleted) {
-          _calendarAnimationController.reverse();
-        }
-      },
+      onCalendar: onCalendar,
       onChangeDate: changeDate,
       onChangTime: changeTime,
       onKeyboadClose: closeKeyboard,
       onClose: close,
-      backgroundColor: backgroundColor,
-      foregroundColor: foregroundColor,
-      textColor: textColor,
-      activeColor: activeColor,
-      activeTextColor: activeTextColor,
+      backgroundColor: widget.options.getBackgroundColor(context),
+      foregroundColor: widget.options.getForegroundColor(context),
+      textColor: widget.options.getTextColor(context),
+      activeColor: widget.options.getActiveColor(context),
+      activeTextColor: widget.options.getActiveTextColor(context),
       languages: widget.options.languages,
       minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
       maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
