@@ -104,15 +104,6 @@ class BoardDateTimeOptions {
 
 /// Class for specifying the language to be displayed
 class BoardPickerLanguages {
-  /// Day of the week to be displayed at the top of the calendar.
-  /// Error if number of list items is other than 7.
-  /// Default is ['SUN', 'MON', 'THU', 'WED', 'TUE', 'FRI', 'SAT'].
-  ///
-  /// Deprecated since v1.2.1.
-  /// Be sure to use the locale. We will remove it in the next version
-  @Deprecated('Deprecated since v1.2.1')
-  final List<String>? weekdays;
-
   /// Button text to move date to today.
   /// Default is [TODAY].
   final String today;
@@ -134,7 +125,6 @@ class BoardPickerLanguages {
   static const _enNow = 'NOW';
 
   const BoardPickerLanguages({
-    this.weekdays,
     this.today = _enToday,
     this.tomorrow = _enTomorrow,
     this.now = _enNow,
@@ -143,24 +133,21 @@ class BoardPickerLanguages {
 
   /// Constructor in English notation
   const BoardPickerLanguages.en()
-      : weekdays = null,
-        today = _enToday,
+      : today = _enToday,
         tomorrow = _enTomorrow,
         now = _enNow,
         locale = 'en';
 
   /// Constructor in Japanese notation
   const BoardPickerLanguages.ja()
-      : weekdays = null,
-        today = '今日',
+      : today = '今日',
         tomorrow = '明日',
         now = '現在',
         locale = 'ja';
 
   /// Constructor in Italian notation
   const BoardPickerLanguages.it()
-      : weekdays = null,
-        today = 'oggi',
+      : today = 'oggi',
         tomorrow = 'domani',
         now = 'adesso',
         locale = 'it';

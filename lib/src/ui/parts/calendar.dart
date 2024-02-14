@@ -246,7 +246,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   /// Display day of the week
   Widget _weekdays() {
-    List<String> weekdays = widget.languages.weekdays ??
+    List<String> weekdays =
         DateFormat.EEEE(widget.languages.locale).dateSymbols.SHORTWEEKDAYS;
 
     List<int> weekdayVals = DateTimeUtil.weekdayVals;
