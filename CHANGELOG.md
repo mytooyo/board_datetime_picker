@@ -1,3 +1,7 @@
+## 1.5.0
+* Upgrade the package.
+* Deprecation removed (weekdays)
+  
 ## 1.4.0
 * Support for specifying picker title and item subtitle.
 * Support for getting results in other than DateTime.

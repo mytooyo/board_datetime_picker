@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: const Color.fromARGB(255, 235, 235, 241),
+        useMaterial3: false,
       ),
       home: const MyHomePage(title: 'Board DateTime Picker Example'),
     );
@@ -41,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BoardDateTimeBuilder<BoardDateTimeResult>(
+    return BoardDateTimeBuilder<BoardDateTimeCommonResult>(
       controller: controller,
       resizeBottom: true,
       options: const BoardDateTimeOptions(
