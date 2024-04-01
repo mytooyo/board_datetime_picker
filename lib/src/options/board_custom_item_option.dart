@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
-import 'package:flutter/material.dart';
 
+import '../ui/parts/focus_node.dart';
 import 'board_item_option.dart';
 
 /// Options for customizing the items displayed in the picker.
@@ -80,7 +80,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
 
     return BoardPickerCustomItemOption(
       type: type,
-      focusNode: FocusNode(),
+      focusNode: PickerItemFocusNode(),
       map: map,
       selectedIndex: selected,
       minimumDate: mi,

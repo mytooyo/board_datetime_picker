@@ -139,6 +139,7 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   void updateState(Map<int, int> newMap, int newIndex) {
+    if (!mounted) return;
     setState(() {
       map = newMap;
       if (selectedIndex != newIndex) {

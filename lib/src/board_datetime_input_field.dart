@@ -1,0 +1,731 @@
+import 'dart:async';
+
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
+import 'board_datetime_builder.dart';
+import 'ui/parts/focus_node.dart';
+import 'utils/board_enum.dart';
+import 'utils/datetime_util.dart';
+
+enum BoardDateTimeInputError { illegal, outOfRange }
+
+extension BoardDateTimeInputErrorExtension on BoardDateTimeInputError {
+  String get message {
+    switch (this) {
+      case BoardDateTimeInputError.illegal:
+        return 'Illegal format error';
+      case BoardDateTimeInputError.outOfRange:
+        return 'Out of Range';
+    }
+  }
+}
+
+class BoardDateTimeInputFieldValidators {
+  /// Message for which the entered message is invalid
+  final String Function(String)? onIllegalFormat;
+
+  /// Error messages outside the specified date/time range
+  final String Function(String)? onOutOfRange;
+
+  /// Message in case of a required error
+  final String? Function()? onRequired;
+
+  const BoardDateTimeInputFieldValidators({
+    this.onIllegalFormat,
+    this.onOutOfRange,
+    this.onRequired,
+  });
+
+  String errorIllegal(String text) {
+    return onIllegalFormat?.call(text) ??
+        BoardDateTimeInputError.illegal.message;
+  }
+
+  String errorOutOfRange(String text) {
+    return onOutOfRange?.call(text) ??
+        BoardDateTimeInputError.outOfRange.message;
+  }
+
+  String? errorRequired() {
+    return onRequired?.call();
+  }
+}
+
+class BoardDateTimeInputField extends StatefulWidget {
+  const BoardDateTimeInputField({
+    super.key,
+    required this.options,
+    this.pickerType = DateTimePickerType.datetime,
+    required this.onChanged,
+    this.validators = const BoardDateTimeInputFieldValidators(),
+    this.focusNode,
+    this.initialDate,
+    this.minimumDate,
+    this.maximumDate,
+    this.showPicker = true,
+    this.breakpoint = 800,
+    this.delimiter = '/',
+    this.keyboardType,
+    this.textInputAction,
+    this.textStyle,
+    this.textAlign,
+    this.cursorWidth = 2.0,
+    this.cursorHeight,
+    this.cursorRadius,
+    this.cursorColor,
+    this.decoration,
+    this.autofocus = false,
+    this.readOnly = false,
+    this.enabled,
+  });
+
+  /// #### Date of initial selection state.
+  final DateTime? initialDate;
+
+  /// #### Minimum selectable dates
+  final DateTime? minimumDate;
+
+  /// #### Maximum selectable dates
+  final DateTime? maximumDate;
+
+  /// #### Display picker type.
+  final DateTimePickerType pickerType;
+
+  /// Class for defining options related to the UI used by [BoardDateTimeBuilder]
+  final BoardDateTimeOptions options;
+
+  /// #### Callback when date is changed.
+  final Function(DateTime date) onChanged;
+
+  /// Flag whether to display a Picker below when a text field is focused.
+  /// If displayed, display in overlay format at the bottom of the screen
+  final bool showPicker;
+
+  /// Delimiter used to separate dates
+  /// If a slash[-] is specified, it will look like this: `yyyy-MM-dd`
+  /// However, the time delimiter is fixed to a colon[:] and cannot be changed
+  final String delimiter;
+
+  /// Set error messages when errors occur in validating against text fields
+  /// If not specified, default error messages are displayed
+  final BoardDateTimeInputFieldValidators validators;
+
+  final double breakpoint;
+
+  // ************************************************************************
+  // *
+  // * All of the following are parameters to be used for a normal TextField
+  // *
+  // ************************************************************************
+
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final TextStyle? textStyle;
+  final TextAlign? textAlign;
+  final double cursorWidth;
+  final double? cursorHeight;
+  final Radius? cursorRadius;
+  final Color? cursorColor;
+  final InputDecoration? decoration;
+  final bool autofocus;
+  final bool readOnly;
+  final bool? enabled;
+
+  @override
+  State<BoardDateTimeInputField> createState() =>
+      _BoardDateTimeInputFieldState();
+}
+
+class _BoardDateTimeInputFieldState extends State<BoardDateTimeInputField>
+    with SingleTickerProviderStateMixin {
+  /// Overlay
+  final GlobalKey overlayKey = GlobalKey();
+  OverlayEntry? overlay;
+
+  /// フォーカスノード監視用
+  Timer? focusNodeDebounce;
+
+  BoardDateTimeContentsController? pickerController;
+
+  /// Overlay Animation Controller
+  late AnimationController overlayAnimController;
+
+  /// 入力フィールドのコントローラ
+  late TextEditingController textController;
+
+  /// FocusNode
+  late BoardDateTimeInputFocusNode focusNode;
+  late PickerContentsFocusNode pickerFocusNode;
+
+  /// 選択中の日付
+  DateTime? selectedDate;
+
+  /// Text Format
+  late String format;
+
+  late String pickerFormat;
+
+  final GlobalKey<FormState> formKey = GlobalKey();
+
+  /// Date
+  late DateTime minimumDate;
+  late DateTime maximumDate;
+
+  ValueNotifier<DateTime>? pickerDateState;
+
+  BoardDateTimeOptions get options => widget.options;
+
+  final BorderRadius borderRadius = BorderRadius.circular(8);
+
+  final List<String> delititers = ['/', ';', ':', ',', '-', ' '];
+
+  /// 変更前の文字数
+  int beforeTextLength = -1;
+
+  int get textOffset => textController.selection.base.offset;
+
+  void closePicker() {
+    final future = overlayAnimController.reverse();
+    if (overlay != null) {
+      future.then((value) {
+        overlay?.remove();
+        overlay = null;
+      });
+    }
+  }
+
+  void openPicker() {}
+
+  void _focusListener() {
+    if (!focusNode.hasFocus) {
+      if (textController.text.isNotEmpty) {
+        checkFormat(textController.text, complete: true);
+      }
+    } else {
+      if (!widget.showPicker || overlay != null) return;
+      pickerController = BoardDateTimeContentsController();
+      if (selectedDate != null) {
+        pickerController!.changeDate(selectedDate!);
+      }
+
+      overlay = OverlayEntry(
+        builder: (context) {
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: AnimatedBuilder(
+                  animation: overlayAnimController,
+                  builder: (context, child) {
+                    return SlideTransition(
+                      position: overlayAnimController
+                          .drive(CurveTween(curve: Curves.easeInOutCubic))
+                          .drive(
+                            Tween<Offset>(
+                              begin: const Offset(0, 1),
+                              end: Offset.zero,
+                            ),
+                          ),
+                      child: child,
+                    );
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      pickerFocusNode.requestFocus();
+                    },
+                    child: Focus(
+                      focusNode: pickerFocusNode,
+                      child: BoardDateTimeContent(
+                        key: pickerController?.key,
+                        pickerFocusNode: pickerFocusNode,
+                        onChange: (val) {},
+                        pickerType: widget.pickerType,
+                        options: widget.options,
+                        breakpoint: widget.breakpoint,
+                        initialDate: selectedDate ?? DateTime.now(),
+                        minimumDate: widget.minimumDate,
+                        maximumDate: widget.maximumDate,
+                        modal: true,
+                        onCreatedDateState: (val) {
+                          pickerDateState = val;
+                          pickerDateState!.addListener(pickerListener);
+                        },
+                        onCloseModal: () {
+                          focusNode.unfocus();
+                          closePicker();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+      // Show DatePicker
+      Overlay.of(context).insert(overlay!);
+      overlayAnimController.forward();
+    }
+  }
+
+  /// Listener to detect date and time changes in the picker
+  void pickerListener() {
+    final val = pickerDateState?.value;
+    if (val != null) {
+      void apply() {
+        textController.text = DateFormat(format).format(val);
+        if (selectedDate != val) {
+          selectedDate = val;
+          widget.onChanged(val);
+        }
+      }
+
+      if (!focusNode.hasFocus) {
+        apply();
+      }
+    }
+  }
+
+  void focusScopeListener() {
+    focusNodeDebounce?.cancel();
+    focusNodeDebounce = Timer(const Duration(milliseconds: 300), () {
+      // print('*** focus scope: ${FocusManager.instance.primaryFocus}');
+      final pf = FocusManager.instance.primaryFocus;
+      if (pf is! BoardDateTimeInputFocusNode &&
+          pf is! PickerItemFocusNode &&
+          pf is! PickerContentsFocusNode) {
+        closePicker();
+      }
+    });
+  }
+
+  /// Checks and corrects if the specified date is within range
+  DateTime rangeDate(DateTime date) {
+    DateTime d = date;
+    if (d.isBefore(minimumDate)) {
+      d = minimumDate;
+    }
+    if (d.isAfter(maximumDate)) {
+      d = maximumDate;
+    }
+    return d;
+  }
+
+  @override
+  void initState() {
+    switch (widget.pickerType) {
+      case DateTimePickerType.date:
+        pickerFormat = options.pickerFormat;
+        break;
+      case DateTimePickerType.datetime:
+        pickerFormat = '${options.pickerFormat}Hm';
+        break;
+      case DateTimePickerType.time:
+        pickerFormat = 'Hm';
+        break;
+    }
+
+    // TextFormat
+    format = pickerFormat.dateFormat(widget.delimiter);
+
+    DateTime? initial;
+    if (widget.initialDate != null) {
+      initial = rangeDate(widget.initialDate!);
+      selectedDate = initial;
+    }
+    minimumDate = widget.minimumDate ?? DateTimeUtil.defaultMinDate;
+    maximumDate = widget.maximumDate ?? DateTimeUtil.defaultMaxDate;
+
+    textController = TextEditingController(
+      text: initial != null
+          ? DateFormat(format).format(rangeDate(initial))
+          : null,
+    );
+    textController.addListener(() {});
+
+    pickerFocusNode = PickerContentsFocusNode(
+      debugLabel: 'Picker Focus Node',
+      skipTraversal: true,
+    );
+    focusNode = BoardDateTimeInputFocusNode();
+    focusNode.addListener(_focusListener);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      FocusScope.of(context).addListener(focusScopeListener);
+    });
+
+    overlayAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 260),
+      reverseDuration: const Duration(milliseconds: 260),
+    );
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    FocusScope.of(context).removeListener(focusScopeListener);
+    focusNodeDebounce?.cancel();
+    focusNode.removeListener(_focusListener);
+    pickerDateState?.removeListener(pickerListener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: TextFormField(
+        key: overlayKey,
+        controller: textController,
+        focusNode: focusNode,
+        keyboardType: widget.keyboardType ?? TextInputType.datetime,
+        textInputAction: widget.textInputAction,
+        style: widget.textStyle,
+        textAlign: widget.textAlign ?? TextAlign.start,
+        maxLines: 1,
+        minLines: 1,
+        autofocus: widget.autofocus,
+        readOnly: widget.readOnly,
+        enabled: widget.enabled,
+        cursorWidth: widget.cursorWidth,
+        cursorHeight: widget.cursorHeight,
+        cursorRadius: widget.cursorRadius,
+        cursorColor: widget.cursorColor ?? options.activeColor,
+        decoration: widget.decoration ??
+            InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: borderRadius,
+                borderSide: const BorderSide(
+                  color: Colors.black,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: borderRadius,
+                borderSide: BorderSide(
+                  color: options.activeColor ?? Theme.of(context).primaryColor,
+                ),
+              ),
+              errorMaxLines: 2,
+            ),
+        validator: (value) {
+          // 必須でエラーの場合
+          if (value == null || value.isEmpty) {
+            return widget.validators.errorRequired();
+          }
+
+          final error = validate(
+            value,
+            complete: textController.text.length != textOffset ||
+                textOffset == format.length,
+          ).error;
+
+          if (error == null) return null;
+
+          switch (error) {
+            case BoardDateTimeInputError.illegal:
+              return widget.validators.errorIllegal(value);
+            case BoardDateTimeInputError.outOfRange:
+              return widget.validators.errorOutOfRange(value);
+          }
+        },
+        inputFormatters: [
+          LengthLimitingTextInputFormatter(format.length),
+          FilteringTextInputFormatter.allow(
+            RegExp(r'[0-9/;:,\-\s]'),
+          )
+        ],
+        onChanged: (val) {
+          checkFormat(val);
+          beforeTextLength = val.length;
+        },
+      ),
+    );
+  }
+
+  ValidatorResult validate(String value, {bool complete = false}) {
+    List<TextBloc> splited = [];
+
+    String text = '';
+    int start = 0;
+    for (var i = 0; i < value.length; i++) {
+      // In the case of a delimiter, the previous value is stored.
+      if (delititers.contains(value[i])) {
+        splited.add(
+          TextBloc(
+            text: text,
+            start: start,
+            end: i,
+          ),
+        );
+        text = '';
+      } else {
+        if (text.isEmpty) start = i;
+        text += value[i];
+      }
+    }
+    splited.add(
+      TextBloc(
+        text: text,
+        start: start,
+        end: value.length,
+      ),
+    );
+
+    BoardDateTimeInputError? retError;
+
+    // Checks according to the specified format.
+    for (var i = 0; i < pickerFormat.length; i++) {
+      final f = pickerFormat[i];
+
+      // Retrieve split data and perform checks.
+      if (splited.length > i) {
+        final data = splited[i];
+        splited[i].dateType = f.dateType;
+
+        // Error if the number of characters is larger than the specified number
+        if (f.count < data.text.length) {
+          return ValidatorResult(error: BoardDateTimeInputError.illegal);
+        }
+
+        BoardDateTimeInputError? check() {
+          BoardDateTimeInputError? err;
+          // Fill in zeros if not enough.
+          final d = data.text.padLeft(f.count, '0');
+
+          if (data.start <= textOffset && data.end >= textOffset && !complete) {
+            return null;
+          }
+
+          // 通常の範囲チェックを実施
+          try {
+            if (f == 'y') {
+              final y = int.parse(data.text);
+              if (!(minimumDate.year <= y && maximumDate.year >= y)) {
+                err = BoardDateTimeInputError.outOfRange;
+              }
+            } else if (f == 'M') {
+              final m = int.parse(data.text);
+              if (!(m >= 1 && m <= 12)) {
+                err = BoardDateTimeInputError.illegal;
+              }
+            } else if (f == 'd') {
+              final m = int.parse(data.text);
+              if (!(m >= 1 && m <= 31)) {
+                err = BoardDateTimeInputError.illegal;
+              }
+            } else if (f == 'H') {
+              final m = int.parse(data.text);
+              if (!(m >= 0 && m <= 23)) {
+                err = BoardDateTimeInputError.illegal;
+              }
+            } else if (f == 'm') {
+              final m = int.parse(data.text);
+              if (!(m >= 0 && m <= 59)) {
+                err = BoardDateTimeInputError.illegal;
+              }
+            }
+          } catch (ex) {
+            return err;
+          }
+
+          splited[i].text = d;
+          return err;
+        }
+
+        // デリミターが入力されて次のデータが存在する場合のみ補正
+        // ただし、カーゾルの位置から編集中のブロックの場合は補正しない
+        final isLast = splited.length == i + 1;
+        // フォーカスが外れて全体のチェックの場合はすべての値に対してのエラーをハンドリングする
+        if (complete) {
+          retError ??= check();
+        } else if (!isLast) {
+          retError ??= check();
+        }
+      }
+    }
+    return ValidatorResult(splited: splited, error: retError);
+  }
+
+  void checkFormat(String value, {bool complete = false}) {
+    final result = validate(value, complete: complete);
+    if (result.splited == null) return;
+
+    // 月と日が入力済みで年が未入力の場合は初期日時の年で補正する
+    final month = result.splited!.firstWhereOrNull(
+      (e) => e.dateType == DateType.month,
+    );
+    final day = result.splited!.firstWhereOrNull(
+      (e) => e.dateType == DateType.day,
+    );
+    if (month != null &&
+        month.text.isNotEmpty &&
+        day != null &&
+        day.text.isNotEmpty) {
+      final year =
+          result.splited!.firstWhereOrNull((e) => e.dateType == DateType.year);
+      // 文字列を削除した場合は自動追加しないようにチェックを実施
+      final isDeleted = beforeTextLength > value.length;
+      // デリミターが入力された場合のみ追加
+      if (year != null && year.text.isEmpty && !isDeleted) {
+        final bloc = TextBloc(
+          text: (widget.initialDate ?? DateTime.now()).year.toString(),
+          start: 0,
+          end: 0,
+        );
+        bloc.dateType = DateType.year;
+        if (result.splited!.last.text.isEmpty) {
+          result.splited![result.splited!.length - 1] = bloc;
+        } else {
+          result.splited!.add(bloc);
+        }
+      }
+    }
+
+    final splitedText = result.splited!.map((e) => e.text).toList();
+
+    // splitedTextの数が4以上の場合は時間を含むため、分けて結合する
+    String date;
+    if (splitedText.length > 3) {
+      final ymd = splitedText.sublist(0, 3).join(widget.delimiter);
+      final hm = splitedText.sublist(3).join(':');
+      date = '$ymd $hm';
+    } else {
+      date = splitedText.join(widget.delimiter);
+    }
+
+    // 最後が空の場合は除外する
+    if (result.splited!.isNotEmpty &&
+        result.splited!.last.text.isEmpty &&
+        date.length >= format.length) {
+      splitedText.removeLast();
+      date = splitedText.join(widget.delimiter);
+    }
+
+    if (textController.text != date) {
+      // テキストを更新
+      textController.text = date;
+    }
+
+    final datetime = result.datetime;
+    // エラーがない場合のみコールバックを実施
+    if (datetime != null && result.error == null) {
+      if (datetime.isAfter(minimumDate) && datetime.isBefore(maximumDate)) {
+        selectedDate = datetime;
+        widget.onChanged.call(datetime);
+        pickerController?.changeDate(datetime);
+      }
+    }
+  }
+}
+
+class ValidatorResult {
+  final List<TextBloc>? splited;
+  final BoardDateTimeInputError? error;
+
+  ValidatorResult({this.splited, this.error});
+
+  DateTime? get datetime {
+    final year = splited?.firstWhereOrNull(
+      (e) => e.dateType == DateType.year,
+    );
+    final month = splited?.firstWhereOrNull(
+      (e) => e.dateType == DateType.month,
+    );
+    final day = splited?.firstWhereOrNull(
+      (e) => e.dateType == DateType.day,
+    );
+    final hour = splited?.firstWhereOrNull(
+      (e) => e.dateType == DateType.hour,
+    );
+    final minute = splited?.firstWhereOrNull(
+      (e) => e.dateType == DateType.minute,
+    );
+    if (year == null ||
+        month == null ||
+        year.text.isEmpty ||
+        month.text.isEmpty) return null;
+    return DateTime(
+      int.parse(year.text),
+      int.parse(month.text),
+      day == null || day.text.isEmpty ? 1 : int.parse(day.text),
+      hour == null || hour.text.isEmpty ? 0 : int.parse(hour.text),
+      minute == null || minute.text.isEmpty ? 0 : int.parse(minute.text),
+    );
+  }
+}
+
+class TextBloc {
+  String text;
+  final int start;
+  final int end;
+  DateType? dateType;
+
+  TextBloc({
+    required this.text,
+    required this.start,
+    required this.end,
+  });
+}
+
+extension StringExtension on String {
+  int get count {
+    switch (this) {
+      case 'y':
+        return 4;
+      case 'M':
+      case 'd':
+      case 'H':
+      case 'm':
+        return 2;
+      default:
+        return 0;
+    }
+  }
+
+  DateType get dateType {
+    switch (this) {
+      case 'y':
+        return DateType.year;
+      case 'M':
+        return DateType.month;
+      case 'd':
+        return DateType.day;
+      case 'H':
+        return DateType.hour;
+      case 'm':
+        return DateType.minute;
+      default:
+        return DateType.year;
+    }
+  }
+
+  String dateFormat(String delimiter) {
+    switch (this) {
+      case PickerFormat.mdy:
+        return 'MM${delimiter}dd${delimiter}yyyy';
+      case '${PickerFormat.mdy}Hm':
+        return 'MM${delimiter}dd${delimiter}yyyy HH:mm';
+      case PickerFormat.dmy:
+        return 'dd${delimiter}MM${delimiter}yyyy';
+      case '${PickerFormat.dmy}Hm':
+        return 'dd${delimiter}MM${delimiter}yyyy HH:mm';
+      case PickerFormat.ymd:
+        return 'yyyy${delimiter}MM${delimiter}dd';
+      case '${PickerFormat.ymd}Hm':
+        return 'yyyy${delimiter}MM${delimiter}dd HH:mm';
+      default:
+        return 'HH:mm';
+    }
+  }
+}

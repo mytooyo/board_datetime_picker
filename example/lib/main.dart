@@ -81,6 +81,21 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  SizedBox(
+                    width: 160,
+                    height: 80,
+                    child: BoardDateTimeInputField(
+                      pickerType: DateTimePickerType.datetime,
+                      options: const BoardDateTimeOptions(
+                        languages: BoardPickerLanguages.en(),
+                      ),
+                      textStyle: Theme.of(context).textTheme.bodyMedium,
+                      onChanged: (date) {
+                        print('onchanged: $date');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 60),
                   ItemWidget(
                     key: keys[0],
                     type: DateTimePickerType.datetime,
