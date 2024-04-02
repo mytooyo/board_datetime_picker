@@ -192,7 +192,8 @@ class _BoardDateTimeInputFieldState extends State<BoardDateTimeInputField>
   /// 変更前の文字数
   int beforeTextLength = -1;
 
-  int get textOffset => textController.selection.base.offset;
+  int get textOffset => textController
+      .selection.extent.offset; //textController.selection.base.offset;
 
   /// エラー発生時に利用するためのWidget
   /// Borderを表示したいので基本的にContainerのみでOK
@@ -702,7 +703,14 @@ class _BoardDateTimeInputFieldState extends State<BoardDateTimeInputField>
       date = splitedText.join(widget.delimiter);
     }
 
+    int offset = textOffset;
+    if (textOffset == textController.text.length) {
+      offset = date.length;
+    }
     textController.text = date;
+    textController.selection = TextSelection.fromPosition(
+      TextPosition(offset: offset),
+    );
 
     final datetime = result.datetime;
     // エラーがない場合のみコールバックを実施
