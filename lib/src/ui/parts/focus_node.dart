@@ -13,6 +13,8 @@ class BoardDateTimeInputFocusNode extends FocusNode {
 
 class PickerItemFocusNode extends FocusNode {}
 
+class PickerWheelItemFocusNode extends FocusNode {}
+
 class PickerContentsFocusNode extends FocusNode {
   PickerContentsFocusNode({
     super.onKeyEvent,

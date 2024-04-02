@@ -4,6 +4,8 @@ import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'focus_node.dart';
+
 class ItemWidget extends StatefulWidget {
   const ItemWidget({
     super.key,
@@ -56,6 +58,8 @@ class ItemWidgetState extends State<ItemWidget>
 
   /// Number of items to display in the list
   int get wheelCount => widget.wide ? 7 : 5;
+
+  final pickerFocusNode = PickerWheelItemFocusNode();
 
   @override
   void initState() {
@@ -200,20 +204,26 @@ class ItemWidgetState extends State<ItemWidget>
                       child: SizedBox(
                         height: itemSize * wheelCount,
                         child: GestureDetector(
-                          child: ListWheelScrollView.useDelegate(
-                            controller: scrollController,
-                            physics: const FixedExtentScrollPhysics(),
-                            itemExtent: itemSize,
-                            diameterRatio: 8,
-                            perspective: 0.01,
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            onSelectedItemChanged: onChange,
-                            childDelegate: ListWheelChildListDelegate(
-                              children: [
-                                for (final i in map.keys) _item(i),
-                              ],
+                          child: Focus(
+                            focusNode: pickerFocusNode,
+                            child: ListWheelScrollView.useDelegate(
+                              controller: scrollController,
+                              physics: const FixedExtentScrollPhysics(),
+                              itemExtent: itemSize,
+                              diameterRatio: 8,
+                              perspective: 0.01,
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              onSelectedItemChanged: onChange,
+                              childDelegate: ListWheelChildListDelegate(
+                                children: [
+                                  for (final i in map.keys) _item(i),
+                                ],
+                              ),
                             ),
                           ),
+                          onTapDown: (details) {
+                            pickerFocusNode.requestFocus();
+                          },
                           onTapUp: (details) {
                             double clickOffset;
                             if (widget.showedKeyboard()) {
@@ -228,6 +238,7 @@ class ItemWidgetState extends State<ItemWidget>
                                 (clickOffset / itemSize).round();
                             final newIndex = currentIndex + indexOffset;
                             toAnimateChange(newIndex);
+                            pickerFocusNode.requestFocus();
                           },
                         ),
                       ),

@@ -83,11 +83,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   SizedBox(
                     width: 160,
-                    height: 80,
                     child: BoardDateTimeInputField(
                       pickerType: DateTimePickerType.datetime,
                       options: const BoardDateTimeOptions(
                         languages: BoardPickerLanguages.en(),
+                        pickerFormat: PickerFormat.dmy,
                       ),
                       textStyle: Theme.of(context).textTheme.bodyMedium,
                       onChanged: (date) {
