@@ -17,7 +17,31 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 235, 235, 241),
         useMaterial3: false,
       ),
+      // home: const Home(),
       home: const MyHomePage(title: 'Board DateTime Picker Example'),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('text'),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    const MyHomePage(title: 'Board DateTime Picker Example'),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -84,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   SizedBox(
                     width: 160,
                     child: BoardDateTimeInputField(
-                      pickerType: DateTimePickerType.datetime,
+                      pickerType: DateTimePickerType.date,
                       options: const BoardDateTimeOptions(
                         languages: BoardPickerLanguages.en(),
                         pickerFormat: PickerFormat.dmy,
@@ -92,6 +116,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       textStyle: Theme.of(context).textTheme.bodyMedium,
                       onChanged: (date) {
                         print('onchanged: $date');
+                      },
+                      onFocusChange: (val, date) {
+                        print('on focus changed: $val, $date');
+                      },
+                      onResult: (p0) {
+                        // print('on result: ${p0.hour}, ${p0.minute}');
                       },
                     ),
                   ),
