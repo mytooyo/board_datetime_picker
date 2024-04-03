@@ -60,10 +60,20 @@ class BoardDateTimeInputFieldValidators {
   }
 }
 
+class BoardDateTimeTextController {
+  @protected
+  final ValueNotifier<String> _textNotifier = ValueNotifier('');
+
+  void setText(String text) {
+    _textNotifier.value = text;
+  }
+}
+
 class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
     extends StatefulWidget {
   const BoardDateTimeInputField({
     super.key,
+    this.controller,
     required this.options,
     this.pickerType = DateTimePickerType.datetime,
     required this.onChanged,
@@ -128,6 +138,10 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
 
   /// Callback when the focus state is changed for the corresponding TextField
   final void Function(bool, DateTime?)? onFocusChange;
+
+  /// Controller for setting text externally
+  /// Text in the feeler can be updated by calling the `setText` method
+  final BoardDateTimeTextController? controller;
 
   final double breakpoint;
 
@@ -210,6 +224,23 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   /// Borderを表示したいので基本的にContainerのみでOK
   Widget? errorWidget;
 
+  bool focused = false;
+
+  // 自分自身に対してフォーカスが当たっているかどうかを確認するためのフラグ
+  bool? get focusIsSelf {
+    final pf = FocusManager.instance.primaryFocus;
+
+    // テキストフィールド自体の場合は自分自身かどうか
+    if (pf is BoardDateTimeInputFocusNode) {
+      return pf == focusNode;
+    }
+    // Pickerのフォーカスが自分自身が表示しているものかどうか
+    if (pf is PickerContentsFocusNode) {
+      return pf == pickerFocusNode;
+    }
+    return null;
+  }
+
   void closePicker({bool disposed = false}) {
     if (disposed) {
       overlay?.remove();
@@ -227,9 +258,21 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   void openPicker() {}
 
   void _focusListener() {
+    // 自分自身のフォーカスかどうかを判定
+    if (focusIsSelf != null) {
+      focused = focusIsSelf!;
+    }
+
     if (!focusNode.hasFocus) {
       if (textController.text.isNotEmpty) {
         checkFormat(textController.text, complete: true);
+
+        // フォーカスが外れたが、別のInputFieldにフォーカスが移動した場合
+        final pf = FocusManager.instance.primaryFocus;
+        if (pf is BoardDateTimeInputFocusNode) {
+          closePicker();
+          widget.onFocusChange?.call(false, selectedDate);
+        }
       }
     } else {
       if (!widget.showPicker || overlay != null) return;
@@ -239,6 +282,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       }
 
       // フォーカスを取得した際のコールバック
+      initialized = true;
       widget.onFocusChange?.call(true, selectedDate);
 
       overlay = OverlayEntry(
@@ -327,21 +371,30 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   bool initialized = false;
 
+  void _onFocused() {
+    // 自分自身のフォーカスかどうかを判定
+    if (focusIsSelf != null) {
+      focused = focusIsSelf!;
+    }
+    // print(
+    //     '*** focus scope: ${FocusManager.instance.primaryFocus}, ${widget.pickerType}');
+    final pf = FocusManager.instance.primaryFocus;
+    if (pf is! BoardDateTimeInputFocusNode &&
+        pf is! PickerItemFocusNode &&
+        pf is! PickerContentsFocusNode &&
+        pf is! PickerWheelItemFocusNode) {
+      closePicker();
+      if (initialized && focused) {
+        checkFormat(textController.text, complete: true);
+        widget.onFocusChange?.call(false, selectedDate);
+      }
+    }
+  }
+
   void focusScopeListener() {
     focusNodeDebounce?.cancel();
     focusNodeDebounce = Timer(const Duration(milliseconds: 100), () {
-      // print('*** focus scope: ${FocusManager.instance.primaryFocus}');
-      final pf = FocusManager.instance.primaryFocus;
-      if (pf is! BoardDateTimeInputFocusNode &&
-          pf is! PickerItemFocusNode &&
-          pf is! PickerContentsFocusNode &&
-          pf is! PickerWheelItemFocusNode) {
-        closePicker();
-        if (initialized) {
-          widget.onFocusChange?.call(false, selectedDate);
-        }
-        initialized = true;
-      }
+      _onFocused();
     });
   }
 
@@ -405,6 +458,11 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       duration: const Duration(milliseconds: 260),
       reverseDuration: const Duration(milliseconds: 260),
     );
+
+    widget.controller?._textNotifier.addListener(() {
+      // 変更された場合に更新する
+      checkFormat(widget.controller!._textNotifier.value, complete: true);
+    });
 
     super.initState();
   }

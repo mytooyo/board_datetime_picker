@@ -94,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // minimumDate: DateTime(2023, 12, 15, 0, 15),
       // maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
+        final textController = BoardDateTimeTextController();
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.title),
@@ -105,25 +106,52 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: 160,
-                    child: BoardDateTimeInputField(
-                      pickerType: DateTimePickerType.date,
-                      options: const BoardDateTimeOptions(
-                        languages: BoardPickerLanguages.en(),
-                        pickerFormat: PickerFormat.dmy,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 160,
+                        child: BoardDateTimeInputField(
+                          controller: textController,
+                          pickerType: DateTimePickerType.date,
+                          options: const BoardDateTimeOptions(
+                            languages: BoardPickerLanguages.en(),
+                            pickerFormat: PickerFormat.dmy,
+                          ),
+                          textStyle: Theme.of(context).textTheme.bodyMedium,
+                          onChanged: (date) {
+                            print('onchanged: $date');
+                          },
+                          onFocusChange: (val, date) {
+                            print('on focus changed date: $val, $date');
+                          },
+                          onResult: (p0) {
+                            // print('on result: ${p0.hour}, ${p0.minute}');
+                          },
+                        ),
                       ),
-                      textStyle: Theme.of(context).textTheme.bodyMedium,
-                      onChanged: (date) {
-                        print('onchanged: $date');
-                      },
-                      onFocusChange: (val, date) {
-                        print('on focus changed: $val, $date');
-                      },
-                      onResult: (p0) {
-                        // print('on result: ${p0.hour}, ${p0.minute}');
-                      },
-                    ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 160,
+                        child: BoardDateTimeInputField(
+                          pickerType: DateTimePickerType.time,
+                          options: const BoardDateTimeOptions(
+                            languages: BoardPickerLanguages.en(),
+                            pickerFormat: PickerFormat.dmy,
+                          ),
+                          textStyle: Theme.of(context).textTheme.bodyMedium,
+                          onChanged: (date) {
+                            print('onchanged: $date');
+                          },
+                          onFocusChange: (val, date) {
+                            print('on focus changed time: $val, $date');
+                          },
+                          onResult: (p0) {
+                            // print('on result: ${p0.hour}, ${p0.minute}');
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 60),
                   ItemWidget(
