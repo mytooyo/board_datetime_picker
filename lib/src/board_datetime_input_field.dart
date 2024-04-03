@@ -62,10 +62,14 @@ class BoardDateTimeInputFieldValidators {
 
 class BoardDateTimeTextController {
   @protected
-  final ValueNotifier<String> _textNotifier = ValueNotifier('');
+  final ValueNotifier<dynamic> _notifier = ValueNotifier(null);
 
   void setText(String text) {
-    _textNotifier.value = text;
+    _notifier.value = text;
+  }
+
+  void setDate(DateTime date) {
+    _notifier.value = date;
   }
 }
 
@@ -459,9 +463,16 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       reverseDuration: const Duration(milliseconds: 260),
     );
 
-    widget.controller?._textNotifier.addListener(() {
+    widget.controller?._notifier.addListener(() {
+      final setVal = widget.controller!._notifier.value;
+      String newVal = '';
+      if (setVal != null && setVal is String) {
+        newVal = setVal;
+      } else if (setVal != null && setVal is DateTime) {
+        newVal = DateFormat(format).format(setVal);
+      }
       // 変更された場合に更新する
-      checkFormat(widget.controller!._textNotifier.value, complete: true);
+      checkFormat(newVal, complete: true);
     });
 
     super.initState();

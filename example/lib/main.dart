@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           onChanged: (date) {
                             print('onchanged: $date');
                           },
-                          onFocusChange: (val, date) {
+                          onFocusChange: (val, date, text) {
                             print('on focus changed time: $val, $date');
                           },
                           onResult: (p0) {
