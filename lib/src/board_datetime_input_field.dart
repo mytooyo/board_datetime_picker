@@ -137,7 +137,7 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
   final BoardDateTimeInputFieldValidators validators;
 
   /// Callback when the focus state is changed for the corresponding TextField
-  final void Function(bool, DateTime?)? onFocusChange;
+  final void Function(bool, DateTime?, String)? onFocusChange;
 
   /// Controller for setting text externally
   /// Text in the feeler can be updated by calling the `setText` method
@@ -271,7 +271,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         final pf = FocusManager.instance.primaryFocus;
         if (pf is BoardDateTimeInputFocusNode) {
           closePicker();
-          widget.onFocusChange?.call(false, selectedDate);
+          widget.onFocusChange?.call(false, selectedDate, textController.text);
         }
       }
     } else {
@@ -283,7 +283,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
       // フォーカスを取得した際のコールバック
       initialized = true;
-      widget.onFocusChange?.call(true, selectedDate);
+      widget.onFocusChange?.call(true, selectedDate, textController.text);
 
       overlay = OverlayEntry(
         builder: (context) {
@@ -386,7 +386,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       closePicker();
       if (initialized && focused) {
         checkFormat(textController.text, complete: true);
-        widget.onFocusChange?.call(false, selectedDate);
+        widget.onFocusChange?.call(false, selectedDate, textController.text);
       }
     }
   }
