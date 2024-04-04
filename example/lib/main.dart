@@ -168,6 +168,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              textController.setText('2020/12/20');
+            },
+          ),
         );
       },
       onResult: (val) {},

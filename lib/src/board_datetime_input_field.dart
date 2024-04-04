@@ -492,19 +492,24 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       reverseDuration: const Duration(milliseconds: 260),
     );
 
-    widget.controller?._notifier.addListener(() {
-      final setVal = widget.controller!._notifier.value;
-      String newVal = '';
-      if (setVal != null && setVal is String) {
-        newVal = setVal;
-      } else if (setVal != null && setVal is DateTime) {
-        newVal = DateFormat(format).format(setVal);
-      }
-      // 変更された場合に更新する
-      checkFormat(newVal, complete: true);
-    });
+    widget.controller?._notifier.addListener(_controllerListener);
 
     super.initState();
+  }
+
+  void _controllerListener() {
+    final setVal = widget.controller!._notifier.value;
+    String newVal = '';
+    if (setVal != null && setVal is String) {
+      newVal = setVal;
+    } else if (setVal != null && setVal is DateTime) {
+      newVal = DateFormat(format).format(setVal);
+    }
+
+    if (newVal == textController.text) return;
+
+    // 変更された場合に更新する
+    checkFormat(newVal, complete: true);
   }
 
   @override
@@ -933,6 +938,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           BoardDateTimeCommonResult.init(widget.pickerType, datetime) as T,
         );
         pickerController?.changeDate(datetime);
+        widget.controller?._notifier.value = date;
       }
     }
   }
