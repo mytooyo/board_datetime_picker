@@ -15,7 +15,7 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 
 |Modal Sheed|Input Field|
 |---|---|
-|![modal](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png)|![inputfield](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_inputfield.gif)|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_inputfield.gif" width="300" />|
 
 
 ## Getting Started
