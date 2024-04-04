@@ -1,3 +1,6 @@
+## 1.6.1
+* Fixed a problem initialDate
+
 ## 1.6.0
 * Added `BoardDateTimeInputField` Widget.  
   It is a TextField with autocomplete and check functions.  

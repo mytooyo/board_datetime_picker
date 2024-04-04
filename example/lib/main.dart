@@ -64,6 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
     GlobalKey()
   ];
 
+  final textController = BoardDateTimeTextController();
+
   @override
   Widget build(BuildContext context) {
     return BoardDateTimeBuilder<BoardDateTimeCommonResult>(
@@ -94,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // minimumDate: DateTime(2023, 12, 15, 0, 15),
       // maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
-        final textController = BoardDateTimeTextController();
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.title),
@@ -122,6 +123,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           options: const BoardDateTimeOptions(
                             languages: BoardPickerLanguages.en(),
                           ),
+                          initialDate: DateTime.now(),
+                          maximumDate: DateTime(2040),
+                          minimumDate: DateTime(1900, 1, 1),
                           textStyle: Theme.of(context).textTheme.bodyMedium,
                           onChanged: (date) {
                             print('onchanged: $date');

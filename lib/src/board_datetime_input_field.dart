@@ -459,13 +459,14 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     // TextFormat
     format = pickerFormat.dateFormat(widget.delimiter);
 
+    minimumDate = widget.minimumDate ?? DateTimeUtil.defaultMinDate;
+    maximumDate = widget.maximumDate ?? DateTimeUtil.defaultMaxDate;
+
     DateTime? initial;
     if (widget.initialDate != null) {
       initial = rangeDate(widget.initialDate!);
       selectedDate = initial;
     }
-    minimumDate = widget.minimumDate ?? DateTimeUtil.defaultMinDate;
-    maximumDate = widget.maximumDate ?? DateTimeUtil.defaultMaxDate;
 
     textController = TextEditingController(
       text: initial != null
