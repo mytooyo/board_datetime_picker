@@ -109,14 +109,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Text(
+                        'BoardDateTimeInputField: ',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(width: 16),
                       SizedBox(
                         width: 160,
                         child: BoardDateTimeInputField(
                           controller: textController,
-                          pickerType: DateTimePickerType.date,
+                          pickerType: DateTimePickerType.datetime,
                           options: const BoardDateTimeOptions(
                             languages: BoardPickerLanguages.en(),
-                            pickerFormat: PickerFormat.dmy,
                           ),
                           textStyle: Theme.of(context).textTheme.bodyMedium,
                           onChanged: (date) {
@@ -124,27 +128,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           },
                           onFocusChange: (val, date, text) {
                             print('on focus changed date: $val, $date, $text');
-                          },
-                          onResult: (p0) {
-                            // print('on result: ${p0.hour}, ${p0.minute}');
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 160,
-                        child: BoardDateTimeInputField(
-                          pickerType: DateTimePickerType.time,
-                          options: const BoardDateTimeOptions(
-                            languages: BoardPickerLanguages.en(),
-                            pickerFormat: PickerFormat.dmy,
-                          ),
-                          textStyle: Theme.of(context).textTheme.bodyMedium,
-                          onChanged: (date) {
-                            print('onchanged: $date');
-                          },
-                          onFocusChange: (val, date, text) {
-                            print('on focus changed time: $val, $date, $text');
                           },
                           onResult: (p0) {
                             // print('on result: ${p0.hour}, ${p0.minute}');

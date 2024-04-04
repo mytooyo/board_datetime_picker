@@ -11,8 +11,12 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 |---|---|
 |![standard](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_standard.gif)|![wide](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_wide.gif)|
 
-### Modal Bottom Sheet
-<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png" width="300" />
+### Modal Bottom Sheet & Input Field
+
+|Modal Sheed|Input Field|
+|---|---|
+|![modal](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png)|![inputfield](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_inputfield.gif)|
+
 
 ## Getting Started
 
@@ -20,7 +24,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.4.0
+    board_datetime_picker: 1.6.0
 ```
 
 ## Usage
@@ -89,6 +93,34 @@ ElevatedButton(
 )
 
 ```
+
+#### Input Field
+
+```dart
+final textController = BoardDateTimeTextController();
+
+@override
+Widget build(BuildContext context) {
+  return SizedBox(
+    width: 160,
+    child: BoardDateTimeInputField(
+      controller: textController,
+      pickerType: DateTimePickerType.datetime,
+      options: const BoardDateTimeOptions(
+        languages: BoardPickerLanguages.en(),
+      ),
+      textStyle: Theme.of(context).textTheme.bodyMedium,
+      onChanged: (date) {
+        print('onchanged: $date');
+      },
+      onFocusChange: (val, date, text) {
+        print('on focus changed date: $val, $date, $text');
+      },
+    ),
+  );
+}
+```
+
 
 ### Picker Type
 

@@ -1,3 +1,9 @@
+## 1.6.0
+* Added `BoardDateTimeInputField` Widget.  
+  It is a TextField with autocomplete and check functions.  
+  An input field with the same functionality as a regular `TextFormField`, but designed for date entry/selection.  
+  Both text field and Picker can be used at the same time.  
+
 ## 1.5.0
 * Upgrade the package.
 * Deprecation removed (weekdays)

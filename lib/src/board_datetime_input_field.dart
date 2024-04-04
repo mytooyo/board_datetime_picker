@@ -9,21 +9,12 @@ import '../board_datetime_picker.dart';
 import 'board_datetime_builder.dart';
 import 'ui/parts/focus_node.dart';
 import 'utils/board_enum.dart';
+import 'utils/board_input_filed_utilities.dart';
 import 'utils/datetime_util.dart';
 
-enum BoardDateTimeInputError { illegal, outOfRange }
-
-extension BoardDateTimeInputErrorExtension on BoardDateTimeInputError {
-  String get message {
-    switch (this) {
-      case BoardDateTimeInputError.illegal:
-        return 'Illegal format error';
-      case BoardDateTimeInputError.outOfRange:
-        return 'Out of Range';
-    }
-  }
-}
-
+/// Class for handling validation on error.
+/// When an error occurs in checking when text is changed or when the focus is lost,
+/// a function is called depending on the type of error.
 class BoardDateTimeInputFieldValidators {
   /// Message for which the entered message is invalid
   final String Function(String)? onIllegalFormat;
@@ -45,17 +36,17 @@ class BoardDateTimeInputFieldValidators {
     this.showMessage = false,
   });
 
-  String? errorIllegal(String text) {
+  String? _errorIllegal(String text) {
     return onIllegalFormat?.call(text) ??
         BoardDateTimeInputError.illegal.message;
   }
 
-  String? errorOutOfRange(String text) {
+  String? _errorOutOfRange(String text) {
     return onOutOfRange?.call(text) ??
         BoardDateTimeInputError.outOfRange.message;
   }
 
-  String? errorRequired() {
+  String? _errorRequired() {
     return onRequired?.call();
   }
 }
@@ -73,6 +64,35 @@ class BoardDateTimeTextController {
   }
 }
 
+/// [BoardDateTimeInputField] is a widget for using text field and picker at the same time
+///
+/// It is a TextField with autocomplete and check functions.
+/// An input field with the same functionality
+/// as a regular TextFormField, but designed for date entry/selection
+///
+/// Parameters for TextFormField have been added,
+/// but otherwise it is the same as the previous [BoardDateTimeBuilder].
+///
+/// Example:
+/// ```dart
+/// BoardDateTimeInputField(
+///   controller: textController,
+///   pickerType: DateTimePickerType.date,
+///   options: const BoardDateTimeOptions(
+///     languages: BoardPickerLanguages.en(),
+///   ),
+///   textStyle: Theme.of(context).textTheme.bodyMedium,
+///   onChanged: (date) {
+///     print('onchanged: $date');
+///   },
+///   onFocusChange: (val, date, text) {
+///     print('on focus changed date: $val, $date, $text');
+///   },
+///   onResult: (p0) {
+///     // print('on result: ${p0.hour}, ${p0.minute}');
+/// },
+///
+/// ```
 class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
     extends StatefulWidget {
   const BoardDateTimeInputField({
@@ -177,11 +197,16 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
 class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     extends State<BoardDateTimeInputField<T>>
     with SingleTickerProviderStateMixin {
-  /// Overlay
+  /// Key of Widget to display Overkay
   final GlobalKey overlayKey = GlobalKey();
+
+  /// Overlay Widget to display picker
   OverlayEntry? overlay;
 
-  /// フォーカスノード監視用
+  /// Key specified for Focus in TextFormField
+  final GlobalKey<FormState> formKey = GlobalKey();
+
+  /// Debounce timer for focus node monitoring
   Timer? focusNodeDebounce;
 
   BoardDateTimeContentsController? pickerController;
@@ -189,62 +214,67 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   /// Overlay Animation Controller
   late AnimationController overlayAnimController;
 
-  /// 入力フィールドのコントローラ
+  /// Input field controller
   late TextEditingController textController;
 
-  /// FocusNode
+  /// FocusNodes
   late BoardDateTimeInputFocusNode focusNode;
   late PickerContentsFocusNode pickerFocusNode;
 
-  /// 選択中の日付
-  DateTime? selectedDate;
-
-  /// Text Format
+  /// Date formatting when displayed in input fields
   late String format;
 
+  /// Format for Picker display
   late String pickerFormat;
 
-  final GlobalKey<FormState> formKey = GlobalKey();
-
-  /// Date
+  /// Specified minimum date
   late DateTime minimumDate;
+
+  /// Specified maximum date
   late DateTime maximumDate;
 
+  /// Date being selected and entered
+  DateTime? selectedDate;
+
+  /// ValueNotifier to work with Picker
+  /// Monitor the value and apply it to the Field
   ValueNotifier<DateTime>? pickerDateState;
 
   BoardDateTimeOptions get options => widget.options;
 
-  final BorderRadius borderRadius = BorderRadius.circular(8);
-
-  final List<String> delititers = ['/', ';', ':', ',', '.', '-', ' '];
-
-  /// 変更前の文字数
+  /// Number of characters before Field change
   int beforeTextLength = -1;
 
-  int get textOffset => textController
-      .selection.extent.offset; //textController.selection.base.offset;
-
-  /// エラー発生時に利用するためのWidget
-  /// Borderを表示したいので基本的にContainerのみでOK
+  /// Widget for use when an error occurs
+  /// Basically, only Container is needed because we want to display Border.
   Widget? errorWidget;
 
+  /// Variable to check if your own field is in focus
   bool focused = false;
 
-  // 自分自身に対してフォーカスが当たっているかどうかを確認するためのフラグ
+  /// Target delimiter to be converted on input
+  final List<String> delititers = ['/', ';', ':', ',', '.', '-', ' '];
+
+  final BorderRadius borderRadius = BorderRadius.circular(8);
+
+  int get textOffset => textController.selection.extent.offset;
+
+  // Flag to see if you are focused on yourself
   bool? get focusIsSelf {
     final pf = FocusManager.instance.primaryFocus;
 
-    // テキストフィールド自体の場合は自分自身かどうか
+    // In the case of the text field itself, whether it is your own or not.
     if (pf is BoardDateTimeInputFocusNode) {
       return pf == focusNode;
     }
-    // Pickerのフォーカスが自分自身が表示しているものかどうか
+    // Whether the focus of the Picker is what you yourself are displaying
     if (pf is PickerContentsFocusNode) {
       return pf == pickerFocusNode;
     }
     return null;
   }
 
+  /// Close the displayed picker
   void closePicker({bool disposed = false}) {
     if (disposed) {
       overlay?.remove();
@@ -259,10 +289,10 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     }
   }
 
-  void openPicker() {}
-
+  /// Function to monitor the FocusNode of
+  /// a TextFormField and process any changes
   void _focusListener() {
-    // 自分自身のフォーカスかどうかを判定
+    // Determine if it is your own focus
     if (focusIsSelf != null) {
       focused = focusIsSelf!;
     }
@@ -271,7 +301,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       if (textController.text.isNotEmpty) {
         checkFormat(textController.text, complete: true);
 
-        // フォーカスが外れたが、別のInputFieldにフォーカスが移動した場合
+        // If the focus is out of focus, but the focus has moved to another InputField
         final pf = FocusManager.instance.primaryFocus;
         if (pf is BoardDateTimeInputFocusNode) {
           closePicker();
@@ -285,7 +315,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         pickerController!.changeDate(selectedDate!);
       }
 
-      // フォーカスを取得した際のコールバック
+      // Callback when focus is acquired
       initialized = true;
       widget.onFocusChange?.call(true, selectedDate, textController.text);
 
@@ -376,12 +406,10 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   bool initialized = false;
 
   void _onFocused() {
-    // 自分自身のフォーカスかどうかを判定
+    // Determine if it is your own focus
     if (focusIsSelf != null) {
       focused = focusIsSelf!;
     }
-    // print(
-    //     '*** focus scope: ${FocusManager.instance.primaryFocus}, ${widget.pickerType}');
     final pf = FocusManager.instance.primaryFocus;
     if (pf is! BoardDateTimeInputFocusNode &&
         pf is! PickerItemFocusNode &&
@@ -533,14 +561,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
                 ),
               ),
               errorMaxLines: 2,
-              // validatorを指定しない場合はこれを指定することでエラーを表現できる
               error: errorWidget,
             ),
         validator: widget.validators.showMessage
             ? (value) {
-                // 必須でエラーの場合
                 if (value == null || value.isEmpty) {
-                  return widget.validators.errorRequired();
+                  return widget.validators._errorRequired();
                 }
 
                 final error = validate(
@@ -553,9 +579,9 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
                 switch (error) {
                   case BoardDateTimeInputError.illegal:
-                    return widget.validators.errorIllegal(value);
+                    return widget.validators._errorIllegal(value);
                   case BoardDateTimeInputError.outOfRange:
-                    return widget.validators.errorOutOfRange(value);
+                    return widget.validators._errorOutOfRange(value);
                 }
               }
             : null,
@@ -619,6 +645,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
         // Error if the number of characters is larger than the specified number
         if (f.count < data.text.length) {
+          selectedDate = null;
           return ValidatorResult(
             error: BoardDateTimeInputError.illegal,
             pickerType: widget.pickerType,
@@ -633,8 +660,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           if (data.start <= textOffset && data.end >= textOffset && !complete) {
             return null;
           }
-
-          // 通常の範囲チェックを実施
+          // Conduct normal range checks.
           try {
             if (f == 'y') {
               final y = int.parse(data.text);
@@ -673,10 +699,10 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           return err;
         }
 
-        // デリミターが入力されて次のデータが存在する場合のみ補正
-        // ただし、カーゾルの位置から編集中のブロックの場合は補正しない
+        // Corrects only if a delimiter is entered and the following data exists
+        // However, if the block is being edited from the cursor position, it is not corrected.
         final isLast = splited.length == i + 1;
-        // フォーカスが外れて全体のチェックの場合はすべての値に対してのエラーをハンドリングする
+        // Handling errors for all values if the focus is off and the entire check
         if (complete) {
           retError ??= check();
         } else if (!isLast) {
@@ -696,35 +722,41 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   void checkFormat(String val, {bool complete = false}) {
     String value = val;
-    // デリミターのみ入力された場合は今日の日付を入力する
+    // If only a delimiter is entered, enter today's date
     if (value.length == 1 && delititers.contains(value)) {
       value = DateFormat(format).format(DateTime.now());
+    } else if (val.isEmpty && !widget.validators.showMessage) {
+      if (widget.validators.onRequired != null) {
+        widget.validators._errorRequired();
+      }
+      selectedDate = null;
+      return;
     }
 
-    // 入力値チェック
+    // Input value check
     final result = validate(value, complete: complete);
 
-    // validatorが指定されていない場合はエラーを表現するために
-    // Containerを生成する
+    // If validator is not specified,
+    // generate a Container to represent the error
     if (!widget.validators.showMessage) {
       if (result.error != null && errorWidget == null) {
         setState(() => errorWidget = Container());
       }
-      // エラーを非表示
+      // Hide errors
       else if (result.error == null && errorWidget != null) {
         setState(() => errorWidget = null);
       }
 
-      // エラーを通知
+      // Notification of errors
       if (value.isEmpty && widget.validators.onRequired != null) {
-        widget.validators.errorRequired();
+        widget.validators._errorRequired();
       } else if (result.error != null) {
         switch (result.error!) {
           case BoardDateTimeInputError.illegal:
-            widget.validators.errorIllegal(value);
+            widget.validators._errorIllegal(value);
             break;
           case BoardDateTimeInputError.outOfRange:
-            widget.validators.errorOutOfRange(value);
+            widget.validators._errorOutOfRange(value);
             break;
         }
       }
@@ -752,15 +784,47 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         }
       }
     }
-    // dateまたはdatetimeの場合は年月日を補正
+    // Corrects for date or datetime if date or datetime
     else {
-      // 月と日が入力済みで年が未入力の場合は初期日時の年で補正する
+      // If the month and day have already been entered
+      // but the year has not been entered,
+      // the year of the initial date and time is corrected.
+      final year = result.splited!.firstWhereOrNull(
+        (e) => e.dateType == DateType.year,
+      );
       final month = result.splited!.firstWhereOrNull(
         (e) => e.dateType == DateType.month,
       );
       final day = result.splited!.firstWhereOrNull(
         (e) => e.dateType == DateType.day,
       );
+      if (year != null && year.text.isNotEmpty && complete) {
+        if (month == null || month.text.isEmpty) {
+          final bloc = TextBloc(text: '01', start: 0, end: 0)
+            ..dateType = DateType.month;
+          final monthIndex = pickerFormat.indexOf('M');
+          if (monthIndex >= 0) {
+            if (result.splited!.length <= monthIndex) {
+              result.splited!.add(bloc);
+            } else {
+              result.splited![monthIndex] = bloc;
+            }
+          }
+        }
+        if (day == null || day.text.isEmpty) {
+          final bloc = TextBloc(text: '01', start: 0, end: 0)
+            ..dateType = DateType.day;
+          final dayIndex = pickerFormat.indexOf('d');
+          if (dayIndex >= 0) {
+            if (result.splited!.length <= dayIndex) {
+              result.splited!.add(bloc);
+            } else {
+              result.splited![dayIndex] = bloc;
+            }
+          }
+        }
+      }
+
       if (month != null &&
           month.text.isNotEmpty &&
           day != null &&
@@ -782,29 +846,28 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           }
         }
 
-        // 文字列を削除した場合は自動追加しないようにチェックを実施
+        // Check implemented to not auto-add if string is deleted
         final isDeleted = beforeTextLength > value.length;
 
-        // フォーカスが外れた場合は補正する
+        // Compensate for out-of-focus
         if (complete && year == null) {
           setYear();
         }
-        // デリミターが入力された場合のみ追加
+        // Add only if a delimiter is entered
         else if (year != null && year.text.isEmpty && !isDeleted) {
           setYear();
         }
       }
     }
 
-    // フォーカスが外れた場合、必要に応じて補正する
-    // 日付については補正されるため、時間の補正のみを実施
+    // If out of focus, correct as needed
+    // Only time correction is performed since the date is corrected for the date
     if (complete && widget.pickerType == DateTimePickerType.datetime) {
       if (result.splited!.length <= 5) {
         final diff = 5 -
             (result.splited!.where((e) => e.text.isNotEmpty).toList().length);
         for (var i = 0; i < diff; i++) {
           TextBloc bloc;
-          // 最終の場合は分を追加
           if (i == diff - 1) {
             bloc = TextBloc(text: '00', start: 0, end: 0);
             bloc.dateType = DateType.minute;
@@ -826,7 +889,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
     final splitedText = result.splited!.map((e) => e.text).toList();
 
-    // splitedTextの数が4以上の場合は時間を含むため、分けて結合する
+    // If the number of splitedTexts is 4 or more, they are merged separately because they contain time.
     String date;
     if (splitedText.length > 3) {
       final ymd = splitedText.sublist(0, 3).join(widget.delimiter);
@@ -840,7 +903,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       }
     }
 
-    // 最後が空の場合は除外する
+    // If the last part is empty, exclude it.
     if (result.splited!.isNotEmpty &&
         result.splited!.last.text.isEmpty &&
         date.length >= format.length) {
@@ -858,7 +921,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     );
 
     final datetime = result.datetime;
-    // エラーがない場合のみコールバックを実施
+    // Callback only if there are no errors
     if (datetime != null && result.error == null) {
       if (datetime.isAfter(minimumDate) &&
           datetime.isBefore(maximumDate) &&
@@ -870,131 +933,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         );
         pickerController?.changeDate(datetime);
       }
-    }
-  }
-}
-
-class ValidatorResult {
-  final List<TextBloc>? splited;
-  final BoardDateTimeInputError? error;
-  final DateTimePickerType pickerType;
-
-  ValidatorResult({
-    this.splited,
-    this.error,
-    required this.pickerType,
-  });
-
-  DateTime? get datetime {
-    if (pickerType == DateTimePickerType.time) {
-      final date = DateTime.now();
-
-      final hour = splited?.firstWhereOrNull(
-        (e) => e.dateType == DateType.hour,
-      );
-      final minute = splited?.firstWhereOrNull(
-        (e) => e.dateType == DateType.minute,
-      );
-
-      return DateTime(
-        date.year,
-        date.month,
-        date.day,
-        hour == null || hour.text.isEmpty ? 0 : int.parse(hour.text),
-        minute == null || minute.text.isEmpty ? 0 : int.parse(minute.text),
-      );
-    }
-
-    final year = splited?.firstWhereOrNull(
-      (e) => e.dateType == DateType.year,
-    );
-    final month = splited?.firstWhereOrNull(
-      (e) => e.dateType == DateType.month,
-    );
-    final day = splited?.firstWhereOrNull(
-      (e) => e.dateType == DateType.day,
-    );
-    final hour = splited?.firstWhereOrNull(
-      (e) => e.dateType == DateType.hour,
-    );
-    final minute = splited?.firstWhereOrNull(
-      (e) => e.dateType == DateType.minute,
-    );
-    if (year == null ||
-        month == null ||
-        year.text.isEmpty ||
-        month.text.isEmpty) return null;
-    return DateTime(
-      int.parse(year.text),
-      int.parse(month.text),
-      day == null || day.text.isEmpty ? 1 : int.parse(day.text),
-      hour == null || hour.text.isEmpty ? 0 : int.parse(hour.text),
-      minute == null || minute.text.isEmpty ? 0 : int.parse(minute.text),
-    );
-  }
-}
-
-class TextBloc {
-  String text;
-  final int start;
-  final int end;
-  DateType? dateType;
-
-  TextBloc({
-    required this.text,
-    required this.start,
-    required this.end,
-  });
-}
-
-extension StringExtension on String {
-  int get count {
-    switch (this) {
-      case 'y':
-        return 4;
-      case 'M':
-      case 'd':
-      case 'H':
-      case 'm':
-        return 2;
-      default:
-        return 0;
-    }
-  }
-
-  DateType get dateType {
-    switch (this) {
-      case 'y':
-        return DateType.year;
-      case 'M':
-        return DateType.month;
-      case 'd':
-        return DateType.day;
-      case 'H':
-        return DateType.hour;
-      case 'm':
-        return DateType.minute;
-      default:
-        return DateType.year;
-    }
-  }
-
-  String dateFormat(String delimiter) {
-    switch (this) {
-      case PickerFormat.mdy:
-        return 'MM${delimiter}dd${delimiter}yyyy';
-      case '${PickerFormat.mdy}Hm':
-        return 'MM${delimiter}dd${delimiter}yyyy HH:mm';
-      case PickerFormat.dmy:
-        return 'dd${delimiter}MM${delimiter}yyyy';
-      case '${PickerFormat.dmy}Hm':
-        return 'dd${delimiter}MM${delimiter}yyyy HH:mm';
-      case PickerFormat.ymd:
-        return 'yyyy${delimiter}MM${delimiter}dd';
-      case '${PickerFormat.ymd}Hm':
-        return 'yyyy${delimiter}MM${delimiter}dd HH:mm';
-      default:
-        return 'HH:mm';
     }
   }
 }
