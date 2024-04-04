@@ -663,6 +663,9 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
               }
             }
           } catch (ex) {
+            if (complete) {
+              selectedDate = null;
+            }
             return err;
           }
 
