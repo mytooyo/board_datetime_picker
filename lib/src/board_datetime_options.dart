@@ -190,13 +190,13 @@ typedef BoardDateTimePickerFormat = String;
 /// Definition of possible values for the picker format
 class PickerFormat {
   /// year - month - day
-  static const BoardDateTimePickerFormat ymd = 'ymd';
+  static const BoardDateTimePickerFormat ymd = 'yMd';
 
   /// month - day - yaer
-  static const BoardDateTimePickerFormat mdy = 'mdy';
+  static const BoardDateTimePickerFormat mdy = 'Mdy';
 
   /// day - month - yaer
-  static const BoardDateTimePickerFormat dmy = 'dmy';
+  static const BoardDateTimePickerFormat dmy = 'dMy';
 }
 
 /// Specify the title of each item to be displayed in the picker.

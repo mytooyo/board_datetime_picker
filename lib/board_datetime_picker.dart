@@ -4,6 +4,11 @@ import 'package:intl/intl.dart';
 
 export 'src/board_datetime_builder.dart'
     show BoardDateTimeController, BoardDateTimeBuilder;
+export 'src/board_datetime_input_field.dart'
+    show
+        BoardDateTimeInputField,
+        BoardDateTimeInputFieldValidators,
+        BoardDateTimeTextController;
 export 'src/board_datetime_options.dart'
     show
         BoardDateTimeOptions,

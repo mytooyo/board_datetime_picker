@@ -17,7 +17,31 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 235, 235, 241),
         useMaterial3: false,
       ),
+      // home: const Home(),
       home: const MyHomePage(title: 'Board DateTime Picker Example'),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('text'),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    const MyHomePage(title: 'Board DateTime Picker Example'),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
@@ -70,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // minimumDate: DateTime(2023, 12, 15, 0, 15),
       // maximumDate: DateTime(2024, 12, 31),
       builder: (context) {
+        final textController = BoardDateTimeTextController();
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.title),
@@ -81,6 +106,37 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'BoardDateTimeInputField: ',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(width: 16),
+                      SizedBox(
+                        width: 160,
+                        child: BoardDateTimeInputField(
+                          controller: textController,
+                          pickerType: DateTimePickerType.datetime,
+                          options: const BoardDateTimeOptions(
+                            languages: BoardPickerLanguages.en(),
+                          ),
+                          textStyle: Theme.of(context).textTheme.bodyMedium,
+                          onChanged: (date) {
+                            print('onchanged: $date');
+                          },
+                          onFocusChange: (val, date, text) {
+                            print('on focus changed date: $val, $date, $text');
+                          },
+                          onResult: (p0) {
+                            // print('on result: ${p0.hour}, ${p0.minute}');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 60),
                   ItemWidget(
                     key: keys[0],
                     type: DateTimePickerType.datetime,

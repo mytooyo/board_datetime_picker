@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'options/board_item_option.dart';
+import 'ui/parts/focus_node.dart';
 import 'ui/parts/header.dart';
 import 'ui/picker_calendar_widget.dart';
 import 'utils/board_datetime_result.dart';
@@ -27,6 +28,16 @@ class BoardDateTimeController {
 
   void close() {
     _key.currentState?.close();
+  }
+}
+
+/// Controller for displaying, hiding, and updating the value of the picker
+class BoardDateTimeContentsController {
+  // ignore: library_private_types_in_public_api
+  final GlobalKey<_BoardDateTimeContentState> key = GlobalKey();
+
+  void changeDate(DateTime date) {
+    key.currentState?.changeDateTime(date);
   }
 }
 
@@ -206,6 +217,8 @@ class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.modal = false,
     this.onCloseModal,
     this.keyboardHeightNotifier,
+    this.onCreatedDateState,
+    this.pickerFocusNode,
   });
 
   final double breakpoint;
@@ -223,6 +236,10 @@ class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   /// Callback for closing a modal
   final void Function()? onCloseModal;
+
+  final void Function(ValueNotifier<DateTime>)? onCreatedDateState;
+
+  final FocusNode? pickerFocusNode;
 
   @override
   State<BoardDateTimeContent> createState() => _BoardDateTimeContentState<T>();
@@ -374,7 +391,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       // Check the value specified in the picker format.
       // Error if a value other than y, m, or d is specified
       final pickerFormat = widget.options.pickerFormat;
-      final reg = RegExp('^(?=.*y)(?=.*m)(?=.*d)');
+      final reg = RegExp('^(?=.*y)(?=.*M)(?=.*d)');
       assert(reg.hasMatch(pickerFormat));
 
       for (final pf in pickerFormat.characters) {
@@ -383,7 +400,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
           ymdOptions.add(
             initItemOption(DateType.year, d, minDate, maxDate, null, subTitle),
           );
-        } else if (pf == 'm') {
+        } else if (pf == 'M') {
           final subTitle = widget.options.getSubTitle(DateType.month);
           ymdOptions.add(
             initItemOption(DateType.month, d, minDate, maxDate, null, subTitle),
@@ -430,8 +447,10 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     }
 
     pickerType = type;
+
     dateState = ValueNotifier(d);
     dateState.addListener(notify);
+    widget.onCreatedDateState?.call(dateState);
     _headerKey.currentState?.setup(dateState, rebuild: true);
   }
 
@@ -487,6 +506,13 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       );
     }
     dateState.value = opt.calcDate(newVal);
+    if (widget.pickerFocusNode != null) {
+      final fn = widget.pickerFocusNode!;
+      if (!fn.hasFocus &&
+          FocusManager.instance.primaryFocus! is! BoardDateTimeInputFocusNode) {
+        fn.requestFocus();
+      }
+    }
   }
 
   /// Process date changes from calendar or header
@@ -519,6 +545,29 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
     for (final x in itemOptions) {
       if (x.type == DateType.hour && x.value != newVal.hour) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.minute && x.value != newVal.minute) {
+        x.changeDate(newVal);
+      }
+    }
+    dateState.value = newVal;
+  }
+
+  void changeDateTime(DateTime val) {
+    DateTime newVal = DateTimeUtil.rangeDate(
+      val,
+      widget.minimumDate,
+      widget.maximumDate,
+    );
+
+    for (final x in itemOptions) {
+      if (x.type == DateType.year && x.value != newVal.year) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.month && x.value != newVal.month) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.day && x.value != newVal.day) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.hour && x.value != newVal.hour) {
         x.changeDate(newVal);
       } else if (x.type == DateType.minute && x.value != newVal.minute) {
         x.changeDate(newVal);

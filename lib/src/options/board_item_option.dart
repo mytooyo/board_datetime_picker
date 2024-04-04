@@ -5,6 +5,7 @@ import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
+import '../ui/parts/focus_node.dart';
 import 'board_custom_item_option.dart';
 
 BoardPickerItemOption initItemOption(
@@ -44,7 +45,7 @@ class BoardPickerItemOption {
   final DateType type;
 
   /// TextField [FocusNode].
-  final FocusNode focusNode;
+  final PickerItemFocusNode focusNode;
 
   /// Picker item map.
   Map<int, int> map;
@@ -102,7 +103,7 @@ class BoardPickerItemOption {
     }
 
     return BoardPickerItemOption(
-      focusNode: FocusNode(),
+      focusNode: PickerItemFocusNode(),
       map: map,
       type: type,
       selectedIndex: selected,
@@ -127,7 +128,7 @@ class BoardPickerItemOption {
 
     final map = minmaxList(DateType.year, date, mi, ma);
     return BoardPickerItemOption(
-      focusNode: FocusNode(),
+      focusNode: PickerItemFocusNode(),
       map: map,
       type: DateType.year,
       selectedIndex: indexFromValue(max(date.year, minY), map),
