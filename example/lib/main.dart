@@ -1,8 +1,17 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
+import 'package:example/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => ProviderData(),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -170,7 +179,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () {
-              textController.setText('2020/12/20');
+              // textController.setText('2020/12/20');
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProviderParentWidget(),
+                ),
+              );
             },
           ),
         );

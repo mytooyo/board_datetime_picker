@@ -300,24 +300,24 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     if (!focusNode.hasFocus) {
       if (textController.text.isNotEmpty) {
         checkFormat(textController.text, complete: true);
+      }
 
-        // If the focus is out of focus, but the focus has moved to another InputField
-        final pf = FocusManager.instance.primaryFocus;
-        if (pf is BoardDateTimeInputFocusNode) {
-          closePicker();
-          widget.onFocusChange?.call(false, selectedDate, textController.text);
-        }
+      // If the focus is out of focus, but the focus has moved to another InputField
+      final pf = FocusManager.instance.primaryFocus;
+      if (pf is BoardDateTimeInputFocusNode) {
+        closePicker();
+        widget.onFocusChange?.call(false, selectedDate, textController.text);
       }
     } else {
+      // Callback when focus is acquired
+      initialized = true;
+      widget.onFocusChange?.call(true, selectedDate, textController.text);
+
       if (!widget.showPicker || overlay != null) return;
       pickerController = BoardDateTimeContentsController();
       if (selectedDate != null) {
         pickerController!.changeDate(selectedDate!);
       }
-
-      // Callback when focus is acquired
-      initialized = true;
-      widget.onFocusChange?.call(true, selectedDate, textController.text);
 
       overlay = OverlayEntry(
         builder: (context) {
@@ -527,6 +527,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     pickerDateState?.removeListener(pickerListener);
     textController.dispose();
     overlayAnimController.dispose();
+    widget.controller?._notifier.removeListener(_controllerListener);
     super.dispose();
   }
 
