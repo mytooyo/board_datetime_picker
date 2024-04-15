@@ -419,6 +419,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       if (initialized && focused) {
         checkFormat(textController.text, complete: true);
         widget.onFocusChange?.call(false, selectedDate, textController.text);
+        initialized = false;
       }
     }
   }
