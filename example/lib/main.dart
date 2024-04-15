@@ -1,17 +1,8 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
-import 'package:example/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(
-        create: (_) => ProviderData(),
-      ),
-    ],
-    child: const MyApp(),
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -28,29 +19,6 @@ class MyApp extends StatelessWidget {
       ),
       // home: const Home(),
       home: const MyHomePage(title: 'Board DateTime Picker Example'),
-    );
-  }
-}
-
-class Home extends StatelessWidget {
-  const Home({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          child: const Text('text'),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) =>
-                    const MyHomePage(title: 'Board DateTime Picker Example'),
-              ),
-            );
-          },
-        ),
-      ),
     );
   }
 }
@@ -176,16 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // textController.setText('2020/12/20');
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ProviderParentWidget(),
-                ),
-              );
-            },
           ),
         );
       },
