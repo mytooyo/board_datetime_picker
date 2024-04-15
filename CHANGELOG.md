@@ -1,3 +1,6 @@
+## 1.6.2
+* Fixed a problem input textfield
+  
 ## 1.6.1
 * Fixed a problem initialDate
 

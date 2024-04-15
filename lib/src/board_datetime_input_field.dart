@@ -300,24 +300,24 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     if (!focusNode.hasFocus) {
       if (textController.text.isNotEmpty) {
         checkFormat(textController.text, complete: true);
+      }
 
-        // If the focus is out of focus, but the focus has moved to another InputField
-        final pf = FocusManager.instance.primaryFocus;
-        if (pf is BoardDateTimeInputFocusNode) {
-          closePicker();
-          widget.onFocusChange?.call(false, selectedDate, textController.text);
-        }
+      // If the focus is out of focus, but the focus has moved to another InputField
+      final pf = FocusManager.instance.primaryFocus;
+      if (pf is BoardDateTimeInputFocusNode) {
+        closePicker();
+        widget.onFocusChange?.call(false, selectedDate, textController.text);
       }
     } else {
+      // Callback when focus is acquired
+      initialized = true;
+      widget.onFocusChange?.call(true, selectedDate, textController.text);
+
       if (!widget.showPicker || overlay != null) return;
       pickerController = BoardDateTimeContentsController();
       if (selectedDate != null) {
         pickerController!.changeDate(selectedDate!);
       }
-
-      // Callback when focus is acquired
-      initialized = true;
-      widget.onFocusChange?.call(true, selectedDate, textController.text);
 
       overlay = OverlayEntry(
         builder: (context) {
@@ -419,6 +419,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       if (initialized && focused) {
         checkFormat(textController.text, complete: true);
         widget.onFocusChange?.call(false, selectedDate, textController.text);
+        initialized = false;
       }
     }
   }
@@ -492,19 +493,24 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       reverseDuration: const Duration(milliseconds: 260),
     );
 
-    widget.controller?._notifier.addListener(() {
-      final setVal = widget.controller!._notifier.value;
-      String newVal = '';
-      if (setVal != null && setVal is String) {
-        newVal = setVal;
-      } else if (setVal != null && setVal is DateTime) {
-        newVal = DateFormat(format).format(setVal);
-      }
-      // 変更された場合に更新する
-      checkFormat(newVal, complete: true);
-    });
+    widget.controller?._notifier.addListener(_controllerListener);
 
     super.initState();
+  }
+
+  void _controllerListener() {
+    final setVal = widget.controller!._notifier.value;
+    String newVal = '';
+    if (setVal != null && setVal is String) {
+      newVal = setVal;
+    } else if (setVal != null && setVal is DateTime) {
+      newVal = DateFormat(format).format(setVal);
+    }
+
+    if (newVal == textController.text) return;
+
+    // 変更された場合に更新する
+    checkFormat(newVal, complete: true);
   }
 
   @override
@@ -522,6 +528,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     pickerDateState?.removeListener(pickerListener);
     textController.dispose();
     overlayAnimController.dispose();
+    widget.controller?._notifier.removeListener(_controllerListener);
     super.dispose();
   }
 
@@ -933,6 +940,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           BoardDateTimeCommonResult.init(widget.pickerType, datetime) as T,
         );
         pickerController?.changeDate(datetime);
+        widget.controller?._notifier.value = date;
       }
     }
   }
