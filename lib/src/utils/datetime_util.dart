@@ -20,7 +20,7 @@ class DateTimeUtil {
 
   /// Update the date when the year or month is changed.
   /// Therefore, get the last date that exists in year and month.
-  static int? getExistsDate(
+  static int? getExistsMaxDate(
     List<BoardPickerItemOption> options,
     BoardPickerItemOption selected,
     int val,
@@ -62,6 +62,24 @@ class DateTimeUtil {
       newVal = maximumDate;
     }
     return newVal;
+  }
+
+  static int? existDay(int year, int month, int day) {
+    final val = DateTime(year, month, day);
+    final same = year == val.year && month == val.month && day == val.day;
+
+    // 指定の日付と実際の変換した値が異なる場合は
+    // 日(day)が存在しない範囲である
+    if (!same) {
+      if (month == 12) {
+        year += 1;
+        month = 1;
+      } else {
+        month += 1;
+      }
+      return DateTime(year, month, 1).add(const Duration(days: -1)).day;
+    }
+    return null;
   }
 }
 

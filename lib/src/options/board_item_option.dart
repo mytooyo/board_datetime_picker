@@ -228,6 +228,21 @@ class BoardPickerItemOption {
       maxDay = min(maxDay, maximumDate.day);
     }
 
+    // 指定の月の中で最大の日付を設定する
+    // Set the maximum date within a given month
+    int year = newDate.year;
+    int month = newDate.month;
+    if (month == 12) {
+      year += 1;
+      month = 1;
+    } else {
+      month += 1;
+    }
+    final target = DateTime(year, month, 1).add(const Duration(days: -1)).day;
+    if (target < maxDay) {
+      maxDay = target;
+    }
+
     //  Retrieve existing values
     final tmp = value;
 
@@ -293,6 +308,21 @@ class BoardPickerItemOption {
         if (date.isMaximum(maximum, DateType.month)) {
           maxDay = maximum.day;
         }
+
+        // 指定の月の中で最大の日付を設定する
+        int year = date.year;
+        int month = date.month;
+        if (month == 12) {
+          year += 1;
+          month = 1;
+        } else {
+          month += 1;
+        }
+        final target =
+            DateTime(year, month, 1).add(const Duration(days: -1)).day;
+        if (maxDay > target) {
+          maxDay = target;
+        }
         return createMap(minDay, maxDay);
       case DateType.hour:
         int minHour = 0;
@@ -317,13 +347,13 @@ class BoardPickerItemOption {
     }
   }
 
-  DateTime calcDate(DateTime date) {
+  DateTime calcDate(DateTime date, {int? newDay}) {
     switch (type) {
       case DateType.year:
         return DateTime(
           map[selectedIndex]!,
           date.month,
-          date.day,
+          newDay ?? date.day,
           date.hour,
           date.minute,
         );
@@ -331,7 +361,7 @@ class BoardPickerItemOption {
         return DateTime(
           date.year,
           map[selectedIndex]!,
-          date.day,
+          newDay ?? date.day,
           date.hour,
           date.minute,
         );
@@ -339,7 +369,7 @@ class BoardPickerItemOption {
         return DateTime(
           date.year,
           date.month,
-          map[selectedIndex]!,
+          newDay ?? map[selectedIndex]!,
           date.hour,
           date.minute,
         );
