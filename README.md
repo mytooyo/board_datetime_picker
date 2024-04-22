@@ -17,14 +17,13 @@ On tablets, the calendar and picker can be displayed simultaneously for easy dat
 |---|---|
 |<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_inputfield.gif" width="300" />|
 
-
 ## Getting Started
 
 In order to add board_datetime_picker package to your project add this line to your pubspec.yaml file
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.6.2
+    board_datetime_picker: 1.6.3
 ```
 
 ## Usage
@@ -76,6 +75,7 @@ final result = await showBoardDateTimePicker(
 ```
 
 Example of handling by button press.  
+
 ```dart
 ElevatedButton(
   child: Text(
@@ -120,7 +120,6 @@ Widget build(BuildContext context) {
   );
 }
 ```
-
 
 ### Picker Type
 
@@ -179,6 +178,7 @@ options: BoardDateTimeOptions(
 ```
 
 #### Language Option
+
 By default, English, Japanese, and Italian definitions are prepared.  
 If you want to use other languages, define the `BoardPickerLanguages` class and set it as an option.
 Bellow is an example of using French.
