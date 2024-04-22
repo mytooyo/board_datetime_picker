@@ -485,13 +485,38 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   void onChangeByPicker(BoardPickerItemOption opt, int index) {
     // Update option class values to selected values
     opt.selectedIndex = index;
-    DateTime newVal = opt.calcDate(dateState.value);
+
+    // 年と月から選択中の日付が存在するか確認する
+    // Check to see if the date you are selecting exists from the year and month
+    DateTime newVal;
+    if ([DateType.year, DateType.month].contains(opt.type)) {
+      final year =
+          opt.type == DateType.month ? dateState.value.year : opt.value;
+      final month =
+          opt.type == DateType.month ? opt.value : dateState.value.month;
+      final day = dateState.value.day;
+      // 存在しない日付の場合は最大日付で補正する
+      // Correct with the maximum date if the date does not exist
+      final newDay = DateTimeUtil.existDay(year, month, day);
+      // 範囲外の日付の場合に繰り上がってしまうため
+      // ここで日付を指定してDateTimeを作成しておく
+      // Because it is carried forward for dates outside the range,
+      // create a DateTime with the date here.
+      newVal = opt.calcDate(dateState.value, newDay: newDay);
+    } else {
+      newVal = opt.calcDate(dateState.value);
+    }
 
     final data = opt.map[index]!;
-    final day = DateTimeUtil.getExistsDate(itemOptions, opt, data);
+    final day = DateTimeUtil.getExistsMaxDate(itemOptions, opt, data);
     if (day != null) {
       final dayOpt = itemOptions.firstWhere((x) => x.type == DateType.day);
-      final newDate = dayOpt.calcDate(newVal);
+      // 選択中の日付が最大値より大きい場合は最大値で補正する
+      // If the date being selected is greater than the maximum value, correct by the maximum value.
+      final newDate = dayOpt.calcDate(
+        newVal,
+        newDay: dateState.value.day > day ? day : null,
+      );
       newVal = DateTimeUtil.rangeDate(
         newDate,
         widget.minimumDate,

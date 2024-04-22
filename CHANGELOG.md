@@ -1,40 +1,54 @@
+## 1.6.3
+
+* Fixed an issue where a non-existent date and time could be selected in the picker.
+
 ## 1.6.2
+
 * Fixed a problem input textfield
   
 ## 1.6.1
+
 * Fixed a problem initialDate
 
 ## 1.6.0
+
 * Added `BoardDateTimeInputField` Widget.  
   It is a TextField with autocomplete and check functions.  
   An input field with the same functionality as a regular `TextFormField`, but designed for date entry/selection.  
   Both text field and Picker can be used at the same time.  
 
 ## 1.5.0
+
 * Upgrade the package.
 * Deprecation removed (weekdays)
   
 ## 1.4.0
+
 * Support for specifying picker title and item subtitle.
 * Support for getting results in other than DateTime.
 
 ## 1.3.1
+
 * Fixed a problem with focus shifting and difficulty entering text when entering text.
 * Improved operability when using hardware keyboard
 
 ## 1.3.0
+
 * Support daylight saving time.
 * Support for changing the start day of the week.
 * Support for changing the date format of the picker.
 
 ## 1.2.1
+
 * Supported locale. The option `weekdays` has been deprecated accordingly.
 
 ## 1.2.0
+
 * Added `showBoardDateTimePicker` function for modal bottom sheet.
 
 ## 1.1.1
-* [Bug fix] Fixed a bug that caused the value passed in the change callback 
+
+* [Bug fix] Fixed a bug that caused the value passed in the change callback
   to be the current date and time when the picker is displayed if no initial date and time is specified.
 
 ## 1.1.0

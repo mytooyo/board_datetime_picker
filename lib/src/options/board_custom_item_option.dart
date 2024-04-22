@@ -126,6 +126,18 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     }
     if (newDate.isMaximum(maximumDate, DateType.month)) {
       maxDay = min(maxDay, maximumDate.day);
+    } else {
+      // 指定の月の中で最大の日付を設定する
+      int year = newDate.year;
+      int month = newDate.month;
+      if (month == 12) {
+        year += 1;
+        month = 1;
+      } else {
+        month += 1;
+      }
+      maxDay = DateTime(year, month, 1).add(const Duration(days: -1)).day;
+      print('max: $maxDay');
     }
 
     //  Retrieve existing values
