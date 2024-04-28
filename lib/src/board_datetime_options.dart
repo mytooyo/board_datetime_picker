@@ -17,6 +17,7 @@ class BoardDateTimeOptions {
     this.boardTitle,
     this.boardTitleTextStyle,
     this.pickerSubTitles,
+    this.weekend,
   });
 
   /// #### Picker Background Color
@@ -100,6 +101,26 @@ class BoardDateTimeOptions {
   ///
   /// If specified halfway, defaults to the specified value.
   final BoardDateTimeItemTitles? pickerSubTitles;
+
+  /// Option to configure settings related to weekends
+  /// Used to set the text color to be displayed
+  final BoardPickerWeekendOptions? weekend;
+}
+
+/// Optional settings for weekends
+class BoardPickerWeekendOptions {
+  /// Colors for displaying Saturday.
+  /// Default color is `Colors.blue`
+  final Color saturdayColor;
+
+  /// Colors for displaying Sunday.
+  /// Default Color is `Colors.red`
+  final Color sundayColor;
+
+  const BoardPickerWeekendOptions({
+    this.saturdayColor = Colors.blue,
+    this.sundayColor = Colors.red,
+  });
 }
 
 /// Class for specifying the language to be displayed

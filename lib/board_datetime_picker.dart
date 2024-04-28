@@ -15,7 +15,8 @@ export 'src/board_datetime_options.dart'
         BoardPickerLanguages,
         BoardPickerCustomOptions,
         PickerFormat,
-        BoardDateTimeItemTitles;
+        BoardDateTimeItemTitles,
+        BoardPickerWeekendOptions;
 export 'src/board_datetime_widget.dart'
     show
         showBoardDateTimePicker,

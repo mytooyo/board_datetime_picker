@@ -1,3 +1,7 @@
+## 1.6.4
+
+* Added support for specifying colors for Saturday and Sunday
+
 ## 1.6.3
 
 * Fixed an issue where a non-existent date and time could be selected in the picker.
