@@ -69,6 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
         //   hours: [0, 6, 12, 18],
         //   minutes: [0, 15, 30, 45],
         // ),
+        // weekend: BoardPickerWeekendOptions(
+        //   sundayColor: Colors.yellow,
+        //   saturdayColor: Colors.red,
+        // ),
       ),
       // minimumDate: DateTime(2023, 12, 15, 0, 15),
       // maximumDate: DateTime(2024, 12, 31),

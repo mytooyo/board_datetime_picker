@@ -70,6 +70,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         minimumDate: args.minimumDate ?? DateTimeUtil.defaultMinDate,
         maximumDate: args.maximumDate ?? DateTimeUtil.defaultMaxDate,
         startDayOfWeek: args.options.startDayOfWeek,
+        weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
       ),
     );
   }

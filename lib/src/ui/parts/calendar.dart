@@ -17,6 +17,7 @@ class CalendarWidget extends StatefulWidget {
     required this.minimumDate,
     required this.maximumDate,
     required this.startDayOfWeek,
+    required this.weekend,
   });
 
   final bool wide;
@@ -30,6 +31,7 @@ class CalendarWidget extends StatefulWidget {
   final DateTime minimumDate;
   final DateTime maximumDate;
   final int startDayOfWeek;
+  final BoardPickerWeekendOptions weekend;
 
   @override
   State<CalendarWidget> createState() => _CalendarWidgetState();
@@ -376,9 +378,9 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     if (disabled) {
       return widget.textColor?.withOpacity(0.4);
     } else if (weekday == 7 || weekday == 0) {
-      return Colors.red;
+      return widget.weekend.sundayColor;
     } else if (weekday == 6) {
-      return Colors.blue;
+      return widget.weekend.saturdayColor;
     }
     return widget.textColor;
   }
