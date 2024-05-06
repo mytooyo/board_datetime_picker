@@ -219,6 +219,7 @@ class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.keyboardHeightNotifier,
     this.onCreatedDateState,
     this.pickerFocusNode,
+    this.onKeyboadClose,
   });
 
   final double breakpoint;
@@ -240,6 +241,8 @@ class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
   final void Function(ValueNotifier<DateTime>)? onCreatedDateState;
 
   final FocusNode? pickerFocusNode;
+
+  final void Function()? onKeyboadClose;
 
   @override
   State<BoardDateTimeContent> createState() => _BoardDateTimeContentState<T>();
@@ -606,6 +609,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     for (final x in itemOptions) {
       if (x.focusNode.hasFocus) x.focusNode.unfocus();
     }
+    widget.onKeyboadClose?.call();
   }
 
   /// Ratio assuming a maximum keyboard height

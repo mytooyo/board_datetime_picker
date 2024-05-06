@@ -175,7 +175,7 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
   // *
   // ************************************************************************
 
-  final FocusNode? focusNode;
+  final BoardDateTimeInputFocusNode? focusNode;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final TextStyle? textStyle;
@@ -323,50 +323,59 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         builder: (context) {
           return Align(
             alignment: Alignment.bottomCenter,
-            child: Material(
-              color: Colors.transparent,
-              child: SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: AnimatedBuilder(
-                  animation: overlayAnimController,
-                  builder: (context, child) {
-                    return SlideTransition(
-                      position: overlayAnimController
-                          .drive(CurveTween(curve: Curves.easeInOutCubic))
-                          .drive(
-                            Tween<Offset>(
-                              begin: const Offset(0, 1),
-                              end: Offset.zero,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: AnimatedBuilder(
+                    animation: overlayAnimController,
+                    builder: (context, child) {
+                      return SlideTransition(
+                        position: overlayAnimController
+                            .drive(CurveTween(curve: Curves.easeInOutCubic))
+                            .drive(
+                              Tween<Offset>(
+                                begin: const Offset(0, 1),
+                                end: Offset.zero,
+                              ),
                             ),
-                          ),
-                      child: child,
-                    );
-                  },
-                  child: GestureDetector(
-                    onTap: () {
-                      pickerFocusNode.requestFocus();
+                        child: child,
+                      );
                     },
-                    child: Focus(
-                      focusNode: pickerFocusNode,
-                      child: BoardDateTimeContent(
-                        key: pickerController?.key,
-                        pickerFocusNode: pickerFocusNode,
-                        onChange: (val) {},
-                        pickerType: widget.pickerType,
-                        options: widget.options,
-                        breakpoint: widget.breakpoint,
-                        initialDate: selectedDate ?? DateTime.now(),
-                        minimumDate: widget.minimumDate,
-                        maximumDate: widget.maximumDate,
-                        modal: true,
-                        onCreatedDateState: (val) {
-                          pickerDateState = val;
-                          pickerDateState!.addListener(pickerListener);
-                        },
-                        onCloseModal: () {
-                          focusNode.unfocus();
-                          closePicker();
-                        },
+                    child: GestureDetector(
+                      onTap: () {
+                        pickerFocusNode.requestFocus();
+                      },
+                      child: Focus(
+                        focusNode: pickerFocusNode,
+                        child: BoardDateTimeContent(
+                          key: pickerController?.key,
+                          pickerFocusNode: pickerFocusNode,
+                          onChange: (val) {},
+                          pickerType: widget.pickerType,
+                          options: widget.options,
+                          breakpoint: widget.breakpoint,
+                          initialDate: selectedDate ?? DateTime.now(),
+                          minimumDate: widget.minimumDate,
+                          maximumDate: widget.maximumDate,
+                          modal: true,
+                          onCreatedDateState: (val) {
+                            pickerDateState = val;
+                            pickerDateState!.addListener(pickerListener);
+                          },
+                          onCloseModal: () {
+                            focusNode.unfocus();
+                            closePicker();
+                          },
+                          onKeyboadClose: () {
+                            focusNode.unfocus();
+                            closePicker();
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -480,7 +489,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       debugLabel: 'Picker Focus Node',
       skipTraversal: true,
     );
-    focusNode = BoardDateTimeInputFocusNode();
+    focusNode = widget.focusNode ?? BoardDateTimeInputFocusNode();
     focusNode.addListener(_focusListener);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

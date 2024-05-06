@@ -1,3 +1,7 @@
+## 1.6.5
+
+* Fixed an issue where the keyboard and picker overlapped in the input field.
+
 ## 1.6.4
 
 * Added support for specifying colors for Saturday and Sunday

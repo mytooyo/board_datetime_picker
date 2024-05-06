@@ -23,7 +23,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.6.3
+    board_datetime_picker: 1.6.5
 ```
 
 ## Usage

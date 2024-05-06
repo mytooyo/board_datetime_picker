@@ -23,6 +23,7 @@ export 'src/board_datetime_widget.dart'
         showBoardDateTimePickerForDateTime,
         showBoardDateTimePickerForDate,
         showBoardDateTimePickerForTime;
+export 'src/ui/parts/focus_node.dart' show BoardDateTimeInputFocusNode;
 export 'src/utils/board_datetime_result.dart';
 export 'src/utils/board_enum.dart' show DateTimePickerType;
 
