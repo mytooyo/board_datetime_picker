@@ -18,6 +18,7 @@ class BoardDateTimeOptions {
     this.boardTitleTextStyle,
     this.pickerSubTitles,
     this.weekend,
+    this.inputable = true,
   });
 
   /// #### Picker Background Color
@@ -105,6 +106,12 @@ class BoardDateTimeOptions {
   /// Option to configure settings related to weekends
   /// Used to set the text color to be displayed
   final BoardPickerWeekendOptions? weekend;
+
+  /// Flag whether the date to be selected should be text-enabled or not.
+  /// If `true`, text can be entered by tapping on the selected area of the Picker.
+  /// If `false`, text input is not possible, only scrolling picker.
+  /// Default is `true`.
+  final bool inputable;
 }
 
 /// Optional settings for weekends

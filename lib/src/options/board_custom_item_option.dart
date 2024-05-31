@@ -137,7 +137,6 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
         month += 1;
       }
       maxDay = DateTime(year, month, 1).add(const Duration(days: -1)).day;
-      print('max: $maxDay');
     }
 
     //  Retrieve existing values

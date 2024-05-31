@@ -16,6 +16,7 @@ class ItemWidget extends StatefulWidget {
     required this.showedKeyboard,
     required this.wide,
     required this.subTitle,
+    required this.inputable,
   });
 
   final BoardPickerItemOption option;
@@ -25,6 +26,7 @@ class ItemWidget extends StatefulWidget {
   final bool Function() showedKeyboard;
   final bool wide;
   final String? subTitle;
+  final bool inputable;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -257,15 +259,17 @@ class ItemWidgetState extends State<ItemWidget>
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          isTextEditing = true;
-                        });
-                        Future.delayed(const Duration(milliseconds: 10))
-                            .then((_) {
-                          widget.option.focusNode.requestFocus();
-                        });
-                      },
+                      onTap: widget.inputable
+                          ? () {
+                              setState(() {
+                                isTextEditing = true;
+                              });
+                              Future.delayed(const Duration(milliseconds: 10))
+                                  .then((_) {
+                                widget.option.focusNode.requestFocus();
+                              });
+                            }
+                          : null,
                       borderRadius: borderRadius,
                       child: SizedBox(
                         height: itemSize,
@@ -287,6 +291,7 @@ class ItemWidgetState extends State<ItemWidget>
                         border: InputBorder.none,
                         contentPadding: EdgeInsets.only(bottom: 4, left: 2),
                       ),
+                      enabled: widget.inputable,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             fontSize: 17,
