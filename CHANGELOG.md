@@ -1,3 +1,7 @@
+## 1.6.6
+
+* Added option (`inputable`) to allow text input. (Default is `true`)
+
 ## 1.6.5
 
 * Fixed an issue where the keyboard and picker overlapped in the input field.
