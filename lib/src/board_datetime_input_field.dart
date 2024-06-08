@@ -64,6 +64,9 @@ class BoardDateTimeTextController {
   }
 }
 
+/// Picker type if text field has focus
+enum BoardDateTimeFieldPickerType { standard, mini }
+
 /// [BoardDateTimeInputField] is a widget for using text field and picker at the same time
 ///
 /// It is a TextField with autocomplete and check functions.
@@ -109,6 +112,7 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
     this.minimumDate,
     this.maximumDate,
     this.showPicker = true,
+    this.showPickerType = BoardDateTimeFieldPickerType.standard,
     this.breakpoint = 800,
     this.delimiter = '/',
     this.keyboardType,
@@ -150,6 +154,11 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
   /// Flag whether to display a Picker below when a text field is focused.
   /// If displayed, display in overlay format at the bottom of the screen
   final bool showPicker;
+
+  /// Picker type if text field has focus.
+  /// The default is `standard`, which displays the Picker at the bottom of the screen just like a normal Picker.
+  /// If `mini` is specified, a small Picker will be displayed directly below the text field.
+  final BoardDateTimeFieldPickerType showPickerType;
 
   /// Delimiter used to separate dates
   /// If a slash[-] is specified, it will look like this: `yyyy-MM-dd`
@@ -319,72 +328,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         pickerController!.changeDate(selectedDate!);
       }
 
-      overlay = OverlayEntry(
-        builder: (context) {
-          return Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: AnimatedBuilder(
-                    animation: overlayAnimController,
-                    builder: (context, child) {
-                      return SlideTransition(
-                        position: overlayAnimController
-                            .drive(CurveTween(curve: Curves.easeInOutCubic))
-                            .drive(
-                              Tween<Offset>(
-                                begin: const Offset(0, 1),
-                                end: Offset.zero,
-                              ),
-                            ),
-                        child: child,
-                      );
-                    },
-                    child: GestureDetector(
-                      onTap: () {
-                        pickerFocusNode.requestFocus();
-                      },
-                      child: Focus(
-                        focusNode: pickerFocusNode,
-                        child: BoardDateTimeContent(
-                          key: pickerController?.key,
-                          pickerFocusNode: pickerFocusNode,
-                          onChange: (val) {},
-                          pickerType: widget.pickerType,
-                          options: widget.options,
-                          breakpoint: widget.breakpoint,
-                          initialDate: selectedDate ?? DateTime.now(),
-                          minimumDate: widget.minimumDate,
-                          maximumDate: widget.maximumDate,
-                          modal: true,
-                          onCreatedDateState: (val) {
-                            pickerDateState = val;
-                            pickerDateState!.addListener(pickerListener);
-                          },
-                          onCloseModal: () {
-                            focusNode.unfocus();
-                            closePicker();
-                          },
-                          onKeyboadClose: () {
-                            focusNode.unfocus();
-                            closePicker();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
+      if (widget.showPickerType == BoardDateTimeFieldPickerType.standard) {
+        overlay = _createPickerOverlay();
+      } else {
+        overlay = _createMiniPickerOverlay();
+      }
+
       // Show DatePicker
       Overlay.of(context).insert(overlay!);
       overlayAnimController.forward();
@@ -952,5 +901,129 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         widget.controller?._notifier.value = date;
       }
     }
+  }
+
+  Widget _pickerWidget() {
+    return GestureDetector(
+      onTapDown: (_) {
+        pickerFocusNode.requestFocus();
+      },
+      child: Focus(
+        focusNode: pickerFocusNode,
+        child: BoardDateTimeContent(
+          key: pickerController?.key,
+          pickerFocusNode: pickerFocusNode,
+          onChange: (val) {},
+          pickerType: widget.pickerType,
+          options: widget.options,
+          breakpoint: widget.breakpoint,
+          initialDate: selectedDate ?? DateTime.now(),
+          minimumDate: widget.minimumDate,
+          maximumDate: widget.maximumDate,
+          modal: true,
+          onCreatedDateState: (val) {
+            pickerDateState = val;
+            pickerDateState!.addListener(pickerListener);
+          },
+          onCloseModal: () {
+            focusNode.unfocus();
+            closePicker();
+          },
+          onKeyboadClose: () {
+            focusNode.unfocus();
+            closePicker();
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Display small Picker when have focus
+  OverlayEntry _createMiniPickerOverlay() {
+    const double width = 360;
+
+    // Get position and size of text field
+    final renderBox = context.findRenderObject() as RenderBox?;
+    final size = renderBox?.size ?? Size.zero;
+    final offset = renderBox?.localToGlobal(Offset.zero);
+
+    // Obtain the position of the right side
+    // when displaying the Picker and the width of the entire screen.
+    final rightPosition = (offset?.dx ?? 0) + width;
+    final windowWidth = MediaQuery.of(context).size.width;
+
+    double? left;
+    double? right;
+
+    // If it extends outside the screen,
+    // use the right side of the text field as the reference.
+    if (windowWidth < rightPosition) {
+      right = windowWidth - (offset?.dx ?? 0) - size.width;
+    } else {
+      left = offset?.dx ?? 0;
+    }
+
+    return OverlayEntry(
+      maintainState: true,
+      builder: (context) {
+        return Positioned(
+          top: (offset?.dy ?? 0) + (renderBox?.size.height ?? 0),
+          left: left,
+          right: right,
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              width: width,
+              constraints: const BoxConstraints(
+                minHeight: 240,
+                maxHeight: 480,
+              ),
+              child: _pickerWidget(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// Display standard Picker when have focus
+  OverlayEntry _createPickerOverlay() {
+    return OverlayEntry(
+      builder: (context) {
+        return Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: AnimatedBuilder(
+                  animation: overlayAnimController,
+                  builder: (context, child) {
+                    return SlideTransition(
+                      position: overlayAnimController
+                          .drive(CurveTween(curve: Curves.easeInOutCubic))
+                          .drive(
+                            Tween<Offset>(
+                              begin: const Offset(0, 1),
+                              end: Offset.zero,
+                            ),
+                          ),
+                      child: child,
+                    );
+                  },
+                  child: _pickerWidget(),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

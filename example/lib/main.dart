@@ -107,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           initialDate: DateTime.now(),
                           maximumDate: DateTime(2040),
                           minimumDate: DateTime(1900, 1, 1),
+                          // showPickerType: BoardDateTimeFieldPickerType.mini,
                           textStyle: Theme.of(context).textTheme.bodyMedium,
                           onChanged: (date) {
                             print('onchanged: $date');

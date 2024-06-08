@@ -8,6 +8,7 @@ export 'src/board_datetime_input_field.dart'
     show
         BoardDateTimeInputField,
         BoardDateTimeInputFieldValidators,
+        BoardDateTimeFieldPickerType,
         BoardDateTimeTextController;
 export 'src/board_datetime_options.dart'
     show
