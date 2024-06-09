@@ -1,3 +1,7 @@
+## 1.6.7
+
+* Added Picker type to display when text field has focus.
+
 ## 1.6.6
 
 * Added option (`inputable`) to allow text input. (Default is `true`)
