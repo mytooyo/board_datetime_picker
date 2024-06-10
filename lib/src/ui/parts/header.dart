@@ -28,6 +28,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.minimumDate,
     required this.maximumDate,
     required this.modal,
+    required this.pickerFocusNode,
   });
 
   /// Wide mode display flag
@@ -89,6 +90,9 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Modal Flag
   final bool modal;
 
+  /// Picker FocusNode
+  final FocusNode? pickerFocusNode;
+
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
@@ -133,7 +137,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final child = Container(
       height: widget.wide ? 64 : 52,
       margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
       decoration: BoxDecoration(
@@ -182,6 +186,13 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
                 ),
         ],
       ),
+    );
+
+    return GestureDetector(
+      onTapDown: (_) {
+        widget.pickerFocusNode?.requestFocus();
+      },
+      child: child,
     );
   }
 
@@ -290,6 +301,7 @@ class BoardDateTimeNoneButtonHeader extends StatefulWidget {
     required this.onKeyboadClose,
     required this.onClose,
     required this.modal,
+    required this.pickerFocusNode,
   });
 
   final BoardDateTimeOptions options;
@@ -321,6 +333,9 @@ class BoardDateTimeNoneButtonHeader extends StatefulWidget {
   /// Modal Flag
   final bool modal;
 
+  /// Picker FocusNode
+  final FocusNode? pickerFocusNode;
+
   @override
   State<BoardDateTimeNoneButtonHeader> createState() =>
       _BoardDateTimeNoneButtonHeaderState();
@@ -332,7 +347,7 @@ class _BoardDateTimeNoneButtonHeaderState
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final child = Container(
       height: buttonSize + 8,
       margin: const EdgeInsets.only(top: 12, left: 8, right: 8),
       child: Row(
@@ -368,6 +383,13 @@ class _BoardDateTimeNoneButtonHeaderState
           ..._rightButton(),
         ],
       ),
+    );
+
+    return GestureDetector(
+      onTapDown: (_) {
+        widget.pickerFocusNode?.requestFocus();
+      },
+      child: child,
     );
   }
 

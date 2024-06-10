@@ -700,6 +700,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         onKeyboadClose: closeKeyboard,
         onClose: close,
         modal: widget.modal,
+        pickerFocusNode: widget.pickerFocusNode,
       );
     }
 
@@ -724,6 +725,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
       maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
       modal: widget.modal,
+      pickerFocusNode: widget.pickerFocusNode,
     );
   }
 }
