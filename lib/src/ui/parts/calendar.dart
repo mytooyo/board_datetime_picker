@@ -3,80 +3,44 @@ import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CalendarWidget extends StatefulWidget {
-  const CalendarWidget({
+class SingleCalendarWidget extends CalendarWidget {
+  const SingleCalendarWidget({
     super.key,
     required this.dateState,
     required this.onChange,
-    required this.boxDecoration,
-    required this.textColor,
-    required this.wide,
-    required this.activeColor,
-    required this.activeTextColor,
-    required this.languages,
-    required this.minimumDate,
-    required this.maximumDate,
-    required this.startDayOfWeek,
-    required this.weekend,
+    required super.boxDecoration,
+    required super.textColor,
+    required super.wide,
+    required super.activeColor,
+    required super.activeTextColor,
+    required super.languages,
+    required super.minimumDate,
+    required super.maximumDate,
+    required super.startDayOfWeek,
+    required super.weekend,
   });
 
-  final bool wide;
   final ValueNotifier<DateTime> dateState;
   final void Function(DateTime date) onChange;
-  final BoxDecoration boxDecoration;
-  final Color? textColor;
-  final Color activeColor;
-  final Color activeTextColor;
-  final BoardPickerLanguages languages;
-  final DateTime minimumDate;
-  final DateTime maximumDate;
-  final int startDayOfWeek;
-  final BoardPickerWeekendOptions weekend;
 
   @override
-  State<CalendarWidget> createState() => _CalendarWidgetState();
+  CalendarWidgetState<SingleCalendarWidget> createState() =>
+      _SingleCalendarWidgetState();
 }
 
-class _CalendarWidgetState extends State<CalendarWidget> {
-  /// Calendar PageeController
-  late PageController pageController;
-
-  /// PageView count
-  late int pageCount;
-  int initialPage = 999;
-
-  /// Current Page for controller
-  late int currentPage;
-
-  late DateTime selectedDate;
-  late DateTime initialDate;
-
-  /// Animation during page transitions
-  final pageDuration = const Duration(milliseconds: 300);
-  final pageCurve = Curves.easeIn;
-
-  double get topMargin => widget.wide ? 8 : 20;
-
+class _SingleCalendarWidgetState
+    extends CalendarWidgetState<SingleCalendarWidget> {
   @override
   void initState() {
     initialDate = widget.dateState.value;
-    selectedDate = initialDate;
-
-    /// Calculate the number of pages to display in the calendar
-    /// from the minimum and maximum dates
-    int count = (widget.maximumDate.year - widget.minimumDate.year + 1) * 12;
-    count -= (widget.minimumDate.month - 1);
-    count -= (12 - widget.maximumDate.month);
-    pageCount = count;
-
-    initialPage = diffYMD(widget.minimumDate, initialDate);
-    pageController = PageController(initialPage: initialPage);
-
-    currentPage = initialPage;
-
-    super.initState();
-
     widget.dateState.addListener(changeListener);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.dateState.removeListener(changeListener);
+    super.dispose();
   }
 
   void changeListener() {
@@ -91,9 +55,85 @@ class _CalendarWidgetState extends State<CalendarWidget> {
         );
       }
       setState(() {
-        selectedDate = d;
+        selectedDate = [d];
       });
     }
+  }
+
+  @override
+  void onChange(DateTime date) {
+    widget.onChange(date);
+  }
+}
+
+abstract class CalendarWidget extends StatefulWidget {
+  const CalendarWidget({
+    super.key,
+    required this.boxDecoration,
+    required this.textColor,
+    required this.wide,
+    required this.activeColor,
+    required this.activeTextColor,
+    required this.languages,
+    required this.minimumDate,
+    required this.maximumDate,
+    required this.startDayOfWeek,
+    required this.weekend,
+  });
+
+  final bool wide;
+
+  final BoxDecoration boxDecoration;
+  final Color? textColor;
+  final Color activeColor;
+  final Color activeTextColor;
+  final BoardPickerLanguages languages;
+  final DateTime minimumDate;
+  final DateTime maximumDate;
+  final int startDayOfWeek;
+  final BoardPickerWeekendOptions weekend;
+}
+
+abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
+  /// Calendar PageeController
+  late PageController pageController;
+
+  /// PageView count
+  late int pageCount;
+  int initialPage = 999;
+
+  /// Current Page for controller
+  late int currentPage;
+
+  late List<DateTime> selectedDate;
+  late DateTime initialDate;
+
+  DateTime get minimumDate => widget.minimumDate;
+  DateTime get maximumDate => widget.maximumDate;
+
+  /// Animation during page transitions
+  final pageDuration = const Duration(milliseconds: 300);
+  final pageCurve = Curves.easeIn;
+
+  double get topMargin => widget.wide ? 8 : 20;
+
+  @override
+  void initState() {
+    selectedDate = [initialDate];
+
+    /// Calculate the number of pages to display in the calendar
+    /// from the minimum and maximum dates
+    int count = (maximumDate.year - minimumDate.year + 1) * 12;
+    count -= (minimumDate.month - 1);
+    count -= (12 - maximumDate.month);
+    pageCount = count;
+
+    initialPage = diffYMD(minimumDate, initialDate);
+    pageController = PageController(initialPage: initialPage);
+
+    currentPage = initialPage;
+
+    super.initState();
   }
 
   int diffYMD(DateTime then, DateTime now) {
@@ -104,7 +144,6 @@ class _CalendarWidgetState extends State<CalendarWidget> {
 
   @override
   void dispose() {
-    widget.dateState.removeListener(changeListener);
     pageController.dispose();
     super.dispose();
   }
@@ -305,15 +344,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     // Inactive if less than the specified minimum date on the first page
     // or greater than the specified maximum date on the last page
     List<int> diabledList = [];
-    if (date.year == widget.minimumDate.year &&
-        date.month == widget.minimumDate.month) {
+    if (date.year == minimumDate.year && date.month == minimumDate.month) {
       diabledList.addAll(
-        [for (var i = 1; i < widget.minimumDate.day; i++) i],
+        [for (var i = 1; i < minimumDate.day; i++) i],
       );
-    } else if (date.year == widget.maximumDate.year &&
-        date.month == widget.maximumDate.month) {
+    } else if (date.year == maximumDate.year &&
+        date.month == maximumDate.month) {
       diabledList.addAll(
-        [for (var i = widget.maximumDate.day + 1; i <= y.day; i++) i],
+        [for (var i = maximumDate.day + 1; i <= y.day; i++) i],
       );
     }
 
@@ -323,38 +361,54 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     return list;
   }
 
+  bool isSelected(DateTime date) {
+    return date.compareDate(selectedDate.first);
+  }
+
+  void onChange(DateTime date);
+
+  void onTap(DateTime date) {
+    setState(() {
+      selectedDate = [date];
+    });
+    final to = DateTime(
+      selectedDate.first.year,
+      selectedDate.first.month,
+      selectedDate.first.day,
+      initialDate.hour,
+      initialDate.minute,
+    );
+    onChange(to);
+  }
+
+  CalendarSelectedProps getProps(DateTime date) {
+    return CalendarSelectedProps(
+      margin: const EdgeInsets.all(4),
+      borderRadius: BorderRadius.circular(50),
+    );
+  }
+
   /// Widget to display date item
   Widget _monthItem(DateTime first, int i, bool disabled) {
     final z = first.addDay(i - 1);
-    final selected = z.compareDate(selectedDate);
+    final selected = isSelected(z);
+
+    final props = getProps(z);
 
     return Material(
       color: Colors.transparent,
       clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.circular(50),
+      borderRadius: props.borderRadius,
       child: InkWell(
-        onTap: disabled
-            ? null
-            : () {
-                setState(() {
-                  selectedDate = z;
-                });
-                final to = DateTime(
-                  selectedDate.year,
-                  selectedDate.month,
-                  selectedDate.day,
-                  initialDate.hour,
-                  initialDate.minute,
-                );
-                widget.onChange(to);
-              },
+        onTap: disabled ? null : () => onTap(z),
         child: Center(
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            margin: const EdgeInsets.all(4),
+            margin: props.margin,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
+              // shape: BoxShape.circle,
+              borderRadius: props.borderRadius,
               color: selected ? widget.activeColor : Colors.transparent,
             ),
             child: Center(
@@ -384,4 +438,14 @@ class _CalendarWidgetState extends State<CalendarWidget> {
     }
     return widget.textColor;
   }
+}
+
+class CalendarSelectedProps {
+  final EdgeInsetsGeometry margin;
+  final BorderRadius borderRadius;
+
+  CalendarSelectedProps({
+    required this.margin,
+    required this.borderRadius,
+  });
 }

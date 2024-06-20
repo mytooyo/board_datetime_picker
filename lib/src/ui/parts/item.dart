@@ -159,6 +159,13 @@ class ItemWidgetState extends State<ItemWidget>
     });
   }
 
+  void _updateFocusNode() {
+    final pf = FocusManager.instance.primaryFocus;
+    if (pf is! PickerItemFocusNode && pf is! BoardDateTimeInputFocusNode) {
+      pickerFocusNode.requestFocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -224,7 +231,7 @@ class ItemWidgetState extends State<ItemWidget>
                             ),
                           ),
                           onTapDown: (details) {
-                            pickerFocusNode.requestFocus();
+                            _updateFocusNode();
                           },
                           onTapUp: (details) {
                             double clickOffset;
@@ -240,7 +247,8 @@ class ItemWidgetState extends State<ItemWidget>
                                 (clickOffset / itemSize).round();
                             final newIndex = currentIndex + indexOffset;
                             toAnimateChange(newIndex);
-                            pickerFocusNode.requestFocus();
+
+                            _updateFocusNode();
                           },
                         ),
                       ),

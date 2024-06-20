@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
-import 'options/board_item_option.dart';
+import 'ui/board_datetime_contents_state.dart';
 import 'ui/parts/focus_node.dart';
 import 'ui/parts/header.dart';
 import 'ui/picker_calendar_widget.dart';
@@ -16,7 +13,7 @@ import 'utils/board_enum.dart';
 /// Controller for displaying, hiding, and updating the value of the picker
 class BoardDateTimeController {
   // ignore: library_private_types_in_public_api
-  final GlobalKey<_BoardDateTimeContentState> _key = GlobalKey();
+  final GlobalKey<_SingleBoardDateTimeContentState> _key = GlobalKey();
 
   void open(DateTimePickerType openType, DateTime val) {
     _key.currentState?.open(date: val, pickerType: openType);
@@ -32,9 +29,9 @@ class BoardDateTimeController {
 }
 
 /// Controller for displaying, hiding, and updating the value of the picker
-class BoardDateTimeContentsController {
+class SingleBoardDateTimeContentsController {
   // ignore: library_private_types_in_public_api
-  final GlobalKey<_BoardDateTimeContentState> key = GlobalKey();
+  final GlobalKey<_SingleBoardDateTimeContentState> key = GlobalKey();
 
   void changeDate(DateTime date) {
     key.currentState?.changeDateTime(date);
@@ -162,7 +159,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
     keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
 
     Widget child() {
-      return BoardDateTimeContent<T>(
+      return SingleBoardDateTimeContent<T>(
         key: widget.controller._key,
         onChange: widget.onChange,
         onResult: widget.onResult,
@@ -202,255 +199,76 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
   }
 }
 
-class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
-    extends StatefulWidget {
-  const BoardDateTimeContent({
+class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
+    extends BoardDateTimeContent<T> {
+  const SingleBoardDateTimeContent({
     super.key,
     this.onChange,
     this.onResult,
-    required this.pickerType,
+    required super.pickerType,
     required this.initialDate,
-    required this.minimumDate,
-    required this.maximumDate,
-    required this.breakpoint,
-    required this.options,
-    this.modal = false,
-    this.onCloseModal,
-    this.keyboardHeightNotifier,
-    this.onCreatedDateState,
-    this.pickerFocusNode,
-    this.onKeyboadClose,
+    required super.minimumDate,
+    required super.maximumDate,
+    required super.breakpoint,
+    required super.options,
+    super.modal = false,
+    super.onCloseModal,
+    super.keyboardHeightNotifier,
+    super.onCreatedDateState,
+    super.pickerFocusNode,
+    super.onKeyboadClose,
   });
 
-  final double breakpoint;
   final void Function(DateTime)? onChange;
   final void Function(T)? onResult;
+
   final DateTime? initialDate;
-  final DateTime? minimumDate;
-  final DateTime? maximumDate;
-  final DateTimePickerType pickerType;
-  final BoardDateTimeOptions options;
-  final ValueNotifier<double>? keyboardHeightNotifier;
-
-  /// Flag whether modal display is performed
-  final bool modal;
-
-  /// Callback for closing a modal
-  final void Function()? onCloseModal;
-
-  final void Function(ValueNotifier<DateTime>)? onCreatedDateState;
-
-  final FocusNode? pickerFocusNode;
-
-  final void Function()? onKeyboadClose;
 
   @override
-  State<BoardDateTimeContent> createState() => _BoardDateTimeContentState<T>();
+  State<SingleBoardDateTimeContent> createState() =>
+      _SingleBoardDateTimeContentState<T>();
 }
 
-class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
-    extends State<BoardDateTimeContent<T>> with TickerProviderStateMixin {
-  /// Controller to perform picker show/hide animation
-  late AnimationController _openAnimationController;
-
-  /// Animation to show/hide the calendar
-  late AnimationController _calendarAnimationController;
-  late Animation<double> _calendarAnimation;
-  late Animation<double> _pickerFormAnimation;
-
-  final GlobalKey<BoardDateTimeHeaderState> _headerKey = GlobalKey();
-
-  /// Picker-wide Constraints
-  late BoxConstraints _constraints;
-
-  /// CurveTween
-  final curve = CurveTween(curve: Curves.easeInOut);
-
-  /// Wide mode flag
-  bool get isWide => _constraints.maxWidth >= widget.breakpoint;
-
-  /// DatePicker Field Options
-  List<BoardPickerItemOption> itemOptions = [];
-  late DateTimePickerType pickerType;
-
+class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
+    extends BoardDatetimeContentState<T, SingleBoardDateTimeContent<T>> {
   /// [ValueNotifier] to manage the Datetime under selection
   late ValueNotifier<DateTime> dateState;
 
-  /// Flag to keep track of whether the date has been updated
-  /// in the Picker at least once.
-  bool _changedDate = false;
-
-  /// Date and time of initial display
-  late DateTime initialDate;
-
-  /// Variables to manage keyboard height
-  late ValueNotifier<double> keyboardHeightNotifier;
-
-  /// Get the value of the keyboard within your own class or
-  bool get isSelfKeyboardNotifier => widget.keyboardHeightNotifier == null;
+  final GlobalKey<BoardDateTimeHeaderState> _headerKey = GlobalKey();
 
   @override
-  void initState() {
-    initializeDateFormatting();
+  DateTime get currentDate => dateState.value;
 
-    keyboardHeightNotifier = widget.keyboardHeightNotifier ?? ValueNotifier(0);
-
-    _openAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-      value: widget.modal ? 1.0 : 0,
-    );
-
-    _calendarAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-
-    _calendarAnimation = _calendarAnimationController.drive(curve).drive(
-          Tween<double>(begin: 0.0, end: 1.0),
-        );
-    _pickerFormAnimation = _calendarAnimationController.drive(curve).drive(
-          Tween<double>(begin: 1.0, end: 0.0),
-        );
-
-    /// Set up options
-    initialDate = widget.initialDate ?? DateTime.now();
-    final d = rangeDate(initialDate);
-    setupOptions(d, widget.pickerType);
-
-    super.initState();
-  }
+  @override
+  DateTime? get defaultDate => widget.initialDate;
 
   @override
   void dispose() {
-    _openAnimationController.dispose();
-    _calendarAnimationController.dispose();
     dateState.removeListener(notify);
     super.dispose();
   }
 
-  /// Checks and corrects if the specified date is within range
-  DateTime rangeDate(DateTime date) {
-    DateTime d = date;
-    if (widget.minimumDate != null && d.isBefore(widget.minimumDate!)) {
-      d = widget.minimumDate!;
-    }
-    if (widget.maximumDate != null && d.isAfter(widget.maximumDate!)) {
-      d = widget.maximumDate!;
-    }
-    return d;
-  }
-
-  /// Open Picker
-  void open({DateTime? date, DateTimePickerType? pickerType}) {
-    final d = rangeDate(date ?? dateState.value);
-    final pt = pickerType ?? widget.pickerType;
-
-    // Notification to match the date to be displayed
-    // if the specified date differs from the date to be initially displayed.
-    if (!_changedDate && d.compareTo(initialDate) != 0) {
-      final result = widget.initialDate == null ? d : dateState.value;
-      widget.onChange?.call(result);
-      widget.onResult?.call(BoardDateTimeCommonResult.init(pt, result) as T);
-    }
-
-    setState(() {
-      setupOptions(d, pt);
-    });
-
-    // If the calendar was displayed in the time display specification, return it.
-    if (pt == DateTimePickerType.time &&
-        _calendarAnimationController.isCompleted) {
-      _calendarAnimationController.reset();
-    }
-
-    _openAnimationController.forward();
-  }
-
-  /// Close Picker
-  void close() {
-    if (widget.modal) {
-      // if modal, close modal sheets
-      if (widget.onCloseModal == null) {
-        Navigator.of(context).pop();
-      } else {
-        widget.onCloseModal!.call();
+  @override
+  void setNewValue(DateTime val, {bool byPicker = false}) {
+    dateState.value = val;
+    if (byPicker && widget.pickerFocusNode != null) {
+      final fn = widget.pickerFocusNode!;
+      if (!fn.hasFocus &&
+          FocusManager.instance.primaryFocus! is! BoardDateTimeInputFocusNode) {
+        fn.requestFocus();
       }
-    } else {
-      _openAnimationController.reverse();
     }
   }
 
-  /// Setup of field options
+  @override
+  void onChanged(DateTime date, T result) {
+    widget.onChange?.call(date);
+    widget.onResult?.call(result);
+  }
+
+  @override
   void setupOptions(DateTime d, DateTimePickerType type) {
-    final minDate = widget.minimumDate;
-    final maxDate = widget.maximumDate;
-
-    final opts = widget.options.customOptions;
-
-    List<BoardPickerItemOption> ymdOptions = [];
-
-    if (DateTimePickerType.time != type) {
-      // Check the value specified in the picker format.
-      // Error if a value other than y, m, or d is specified
-      final pickerFormat = widget.options.pickerFormat;
-      final reg = RegExp('^(?=.*y)(?=.*M)(?=.*d)');
-      assert(reg.hasMatch(pickerFormat));
-
-      for (final pf in pickerFormat.characters) {
-        if (pf == 'y') {
-          final subTitle = widget.options.getSubTitle(DateType.year);
-          ymdOptions.add(
-            initItemOption(DateType.year, d, minDate, maxDate, null, subTitle),
-          );
-        } else if (pf == 'M') {
-          final subTitle = widget.options.getSubTitle(DateType.month);
-          ymdOptions.add(
-            initItemOption(DateType.month, d, minDate, maxDate, null, subTitle),
-          );
-        } else if (pf == 'd') {
-          final subTitle = widget.options.getSubTitle(DateType.day);
-          ymdOptions.add(
-            initItemOption(DateType.day, d, minDate, maxDate, null, subTitle),
-          );
-        }
-      }
-    }
-
-    itemOptions = [
-      if ([DateTimePickerType.date, DateTimePickerType.datetime].contains(type))
-        ...ymdOptions,
-      if ([DateTimePickerType.time, DateTimePickerType.datetime]
-          .contains(type)) ...[
-        initItemOption(
-          DateType.hour,
-          d,
-          minDate,
-          maxDate,
-          opts?.hours,
-          widget.options.getSubTitle(DateType.hour),
-        ),
-        initItemOption(
-          DateType.minute,
-          d,
-          minDate,
-          maxDate,
-          opts?.minutes,
-          widget.options.getSubTitle(DateType.minute),
-        ),
-      ],
-    ];
-
-    for (final x in itemOptions) {
-      if (x.type == DateType.year) {
-        x.focusNode.addListener(yearKeyboardListener);
-      } else {
-        x.focusNode.addListener(keyboardListener);
-      }
-    }
-
-    pickerType = type;
-
+    super.setupOptions(d, type);
     dateState = ValueNotifier(d);
     dateState.addListener(notify);
     widget.onCreatedDateState?.call(dateState);
@@ -466,155 +284,8 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     widget.onResult?.call(
       BoardDateTimeCommonResult.init(pickerType, dateState.value) as T,
     );
-    _changedDate = true;
+    changedDate = true;
   }
-
-  /// FocusNode (keyboard) listener
-  void keyboardListener() {
-    // empty
-  }
-
-  /// Year focusNode (keyboard) listener
-  void yearKeyboardListener() {
-    keyboardListener();
-    // Checks the input when the focus is removed and changes to the year
-    // and month of the current time if the value does not exist.
-    final opt = itemOptions.firstWhere((x) => x.type == DateType.year);
-    if (opt.focusNode.hasFocus) return;
-    opt.checkInputField();
-  }
-
-  /// Handling of date changes made by the picker
-  void onChangeByPicker(BoardPickerItemOption opt, int index) {
-    // Update option class values to selected values
-    opt.selectedIndex = index;
-
-    // 年と月から選択中の日付が存在するか確認する
-    // Check to see if the date you are selecting exists from the year and month
-    DateTime newVal;
-    if ([DateType.year, DateType.month].contains(opt.type)) {
-      final year =
-          opt.type == DateType.month ? dateState.value.year : opt.value;
-      final month =
-          opt.type == DateType.month ? opt.value : dateState.value.month;
-      final day = dateState.value.day;
-      // 存在しない日付の場合は最大日付で補正する
-      // Correct with the maximum date if the date does not exist
-      final newDay = DateTimeUtil.existDay(year, month, day);
-      // 範囲外の日付の場合に繰り上がってしまうため
-      // ここで日付を指定してDateTimeを作成しておく
-      // Because it is carried forward for dates outside the range,
-      // create a DateTime with the date here.
-      newVal = opt.calcDate(dateState.value, newDay: newDay);
-    } else {
-      newVal = opt.calcDate(dateState.value);
-    }
-
-    final data = opt.map[index]!;
-    final day = DateTimeUtil.getExistsMaxDate(itemOptions, opt, data);
-    if (day != null) {
-      final dayOpt = itemOptions.firstWhere((x) => x.type == DateType.day);
-      // 選択中の日付が最大値より大きい場合は最大値で補正する
-      // If the date being selected is greater than the maximum value, correct by the maximum value.
-      final newDate = dayOpt.calcDate(
-        newVal,
-        newDay: dateState.value.day > day ? day : null,
-      );
-      newVal = DateTimeUtil.rangeDate(
-        newDate,
-        widget.minimumDate,
-        widget.maximumDate,
-      );
-      dayOpt.updateDayMap(day, newVal);
-    } else {
-      newVal = DateTimeUtil.rangeDate(
-        newVal,
-        widget.minimumDate,
-        widget.maximumDate,
-      );
-    }
-    dateState.value = opt.calcDate(newVal);
-    if (widget.pickerFocusNode != null) {
-      final fn = widget.pickerFocusNode!;
-      if (!fn.hasFocus &&
-          FocusManager.instance.primaryFocus! is! BoardDateTimeInputFocusNode) {
-        fn.requestFocus();
-      }
-    }
-  }
-
-  /// Process date changes from calendar or header
-  void changeDate(DateTime val) {
-    DateTime newVal = DateTimeUtil.rangeDate(
-      val,
-      widget.minimumDate,
-      widget.maximumDate,
-    );
-
-    for (final x in itemOptions) {
-      if (x.type == DateType.year && x.value != newVal.year) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.month && x.value != newVal.month) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.day && x.value != newVal.day) {
-        x.changeDate(newVal);
-      }
-    }
-    dateState.value = newVal;
-  }
-
-  /// Process time changes from header
-  void changeTime(DateTime val) {
-    DateTime newVal = DateTimeUtil.rangeDate(
-      val,
-      widget.minimumDate,
-      widget.maximumDate,
-    );
-
-    for (final x in itemOptions) {
-      if (x.type == DateType.hour && x.value != newVal.hour) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.minute && x.value != newVal.minute) {
-        x.changeDate(newVal);
-      }
-    }
-    dateState.value = newVal;
-  }
-
-  void changeDateTime(DateTime val) {
-    DateTime newVal = DateTimeUtil.rangeDate(
-      val,
-      widget.minimumDate,
-      widget.maximumDate,
-    );
-
-    for (final x in itemOptions) {
-      if (x.type == DateType.year && x.value != newVal.year) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.month && x.value != newVal.month) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.day && x.value != newVal.day) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.hour && x.value != newVal.hour) {
-        x.changeDate(newVal);
-      } else if (x.type == DateType.minute && x.value != newVal.minute) {
-        x.changeDate(newVal);
-      }
-    }
-    dateState.value = newVal;
-  }
-
-  /// Close Keyboard
-  void closeKeyboard() {
-    for (final x in itemOptions) {
-      if (x.focusNode.hasFocus) x.focusNode.unfocus();
-    }
-    widget.onKeyboadClose?.call();
-  }
-
-  /// Ratio assuming a maximum keyboard height
-  double get keyboardHeightRatio =>
-      1 - (min(160, keyboardHeightNotifier.value) / 160);
 
   @override
   Widget build(BuildContext context) {
@@ -624,10 +295,10 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        _constraints = constraints;
+        boxConstraints = constraints;
 
         return AnimatedBuilder(
-          animation: _openAnimationController,
+          animation: openAnimationController,
           builder: _openAnimationBuilder,
         );
       },
@@ -635,7 +306,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   }
 
   Widget _openAnimationBuilder(BuildContext context, Widget? child) {
-    final animation = _openAnimationController.drive(curve).drive(
+    final animation = openAnimationController.drive(curve).drive(
           Tween<double>(begin: 0.0, end: 1.0),
         );
 
@@ -646,6 +317,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       listOptions: itemOptions,
       minimumDate: widget.minimumDate,
       maximumDate: widget.maximumDate,
+      multiple: false,
       headerBuilder: (ctx) => _header,
       onChange: changeDate,
       onChangeByPicker: onChangeByPicker,
@@ -666,9 +338,9 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
               )
             : PickerCalendarStandardWidget(
                 arguments: args,
-                calendarAnimationController: _calendarAnimationController,
-                calendarAnimation: _calendarAnimation,
-                pickerFormAnimation: _pickerFormAnimation,
+                calendarAnimationController: calendarAnimationController,
+                calendarAnimation: calendarAnimation,
+                pickerFormAnimation: pickerFormAnimation,
               ),
       ),
     );
@@ -676,15 +348,15 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
   Widget get _header {
     void onCalendar() {
-      if (_calendarAnimationController.value == 0.0) {
+      if (calendarAnimationController.value == 0.0) {
         for (final x in itemOptions) {
           if (x.focusNode.hasFocus) {
             x.focusNode.unfocus();
           }
         }
-        _calendarAnimationController.forward();
-      } else if (_calendarAnimationController.value == 1.0) {
-        _calendarAnimationController.reverse();
+        calendarAnimationController.forward();
+      } else if (calendarAnimationController.value == 1.0) {
+        calendarAnimationController.reverse();
       }
     }
 
@@ -695,7 +367,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         dateState: dateState,
         pickerType: pickerType,
         keyboardHeightRatio: keyboardHeightRatio,
-        calendarAnimation: _calendarAnimation,
+        calendarAnimation: calendarAnimation,
         onCalendar: onCalendar,
         onKeyboadClose: closeKeyboard,
         onClose: close,
@@ -710,7 +382,7 @@ class _BoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       dateState: dateState,
       pickerType: pickerType,
       keyboardHeightRatio: keyboardHeightRatio,
-      calendarAnimation: _calendarAnimation,
+      calendarAnimation: calendarAnimation,
       onCalendar: onCalendar,
       onChangeDate: changeDate,
       onChangTime: changeTime,

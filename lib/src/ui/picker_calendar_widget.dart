@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../board_datetime_options.dart';
 import '../utils/board_enum.dart';
+import 'parts/calendar_multi.dart';
 import 'parts/header.dart';
 
 class PickerCalendarArgs {
@@ -21,6 +22,10 @@ class PickerCalendarArgs {
   final void Function(DateTime) onChange;
   final void Function(BoardPickerItemOption, int) onChangeByPicker;
   final double Function() keyboardHeightRatio;
+  final bool multiple;
+  final ValueNotifier<DateTime>? startDate;
+  final ValueNotifier<DateTime>? endDate;
+  final void Function(DateTime start, DateTime end)? onMultiChange;
 
   const PickerCalendarArgs({
     required this.dateState,
@@ -33,6 +38,10 @@ class PickerCalendarArgs {
     required this.onChange,
     required this.onChangeByPicker,
     required this.keyboardHeightRatio,
+    required this.multiple,
+    this.startDate,
+    this.endDate,
+    this.onMultiChange,
   });
 }
 
@@ -52,8 +61,37 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
   PickerCalendarArgs get args => widget.arguments;
 
   Widget calendar({required Color? background, required bool isWide}) {
+    if (args.multiple) {
+      return SizedBox(
+        child: MultipleCalendarWidget(
+          key: calendarKey,
+          startDate: args.startDate!,
+          endDate: args.endDate!,
+          onChange: (start, end) {
+            print('selected: $start, $end');
+            args.onMultiChange?.call(start, end);
+          },
+          boxDecoration: BoxDecoration(
+            color: args.options.backgroundDecoration != null && !isWide
+                ? args.options.backgroundDecoration!.color
+                : background,
+          ),
+          // onChange: args.onChange,
+          wide: isWide,
+          textColor: args.options.getTextColor(context),
+          activeColor: args.options.getActiveColor(context),
+          activeTextColor: args.options.getActiveTextColor(context),
+          languages: args.options.languages,
+          minimumDate: args.minimumDate ?? DateTimeUtil.defaultMinDate,
+          maximumDate: args.maximumDate ?? DateTimeUtil.defaultMaxDate,
+          startDayOfWeek: args.options.startDayOfWeek,
+          weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
+        ),
+      );
+    }
+
     return SizedBox(
-      child: CalendarWidget(
+      child: SingleCalendarWidget(
         key: calendarKey,
         dateState: args.dateState,
         boxDecoration: BoxDecoration(

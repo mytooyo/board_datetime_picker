@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
       controller: controller,
       resizeBottom: true,
       options: const BoardDateTimeOptions(
-        boardTitle: 'Board Picker',
+        // boardTitle: 'Board Picker',
         languages: BoardPickerLanguages.en(),
         // backgroundColor: Colors.black,
         // textColor: Colors.white,
@@ -305,7 +305,7 @@ class _ModalItemState extends State<ModalItem> {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () async {
-          final result = await showBoardDateTimePicker(
+          final result = await showBoardDateTimeMultiPicker(
             context: context,
             pickerType: DateTimePickerType.datetime,
             options: const BoardDateTimeOptions(
@@ -313,12 +313,13 @@ class _ModalItemState extends State<ModalItem> {
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
               boardTitle: 'Board Picker',
-              pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
+              // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
             ),
-            onResult: (val) {},
+            onResult: (val1, val2) {},
           );
           if (result != null) {
-            setState(() => d = result);
+            print('result: $result');
+            // setState(() => d = result);
           }
         },
         child: Padding(
