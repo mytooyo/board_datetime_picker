@@ -1,3 +1,7 @@
+## 1.6.8
+
+* Fixed a bug that was not reflected in the `setText` of the `BoardDateTimeTextController`.
+
 ## 1.6.7
 
 * Added Picker type to display when text field has focus.

@@ -56,11 +56,36 @@ class BoardDateTimeTextController {
   final ValueNotifier<dynamic> _notifier = ValueNotifier(null);
 
   void setText(String text) {
-    _notifier.value = text;
+    _notifier.value = _InoutValue.from(text);
   }
 
   void setDate(DateTime date) {
-    _notifier.value = date;
+    _notifier.value = _InoutValue.from(date);
+  }
+}
+
+class _InoutValue {
+  final String? text;
+  final DateTime? date;
+
+  _InoutValue({this.text, this.date});
+
+  factory _InoutValue.from(dynamic val) {
+    if (val is String) {
+      return _InoutValue(text: val);
+    } else if (val is DateTime) {
+      return _InoutValue(date: val);
+    }
+    return _InoutValue();
+  }
+
+  String formattedText(String format) {
+    if (date != null) {
+      return DateFormat(format).format(date!);
+    } else if (text != null) {
+      return text!;
+    }
+    return '';
   }
 }
 
@@ -459,10 +484,9 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   void _controllerListener() {
     final setVal = widget.controller!._notifier.value;
     String newVal = '';
-    if (setVal != null && setVal is String) {
-      newVal = setVal;
-    } else if (setVal != null && setVal is DateTime) {
-      newVal = DateFormat(format).format(setVal);
+
+    if (setVal != null && setVal is _InoutValue) {
+      newVal = setVal.formattedText(format);
     }
 
     if (newVal == textController.text) return;
@@ -524,6 +548,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
                 borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: options.activeColor ?? Theme.of(context).primaryColor,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: borderRadius,
+                borderSide: const BorderSide(
+                  color: Colors.redAccent,
                 ),
               ),
               errorMaxLines: 2,
@@ -706,7 +736,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     // generate a Container to represent the error
     if (!widget.validators.showMessage) {
       if (result.error != null && errorWidget == null) {
-        setState(() => errorWidget = Container());
+        setState(() => errorWidget = const SizedBox());
       }
       // Hide errors
       else if (result.error == null && errorWidget != null) {
@@ -898,7 +928,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           BoardDateTimeCommonResult.init(widget.pickerType, datetime) as T,
         );
         pickerController?.changeDate(datetime);
-        widget.controller?._notifier.value = date;
+        widget.controller?._notifier.value = _InoutValue.from(date);
       }
     }
   }
