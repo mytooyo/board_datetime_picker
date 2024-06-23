@@ -359,14 +359,8 @@ class _SingleBoardDateTimeWidgetState
 /// The `pickerType` argument is type of picker to display mode.
 /// [date] or [time] or [datetime].
 ///
-/// The `valueNotifier` is a parameter to detect changes and notify you immediately.
-/// If it is changed in the picker, it is set to value so that the caller will
-/// receive a change callback immediately.
-/// With or without specification, pressing the check button in the
-/// header will return the selected date.
-///
-/// The `initialDate` and `minimumDate` and `maximumDate` are parameters related to dates,
-/// respectively. Initial value, minimum date, and maximum date.
+/// The `startDate` and `endDate` and `minimumDate` and `maximumDate` are parameters related to dates,
+/// respectively. Start date, end date, minimum date, and maximum date.
 ///
 /// The `options` is an option to customize the picker display.
 ///
