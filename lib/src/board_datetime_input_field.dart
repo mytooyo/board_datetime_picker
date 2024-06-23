@@ -56,11 +56,36 @@ class BoardDateTimeTextController {
   final ValueNotifier<dynamic> _notifier = ValueNotifier(null);
 
   void setText(String text) {
-    _notifier.value = text;
+    _notifier.value = _InoutValue.from(text);
   }
 
   void setDate(DateTime date) {
-    _notifier.value = date;
+    _notifier.value = _InoutValue.from(date);
+  }
+}
+
+class _InoutValue {
+  final String? text;
+  final DateTime? date;
+
+  _InoutValue({this.text, this.date});
+
+  factory _InoutValue.from(dynamic val) {
+    if (val is String) {
+      return _InoutValue(text: val);
+    } else if (val is DateTime) {
+      return _InoutValue(date: val);
+    }
+    return _InoutValue();
+  }
+
+  String formattedText(String format) {
+    if (date != null) {
+      return DateFormat(format).format(date!);
+    } else if (text != null) {
+      return text!;
+    }
+    return '';
   }
 }
 
@@ -206,9 +231,6 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
 class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     extends State<BoardDateTimeInputField<T>>
     with SingleTickerProviderStateMixin {
-  /// Key of Widget to display Overkay
-  final GlobalKey overlayKey = GlobalKey();
-
   /// Overlay Widget to display picker
   OverlayEntry? overlay;
 
@@ -284,15 +306,19 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   }
 
   /// Close the displayed picker
-  void closePicker({bool disposed = false}) {
+  void closePicker({bool disposed = false, void Function()? completion}) {
     if (disposed) {
       overlay?.remove();
+      overlay?.dispose();
+      overlay = null;
     } else {
       final future = overlayAnimController.reverse();
       if (overlay != null) {
         future.then((value) {
           overlay?.remove();
+          overlay?.dispose();
           overlay = null;
+          completion?.call();
         });
       }
     }
@@ -315,7 +341,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       final pf = FocusManager.instance.primaryFocus;
       if (pf is BoardDateTimeInputFocusNode) {
         closePicker();
-        widget.onFocusChange?.call(false, selectedDate, textController.text);
+        onFinished();
       }
     } else {
       // Callback when focus is acquired
@@ -363,6 +389,11 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   bool initialized = false;
 
+  void onFinished() {
+    widget.onFocusChange?.call(false, selectedDate, textController.text);
+    FocusScope.of(context).removeListener(_focusScopeListener);
+  }
+
   void _onFocused() {
     // Determine if it is your own focus
     if (focusIsSelf != null) {
@@ -376,11 +407,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       closePicker();
       if (initialized && focused) {
         checkFormat(textController.text, complete: true);
-        widget.onFocusChange?.call(false, selectedDate, textController.text);
+        onFinished();
         initialized = false;
       }
     }
   }
+
+  late final void Function() _focusScopeListener = focusScopeListener;
 
   void focusScopeListener() {
     focusNodeDebounce?.cancel();
@@ -441,10 +474,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     focusNode = widget.focusNode ?? BoardDateTimeInputFocusNode();
     focusNode.addListener(_focusListener);
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      FocusScope.of(context).addListener(focusScopeListener);
-    });
-
     overlayAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 260),
@@ -459,10 +488,9 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   void _controllerListener() {
     final setVal = widget.controller!._notifier.value;
     String newVal = '';
-    if (setVal != null && setVal is String) {
-      newVal = setVal;
-    } else if (setVal != null && setVal is DateTime) {
-      newVal = DateFormat(format).format(setVal);
+
+    if (setVal != null && setVal is _InoutValue) {
+      newVal = setVal.formattedText(format);
     }
 
     if (newVal == textController.text) return;
@@ -473,7 +501,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   @override
   void deactivate() {
-    FocusScope.of(context).removeListener(focusScopeListener);
+    FocusScope.of(context).removeListener(_focusScopeListener);
     super.deactivate();
   }
 
@@ -496,7 +524,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       key: formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: TextFormField(
-        key: overlayKey,
         controller: textController,
         focusNode: focusNode,
         keyboardType: widget.keyboardType ?? TextInputType.datetime,
@@ -524,6 +551,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
                 borderRadius: borderRadius,
                 borderSide: BorderSide(
                   color: options.activeColor ?? Theme.of(context).primaryColor,
+                ),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: borderRadius,
+                borderSide: const BorderSide(
+                  color: Colors.redAccent,
                 ),
               ),
               errorMaxLines: 2,
@@ -557,13 +590,16 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
             RegExp(r'[0-9/;:,\-\s\.]'),
           )
         ],
+        onTap: () {
+          FocusScope.of(context).addListener(_focusScopeListener);
+        },
         onChanged: (val) {
           checkFormat(val);
           beforeTextLength = val.length;
         },
         onEditingComplete: () {
           closePicker();
-          FocusScope.of(context).unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
         },
       ),
     );
@@ -706,7 +742,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     // generate a Container to represent the error
     if (!widget.validators.showMessage) {
       if (result.error != null && errorWidget == null) {
-        setState(() => errorWidget = Container());
+        setState(() => errorWidget = const SizedBox());
       }
       // Hide errors
       else if (result.error == null && errorWidget != null) {
@@ -898,12 +934,22 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           BoardDateTimeCommonResult.init(widget.pickerType, datetime) as T,
         );
         pickerController?.changeDate(datetime);
-        widget.controller?._notifier.value = date;
+        widget.controller?._notifier.value = _InoutValue.from(date);
       }
     }
   }
 
   Widget _pickerWidget() {
+    void onClosePicker() {
+      final hasFocus = pickerFocusNode.hasFocus;
+      if (hasFocus) {
+        checkFormat(textController.text, complete: true);
+        onFinished();
+      }
+      closePicker();
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+
     return GestureDetector(
       onTapDown: (_) {
         pickerFocusNode.requestFocus();
@@ -921,18 +967,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
           modal: true,
+          withTextField: true,
           onCreatedDateState: (val) {
             pickerDateState = val;
             pickerDateState!.addListener(pickerListener);
           },
-          onCloseModal: () {
-            focusNode.unfocus();
-            closePicker();
-          },
-          onKeyboadClose: () {
-            focusNode.unfocus();
-            closePicker();
-          },
+          onCloseModal: onClosePicker,
+          onKeyboadClose: onClosePicker,
         ),
       ),
     );

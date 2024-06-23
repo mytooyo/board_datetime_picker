@@ -6,6 +6,8 @@ import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
+import 'buttons.dart';
+
 class BoardDateTimeHeader extends StatefulWidget {
   const BoardDateTimeHeader({
     super.key,
@@ -28,6 +30,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.minimumDate,
     required this.maximumDate,
     required this.modal,
+    required this.withTextField,
     required this.pickerFocusNode,
   });
 
@@ -90,6 +93,9 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Modal Flag
   final bool modal;
 
+  /// TextField Flag
+  final bool withTextField;
+
   /// Picker FocusNode
   final FocusNode? pickerFocusNode;
 
@@ -151,21 +157,21 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           else
             ..._dateItems(context),
           Expanded(child: Container()),
-          Visibility(
-            visible: widget.keyboardHeightRatio == 0,
-            child: Opacity(
-              opacity: 0.8 * (1 - widget.keyboardHeightRatio),
-              child: IconButton(
-                onPressed: () {
-                  widget.onKeyboadClose();
-                },
-                icon: const Icon(
-                  Icons.keyboard_hide_rounded,
-                ),
-                color: widget.textColor,
-              ),
-            ),
-          ),
+          // Visibility(
+          //   visible: widget.keyboardHeightRatio == 0,
+          //   child: Opacity(
+          //     opacity: 0.8 * (1 - widget.keyboardHeightRatio),
+          //     child: IconButton(
+          //       onPressed: () {
+          //         widget.onKeyboadClose();
+          //       },
+          //       icon: const Icon(
+          //         Icons.keyboard_hide_rounded,
+          //       ),
+          //       color: widget.textColor,
+          //     ),
+          //   ),
+          // ),
           widget.modal
               ? IconButton(
                   onPressed: () {
@@ -188,12 +194,15 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       ),
     );
 
-    return GestureDetector(
-      onTapDown: (_) {
-        widget.pickerFocusNode?.requestFocus();
-      },
-      child: child,
-    );
+    if (widget.withTextField) {
+      return GestureDetector(
+        onTapDown: (_) {
+          widget.pickerFocusNode?.requestFocus();
+        },
+        child: child,
+      );
+    }
+    return child;
   }
 
   List<Widget> _dateItems(BuildContext context) {
@@ -353,11 +362,12 @@ class _BoardDateTimeNoneButtonHeaderState
       child: Row(
         children: [
           if (widget.pickerType != DateTimePickerType.time && !widget.wide) ...[
-            _iconButton(
+            CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),
               fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
               onTap: widget.onCalendar,
+              buttonSize: buttonSize,
               child: Transform.rotate(
                 angle: pi * 4 * widget.calendarAnimation.value,
                 child: Icon(
@@ -411,71 +421,44 @@ class _BoardDateTimeNoneButtonHeaderState
   }
 
   List<Widget> _rightButton() {
-    Widget? closeKeyboard;
+    // Widget? closeKeyboard;
 
-    if (widget.keyboardHeightRatio == 0) {
-      closeKeyboard = Visibility(
-        visible: widget.keyboardHeightRatio == 0,
-        child: _iconButton(
-          icon: Icons.keyboard_hide_rounded,
-          bgColor: widget.options.getForegroundColor(context),
-          fgColor: widget.options.getTextColor(context),
-          onTap: widget.onKeyboadClose,
-        ),
-      );
-    }
+    // if (widget.keyboardHeightRatio == 0) {
+    //   closeKeyboard = Visibility(
+    //     visible: widget.keyboardHeightRatio == 0,
+    //     child: CustomIconButton(
+    //       icon: Icons.keyboard_hide_rounded,
+    //       bgColor: widget.options.getForegroundColor(context),
+    //       fgColor: widget.options.getTextColor(context),
+    //       onTap: widget.onKeyboadClose,
+    //       buttonSize: buttonSize,
+    //     ),
+    //   );
+    // }
 
     Widget child = widget.modal
-        ? _iconButton(
+        ? CustomIconButton(
             icon: Icons.check_circle_rounded,
             bgColor: widget.options.getActiveColor(context),
             fgColor: widget.options.getActiveTextColor(context),
             onTap: widget.onClose,
+            buttonSize: buttonSize,
           )
-        : _iconButton(
+        : CustomIconButton(
             icon: Icons.close_rounded,
             bgColor: widget.options.getForegroundColor(context),
             fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
             onTap: widget.onClose,
+            buttonSize: buttonSize,
           );
 
     return [
-      if (closeKeyboard != null) ...[
-        closeKeyboard,
-        const SizedBox(width: 8),
-      ],
+      // if (closeKeyboard != null) ...[
+      //   closeKeyboard,
+      //   const SizedBox(width: 8),
+      // ],
       child,
     ];
-  }
-
-  Widget _iconButton({
-    required IconData icon,
-    required Color? bgColor,
-    required Color? fgColor,
-    required void Function() onTap,
-    Widget? child,
-  }) {
-    return Material(
-      color: bgColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          height: buttonSize,
-          width: buttonSize,
-          alignment: Alignment.center,
-          child: child ??
-              Icon(
-                icon,
-                size: 20,
-                color: fgColor,
-              ),
-        ),
-      ),
-    );
   }
 }
 

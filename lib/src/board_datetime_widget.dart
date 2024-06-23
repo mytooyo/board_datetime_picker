@@ -481,8 +481,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
   void initState() {
     selection = BoardDateTimeMultiSelection(
       start: widget.startDate ?? DateTime.now(),
-      end: widget.endDate ??
-          DateTime.now().add(const Duration(days: 1, hours: 3)),
+      end: widget.endDate ?? DateTime.now().add(const Duration(days: 1)),
     );
     super.initState();
   }

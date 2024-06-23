@@ -18,39 +18,114 @@ class MyApp extends StatelessWidget {
         useMaterial3: false,
       ),
       // home: const Home(),
-      home: const MyHomePage(title: 'Board DateTime Picker Example'),
+      home: const MySampleApp(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class MySampleApp extends StatefulWidget {
+  const MySampleApp({super.key});
+
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MySampleApp> createState() => _MySampleAppState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MySampleAppState extends State<MySampleApp> {
+  final scrollController = ScrollController();
   final controller = BoardDateTimeController();
 
-  DateTimePickerType? opened;
-
-  final List<GlobalKey<_ItemWidgetState>> keys = [
-    GlobalKey(),
-    GlobalKey(),
-    GlobalKey()
-  ];
-
-  final textController = BoardDateTimeTextController();
+  final ValueNotifier<DateTime> builderDate = ValueNotifier(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
+    Widget scaffold() {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Board DateTime Picker Example'),
+        ),
+        backgroundColor: const Color.fromARGB(255, 245, 245, 250),
+        body: SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 560,
+              ),
+              child: Column(
+                children: [
+                  SectionWidget(
+                    title: 'Form',
+                    items: [InputFieldWidget()],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Picker (Single Selection)',
+                    items: [
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                      ),
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.date,
+                      ),
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.time,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Picker (Multi Selection)',
+                    items: [
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                      ),
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.date,
+                      ),
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.time,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Builder Picker',
+                    items: [
+                      PickerBuilderItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                        date: builderDate,
+                        onOpen: () async {
+                          controller.open(
+                            DateTimePickerType.datetime,
+                            builderDate.value,
+                          );
+                          await Future.delayed(
+                              const Duration(milliseconds: 300));
+                          scrollController.animateTo(
+                            scrollController.position.maxScrollExtent,
+                            duration: const Duration(milliseconds: 100),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return BoardDateTimeBuilder<BoardDateTimeCommonResult>(
+      builder: (context) => scaffold(),
       controller: controller,
-      resizeBottom: true,
       options: const BoardDateTimeOptions(
-        // boardTitle: 'Board Picker',
         languages: BoardPickerLanguages.en(),
+        // boardTitle: 'Board Picker',
         // backgroundColor: Colors.black,
         // textColor: Colors.white,
         // foregroundColor: const Color(0xff303030),
@@ -76,164 +151,114 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       // minimumDate: DateTime(2023, 12, 15, 0, 15),
       // maximumDate: DateTime(2024, 12, 31),
-      builder: (context) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.title),
-          ),
-          backgroundColor: const Color.fromARGB(255, 245, 245, 250),
-          body: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'BoardDateTimeInputField: ',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                      const SizedBox(width: 16),
-                      SizedBox(
-                        width: 160,
-                        child: BoardDateTimeInputField(
-                          controller: textController,
-                          pickerType: DateTimePickerType.datetime,
-                          options: const BoardDateTimeOptions(
-                            languages: BoardPickerLanguages.en(),
-                          ),
-                          initialDate: DateTime.now(),
-                          maximumDate: DateTime(2040),
-                          minimumDate: DateTime(1900, 1, 1),
-                          // showPickerType: BoardDateTimeFieldPickerType.mini,
-                          textStyle: Theme.of(context).textTheme.bodyMedium,
-                          onChanged: (date) {
-                            print('onchanged: $date');
-                          },
-                          onFocusChange: (val, date, text) {
-                            print('on focus changed date: $val, $date, $text');
-                          },
-                          onResult: (p0) {
-                            // print('on result: ${p0.hour}, ${p0.minute}');
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 60),
-                  ItemWidget(
-                    key: keys[0],
-                    type: DateTimePickerType.datetime,
-                    controller: controller,
-                    onOpen: (type) => opened = type,
-                  ),
-                  const SizedBox(height: 24),
-                  ItemWidget(
-                    key: keys[1],
-                    type: DateTimePickerType.date,
-                    controller: controller,
-                    onOpen: (type) => opened = type,
-                  ),
-                  const SizedBox(height: 24),
-                  ItemWidget(
-                    key: keys[2],
-                    type: DateTimePickerType.time,
-                    controller: controller,
-                    onOpen: (type) => opened = type,
-                  ),
-                  const SizedBox(height: 24),
-                  const ModalItem(),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-      onResult: (val) {},
       onChange: (val) {
-        int index = -1;
-        if (opened == DateTimePickerType.datetime) {
-          index = 0;
-        } else if (opened == DateTimePickerType.date) {
-          index = 1;
-        } else if (opened == DateTimePickerType.time) {
-          index = 2;
-        }
-        if (index >= 0) keys[index].currentState?.update(val);
+        builderDate.value = val;
       },
     );
   }
 }
 
-class ItemWidget extends StatefulWidget {
-  const ItemWidget({
-    super.key,
-    required this.type,
-    required this.controller,
-    required this.onOpen,
-  });
+class SectionWidget extends StatelessWidget {
+  final String title;
+  final List<Widget> items;
 
-  final DateTimePickerType type;
-  final BoardDateTimeController controller;
-  final void Function(DateTimePickerType type) onOpen;
+  const SectionWidget({super.key, required this.title, required this.items});
 
   @override
-  State<ItemWidget> createState() => _ItemWidgetState();
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 8, left: 16),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+        Material(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).cardColor,
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: items,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class _ItemWidgetState extends State<ItemWidget> {
-  DateTime d = DateTime.now();
+class PickerItemWidget extends StatelessWidget {
+  PickerItemWidget({
+    super.key,
+    required this.pickerType,
+  });
 
-  void update(DateTime date) {
-    setState(() {
-      d = date;
-    });
-  }
+  final DateTimePickerType pickerType;
+
+  final ValueNotifier<DateTime> date = ValueNotifier(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      borderRadius: BorderRadius.circular(8),
-      color: Theme.of(context).cardColor,
-      clipBehavior: Clip.antiAlias,
+      color: Colors.transparent,
       child: InkWell(
-        onTap: () {
-          // Open without date specification
-          // widget.controller.openPicker();
-          widget.onOpen(widget.type);
-          widget.controller.open(widget.type, d);
+        onTap: () async {
+          final result = await showBoardDateTimePicker(
+            context: context,
+            pickerType: pickerType,
+            options: const BoardDateTimeOptions(
+              languages: BoardPickerLanguages.en(),
+              startDayOfWeek: DateTime.sunday,
+              pickerFormat: PickerFormat.ymd,
+              // boardTitle: 'Board Picker',
+              // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
+            ),
+            // Specify if you want changes in the picker to take effect immediately.
+            valueNotifier: date,
+          );
+          if (result != null) {
+            date.value = result;
+          }
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           child: Row(
             children: [
               Material(
-                color: color,
-                borderRadius: BorderRadius.circular(4),
+                color: pickerType.color,
+                borderRadius: BorderRadius.circular(8),
                 child: SizedBox(
-                  height: 36,
-                  width: 36,
+                  height: 32,
+                  width: 32,
                   child: Center(
                     child: Icon(
-                      icon,
+                      pickerType.icon,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  BoardDateFormat(format).format(d),
+                  pickerType.title,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.bodySmall,
+              ValueListenableBuilder(
+                valueListenable: date,
+                builder: (context, data, _) {
+                  return Text(
+                    BoardDateFormat(pickerType.format).format(data),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  );
+                },
               ),
             ],
           ),
@@ -241,9 +266,223 @@ class _ItemWidgetState extends State<ItemWidget> {
       ),
     );
   }
+}
 
+class PickerMultiSelectionItemWidget extends StatelessWidget {
+  PickerMultiSelectionItemWidget({
+    super.key,
+    required this.pickerType,
+  });
+
+  final DateTimePickerType pickerType;
+
+  final ValueNotifier<DateTime> start = ValueNotifier(DateTime.now());
+  final ValueNotifier<DateTime> end = ValueNotifier(
+    DateTime.now().add(const Duration(days: 7)),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () async {
+          final result = await showBoardDateTimeMultiPicker(
+            context: context,
+            pickerType: pickerType,
+            options: const BoardDateTimeOptions(
+              languages: BoardPickerLanguages.en(),
+              startDayOfWeek: DateTime.sunday,
+              pickerFormat: PickerFormat.ymd,
+            ),
+          );
+          if (result != null) {
+            start.value = result.start;
+            end.value = result.end;
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          child: Row(
+            children: [
+              Material(
+                color: pickerType.color,
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  height: 32,
+                  width: 32,
+                  child: Center(
+                    child: Icon(
+                      pickerType.icon,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  pickerType.title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ValueListenableBuilder(
+                    valueListenable: start,
+                    builder: (context, data, _) {
+                      return Text(
+                        BoardDateFormat(pickerType.format).format(data),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  ValueListenableBuilder(
+                    valueListenable: end,
+                    builder: (context, data, _) {
+                      return Text(
+                        '~ ${BoardDateFormat(pickerType.format).format(data)}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PickerBuilderItemWidget extends StatelessWidget {
+  const PickerBuilderItemWidget({
+    super.key,
+    required this.pickerType,
+    required this.date,
+    required this.onOpen,
+  });
+
+  final DateTimePickerType pickerType;
+  final ValueNotifier<DateTime> date;
+  final void Function() onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () async {
+          onOpen.call();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          child: Row(
+            children: [
+              Material(
+                color: pickerType.color,
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  height: 32,
+                  width: 32,
+                  child: Center(
+                    child: Icon(
+                      pickerType.icon,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  pickerType.title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: date,
+                builder: (context, data, _) {
+                  return Text(
+                    BoardDateFormat(pickerType.format).format(data),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class InputFieldWidget extends StatelessWidget {
+  InputFieldWidget({super.key});
+
+  final textController = BoardDateTimeTextController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text('InputField'),
+          ),
+          SizedBox(
+            width: 140,
+            height: 44,
+            child: BoardDateTimeInputField(
+              controller: textController,
+              pickerType: DateTimePickerType.datetime,
+              options: const BoardDateTimeOptions(
+                languages: BoardPickerLanguages.en(),
+              ),
+              initialDate: DateTime.now(),
+              maximumDate: DateTime(2040),
+              minimumDate: DateTime(1900, 1, 1),
+              // showPickerType: BoardDateTimeFieldPickerType.mini,
+              textStyle: Theme.of(context).textTheme.bodyMedium,
+              onChanged: (date) {
+                print('onchanged: $date');
+              },
+              onFocusChange: (val, date, text) {
+                print('on focus changed date: $val, $date, $text');
+              },
+              onResult: (p0) {},
+              decoration: InputDecoration(
+                fillColor:
+                    Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+extension DateTimePickerTypeExtension on DateTimePickerType {
   String get title {
-    switch (widget.type) {
+    switch (this) {
       case DateTimePickerType.date:
         return 'Date';
       case DateTimePickerType.datetime:
@@ -254,7 +493,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   }
 
   IconData get icon {
-    switch (widget.type) {
+    switch (this) {
       case DateTimePickerType.date:
         return Icons.date_range_rounded;
       case DateTimePickerType.datetime:
@@ -265,7 +504,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   }
 
   Color get color {
-    switch (widget.type) {
+    switch (this) {
       case DateTimePickerType.date:
         return Colors.blue;
       case DateTimePickerType.datetime:
@@ -276,7 +515,7 @@ class _ItemWidgetState extends State<ItemWidget> {
   }
 
   String get format {
-    switch (widget.type) {
+    switch (this) {
       case DateTimePickerType.date:
         return 'yyyy/MM/dd';
       case DateTimePickerType.datetime:
@@ -284,76 +523,5 @@ class _ItemWidgetState extends State<ItemWidget> {
       case DateTimePickerType.time:
         return 'HH:mm';
     }
-  }
-}
-
-class ModalItem extends StatefulWidget {
-  const ModalItem({super.key});
-
-  @override
-  State<ModalItem> createState() => _ModalItemState();
-}
-
-class _ModalItemState extends State<ModalItem> {
-  DateTime d = DateTime.now();
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      borderRadius: BorderRadius.circular(8),
-      color: Theme.of(context).cardColor,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () async {
-          final result = await showBoardDateTimeMultiPicker(
-            context: context,
-            pickerType: DateTimePickerType.datetime,
-            options: const BoardDateTimeOptions(
-              languages: BoardPickerLanguages.en(),
-              startDayOfWeek: DateTime.sunday,
-              pickerFormat: PickerFormat.ymd,
-              boardTitle: 'Board Picker',
-              // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
-            ),
-            onResult: (val1, val2) {},
-          );
-          if (result != null) {
-            print('result: $result');
-            // setState(() => d = result);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          child: Row(
-            children: [
-              Material(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(4),
-                child: const SizedBox(
-                  height: 36,
-                  width: 36,
-                  child: Center(
-                    child: Icon(
-                      Icons.open_in_browser_rounded,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Text(
-                  BoardDateFormat('yyyy/MM/dd HH:mm').format(d),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
-              Text(
-                'Show Dialog',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

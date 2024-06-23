@@ -6,7 +6,7 @@ import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'ui/parts/multi_header.dart';
+import 'ui/parts/header_multi.dart';
 import 'utils/board_enum.dart';
 
 class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
@@ -163,6 +163,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       headerBuilder: (ctx) => _header,
       onChange: changeDate,
       onChangeByPicker: onChangeByPicker,
+      onKeyboadClose: closeKeyboard,
       keyboardHeightRatio: () => keyboardHeightRatio,
       startDate: startDate,
       endDate: endDate,
@@ -171,6 +172,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         endDate.value = end;
         _setFocusNode(false);
       },
+      onChangeDateType: onChangeDateType,
     );
 
     return Visibility(
@@ -195,6 +197,18 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     );
   }
 
+  void onChangeDateType(MultiCurrentDateType val) {
+    currentDateType.value = val;
+    setState(() {
+      setupOptions(
+        currentDateType.value == MultiCurrentDateType.start
+            ? startDate.value
+            : endDate.value,
+        widget.pickerType,
+      );
+    });
+  }
+
   Widget get _header {
     void onCalendar() {
       if (calendarAnimationController.value == 0.0) {
@@ -204,43 +218,38 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
           }
         }
         calendarAnimationController.forward();
+        // Change DateType to start if you want to display a calendar
+        onChangeDateType(MultiCurrentDateType.start);
       } else if (calendarAnimationController.value == 1.0) {
         calendarAnimationController.reverse();
       }
     }
 
     return BoardDateTimeMultiHeader(
-        // key: _headerKey,
-        wide: isWide,
-        startDate: startDate,
-        endDate: endDate,
-        pickerType: pickerType,
-        keyboardHeightRatio: keyboardHeightRatio,
-        calendarAnimation: calendarAnimation,
-        onCalendar: onCalendar,
-        onKeyboadClose: closeKeyboard,
-        onClose: close,
-        backgroundColor: widget.options.getBackgroundColor(context),
-        foregroundColor: widget.options.getForegroundColor(context),
-        textColor: widget.options.getTextColor(context),
-        activeColor: widget.options.getActiveColor(context),
-        activeTextColor: widget.options.getActiveTextColor(context),
-        languages: widget.options.languages,
-        minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
-        maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
-        modal: widget.modal,
-        pickerFocusNode: widget.pickerFocusNode,
-        currentDateType: currentDateType,
-        onChangeDateType: (val) {
-          currentDateType.value = val;
-          setState(() {
-            setupOptions(
-              currentDateType.value == MultiCurrentDateType.start
-                  ? startDate.value
-                  : endDate.value,
-              widget.pickerType,
-            );
-          });
-        });
+      // key: _headerKey,
+      wide: isWide,
+      startDate: startDate,
+      endDate: endDate,
+      pickerType: pickerType,
+      pickerFormat: widget.options.pickerFormat,
+      keyboardHeightRatio: keyboardHeightRatio,
+      calendarAnimation: calendarAnimation,
+      onCalendar: onCalendar,
+      onKeyboadClose: closeKeyboard,
+      onClose: close,
+      backgroundColor: widget.options.getBackgroundColor(context),
+      foregroundColor: widget.options.getForegroundColor(context),
+      textColor: widget.options.getTextColor(context),
+      activeColor: widget.options.getActiveColor(context),
+      activeTextColor: widget.options.getActiveTextColor(context),
+      languages: widget.options.languages,
+      minimumDate: widget.minimumDate ?? DateTimeUtil.defaultMinDate,
+      maximumDate: widget.maximumDate ?? DateTimeUtil.defaultMaxDate,
+      modal: widget.modal,
+      withTextField: false,
+      pickerFocusNode: widget.pickerFocusNode,
+      currentDateType: currentDateType,
+      onChangeDateType: onChangeDateType,
+    );
   }
 }

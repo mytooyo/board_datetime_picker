@@ -1,6 +1,8 @@
-import 'package:board_datetime_picker/src/ui/parts/calendar.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
+
+import '../../utils/board_enum.dart';
+import 'calendar.dart';
 
 class MultipleCalendarWidget extends CalendarWidget {
   const MultipleCalendarWidget({
@@ -18,11 +20,15 @@ class MultipleCalendarWidget extends CalendarWidget {
     required super.maximumDate,
     required super.startDayOfWeek,
     required super.weekend,
+    required this.onChangeDateType,
   });
 
   final ValueNotifier<DateTime> startDate;
   final ValueNotifier<DateTime> endDate;
   final void Function(DateTime start, DateTime end) onChange;
+
+  /// Callback when date type is changed during editing
+  final void Function(MultiCurrentDateType) onChangeDateType;
 
   @override
   CalendarWidgetState<MultipleCalendarWidget> createState() =>
@@ -71,7 +77,7 @@ class _MultipleCalendarWidgetState
     final d = widget.startDate.value;
     final diff = diffYMD(initialDate, d);
     if (mounted) {
-      if (pageController.hasClients) {
+      if (pageController.hasClients && firstTouched) {
         pageController.animateToPage(
           initialPage + diff,
           duration: const Duration(milliseconds: 300),
@@ -104,6 +110,7 @@ class _MultipleCalendarWidgetState
       firstTouched = false;
       widget.onChange(selectedDate.first, to);
       selectedDate = [selectedDate.first, to];
+      widget.onChangeDateType(MultiCurrentDateType.start);
     } else {
       firstTouched = true;
       widget.onChange(
@@ -117,6 +124,7 @@ class _MultipleCalendarWidgetState
         ),
       );
       selectedDate = [to];
+      widget.onChangeDateType(MultiCurrentDateType.end);
     }
 
     setState(() {});

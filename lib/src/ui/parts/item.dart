@@ -105,6 +105,11 @@ class ItemWidgetState extends State<ItemWidget>
 
   void focusListener() {
     changeText(textController.text, toDefault: true);
+    if (widget.option.focusNode.hasFocus && !isTextEditing) {
+      setState(() {
+        isTextEditing = true;
+      });
+    }
   }
 
   void onChange(int index) {
@@ -288,6 +293,7 @@ class ItemWidgetState extends State<ItemWidget>
                 ),
                 Visibility(
                   visible: isTextEditing,
+                  maintainState: widget.inputable,
                   child: _centerAlign(
                     TextField(
                       key: ValueKey(widget.option.type.name),

@@ -20,6 +20,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required this.breakpoint,
     required this.options,
     this.modal = false,
+    this.withTextField = false,
     this.onCloseModal,
     this.keyboardHeightNotifier,
     this.onCreatedDateState,
@@ -37,6 +38,9 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   /// Flag whether modal display is performed
   final bool modal;
+
+  /// Flag indicating whether the text field is used as a Picker or not.
+  final bool withTextField;
 
   /// Callback for closing a modal
   final void Function()? onCloseModal;
@@ -87,7 +91,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
 
   /// Ratio assuming a maximum keyboard height
   double get keyboardHeightRatio =>
-      1 - (min(160, keyboardHeightNotifier.value) / 160);
+      1 - (min(172, keyboardHeightNotifier.value) / 172);
 
   /// Get the current date
   DateTime get currentDate;
@@ -132,6 +136,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   /// Close Picker
   void close() {
     if (widget.modal) {
+      FocusScope.of(context).unfocus();
       // if modal, close modal sheets
       if (widget.onCloseModal == null) {
         Navigator.of(context).pop();
