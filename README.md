@@ -16,18 +16,18 @@ Multi-selection supports only modal display.
 
 |Single|Multi|Builder|
 |---|---|---|
-|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/standard_single.gif" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/standard_multi.gif" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/standard_builder.gif" width="300" />|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_single.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_multi.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_builder.gif" width="240" />|
 
 |Single|Multi|
 |---|---|
-|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/wide_single.gif" width="440" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/wide_multi.gif" width="440" />|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_single.gif" width="400" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_multi.gif" width="400" />|
 
 
 ### Input Field
 
 |Standard|Wide|
 |---|---|
-|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/standard_input.gif" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/multiple_selection/example/screenshots/wide_input.gif" width="440" />|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_input.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_input.gif" width="400" />|
 
 ## Getting Started
 
@@ -77,23 +77,23 @@ DateTime date = DateTime.now();
 
 @override
 Widget build(BuildContext context) {
-    return BoardDateTimeBuilder(
-        controller: controller,
-        pickerType: DateTimePickerType.datetime
-        builder: (context) {
-            return Scaffold(
-                appBar: AppBar(
-                    title: Text('Example'),
-                ),
-                body: Center(
-                    child: Text(BoardDateFormat('yyyy/MM/dd').format(date))
-                ),
-            );
-        },
-        onChange: (val) {
-            setState(() => date = val);
-        }
-    );
+  return BoardDateTimeBuilder(
+    controller: controller,
+    pickerType: DateTimePickerType.datetime
+    builder: (context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Example'),
+        ),
+        body: Center(
+          child: Text(BoardDateFormat('yyyy/MM/dd').format(date))
+        ),
+      );
+    },
+    onChange: (val) {
+      setState(() => date = val);
+    }
+  );
 }
 ```
 
