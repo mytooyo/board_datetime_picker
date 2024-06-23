@@ -227,6 +227,23 @@ extension DateTimeExtension on DateTime {
     return isAfter(minimum) && isBefore(maximum);
   }
 
+  /// Check if only dates are within the specified range
+  bool isWithinRangeAndEqualsDate(DateTime minimum, DateTime maximum) {
+    final result = isAfter(minimum) && isBefore(maximum);
+    if (result) {
+      return result;
+    }
+
+    if (minimum.year == year && minimum.month == month && minimum.day == day) {
+      return true;
+    } else if (maximum.year == year &&
+        maximum.month == month &&
+        maximum.day == day) {
+      return true;
+    }
+    return false;
+  }
+
   /// Obtain a value of a specified type from DateTime
   int valFromType(DateType type) {
     switch (type) {

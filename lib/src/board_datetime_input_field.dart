@@ -231,9 +231,6 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
 class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     extends State<BoardDateTimeInputField<T>>
     with SingleTickerProviderStateMixin {
-  /// Key of Widget to display Overkay
-  final GlobalKey overlayKey = GlobalKey();
-
   /// Overlay Widget to display picker
   OverlayEntry? overlay;
 
@@ -243,7 +240,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   /// Debounce timer for focus node monitoring
   Timer? focusNodeDebounce;
 
-  BoardDateTimeContentsController? pickerController;
+  SingleBoardDateTimeContentsController? pickerController;
 
   /// Overlay Animation Controller
   late AnimationController overlayAnimController;
@@ -309,15 +306,19 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   }
 
   /// Close the displayed picker
-  void closePicker({bool disposed = false}) {
+  void closePicker({bool disposed = false, void Function()? completion}) {
     if (disposed) {
       overlay?.remove();
+      overlay?.dispose();
+      overlay = null;
     } else {
       final future = overlayAnimController.reverse();
       if (overlay != null) {
         future.then((value) {
           overlay?.remove();
+          overlay?.dispose();
           overlay = null;
+          completion?.call();
         });
       }
     }
@@ -340,7 +341,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       final pf = FocusManager.instance.primaryFocus;
       if (pf is BoardDateTimeInputFocusNode) {
         closePicker();
-        widget.onFocusChange?.call(false, selectedDate, textController.text);
+        onFinished();
       }
     } else {
       // Callback when focus is acquired
@@ -348,7 +349,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       widget.onFocusChange?.call(true, selectedDate, textController.text);
 
       if (!widget.showPicker || overlay != null) return;
-      pickerController = BoardDateTimeContentsController();
+      pickerController = SingleBoardDateTimeContentsController();
       if (selectedDate != null) {
         pickerController!.changeDate(selectedDate!);
       }
@@ -388,6 +389,11 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   bool initialized = false;
 
+  void onFinished() {
+    widget.onFocusChange?.call(false, selectedDate, textController.text);
+    FocusScope.of(context).removeListener(_focusScopeListener);
+  }
+
   void _onFocused() {
     // Determine if it is your own focus
     if (focusIsSelf != null) {
@@ -401,11 +407,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       closePicker();
       if (initialized && focused) {
         checkFormat(textController.text, complete: true);
-        widget.onFocusChange?.call(false, selectedDate, textController.text);
+        onFinished();
         initialized = false;
       }
     }
   }
+
+  late final void Function() _focusScopeListener = focusScopeListener;
 
   void focusScopeListener() {
     focusNodeDebounce?.cancel();
@@ -466,10 +474,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     focusNode = widget.focusNode ?? BoardDateTimeInputFocusNode();
     focusNode.addListener(_focusListener);
 
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      FocusScope.of(context).addListener(focusScopeListener);
-    });
-
     overlayAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 260),
@@ -497,7 +501,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   @override
   void deactivate() {
-    FocusScope.of(context).removeListener(focusScopeListener);
+    FocusScope.of(context).removeListener(_focusScopeListener);
     super.deactivate();
   }
 
@@ -520,7 +524,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       key: formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: TextFormField(
-        key: overlayKey,
         controller: textController,
         focusNode: focusNode,
         keyboardType: widget.keyboardType ?? TextInputType.datetime,
@@ -587,13 +590,16 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
             RegExp(r'[0-9/;:,\-\s\.]'),
           )
         ],
+        onTap: () {
+          FocusScope.of(context).addListener(_focusScopeListener);
+        },
         onChanged: (val) {
           checkFormat(val);
           beforeTextLength = val.length;
         },
         onEditingComplete: () {
           closePicker();
-          FocusScope.of(context).unfocus();
+          FocusManager.instance.primaryFocus?.unfocus();
         },
       ),
     );
@@ -934,13 +940,23 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   }
 
   Widget _pickerWidget() {
+    void onClosePicker() {
+      final hasFocus = pickerFocusNode.hasFocus;
+      if (hasFocus) {
+        checkFormat(textController.text, complete: true);
+        onFinished();
+      }
+      closePicker();
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+
     return GestureDetector(
       onTapDown: (_) {
         pickerFocusNode.requestFocus();
       },
       child: Focus(
         focusNode: pickerFocusNode,
-        child: BoardDateTimeContent(
+        child: SingleBoardDateTimeContent(
           key: pickerController?.key,
           pickerFocusNode: pickerFocusNode,
           onChange: (val) {},
@@ -951,18 +967,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           minimumDate: widget.minimumDate,
           maximumDate: widget.maximumDate,
           modal: true,
+          withTextField: true,
           onCreatedDateState: (val) {
             pickerDateState = val;
             pickerDateState!.addListener(pickerListener);
           },
-          onCloseModal: () {
-            focusNode.unfocus();
-            closePicker();
-          },
-          onKeyboadClose: () {
-            focusNode.unfocus();
-            closePicker();
-          },
+          onCloseModal: onClosePicker,
+          onKeyboadClose: onClosePicker,
         ),
       ),
     );

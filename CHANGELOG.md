@@ -1,3 +1,9 @@
+## 2.0.0
+
+* Added multi-selection feature to allow selection of a range of dates.
+  - To use it, call `showBoardDateTimeMultiPicker`.
+  - Only modal display is supported.
+
 ## 1.6.8
 
 * Fixed a bug that was not reflected in the `setText` of the `BoardDateTimeTextController`.
