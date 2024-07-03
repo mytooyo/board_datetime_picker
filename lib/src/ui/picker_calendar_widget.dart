@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 
 import '../board_datetime_options.dart';
 import '../utils/board_enum.dart';
+import 'parts/buttons.dart';
+import 'parts/calendar_multi.dart';
 import 'parts/header.dart';
 
 class PickerCalendarArgs {
@@ -21,6 +23,12 @@ class PickerCalendarArgs {
   final void Function(DateTime) onChange;
   final void Function(BoardPickerItemOption, int) onChangeByPicker;
   final double Function() keyboardHeightRatio;
+  final bool multiple;
+  final ValueNotifier<DateTime>? startDate;
+  final ValueNotifier<DateTime>? endDate;
+  final void Function(DateTime start, DateTime end)? onMultiChange;
+  final void Function(MultiCurrentDateType)? onChangeDateType;
+  final void Function() onKeyboadClose;
 
   const PickerCalendarArgs({
     required this.dateState,
@@ -33,6 +41,12 @@ class PickerCalendarArgs {
     required this.onChange,
     required this.onChangeByPicker,
     required this.keyboardHeightRatio,
+    required this.multiple,
+    this.startDate,
+    this.endDate,
+    this.onMultiChange,
+    this.onChangeDateType,
+    required this.onKeyboadClose,
   });
 }
 
@@ -49,11 +63,45 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
     extends State<T> {
   final GlobalKey calendarKey = GlobalKey();
 
+  final double keyboardMenuMaxHeight = 48;
+
+  double get keyboardMenuHeight =>
+      keyboardMenuMaxHeight * (1 - args.keyboardHeightRatio());
+
   PickerCalendarArgs get args => widget.arguments;
 
   Widget calendar({required Color? background, required bool isWide}) {
+    if (args.multiple) {
+      return SizedBox(
+        child: MultipleCalendarWidget(
+          key: calendarKey,
+          startDate: args.startDate!,
+          endDate: args.endDate!,
+          onChange: (start, end) {
+            args.onMultiChange?.call(start, end);
+          },
+          boxDecoration: BoxDecoration(
+            color: args.options.backgroundDecoration != null && !isWide
+                ? args.options.backgroundDecoration!.color
+                : background,
+          ),
+          // onChange: args.onChange,
+          wide: isWide,
+          textColor: args.options.getTextColor(context),
+          activeColor: args.options.getActiveColor(context),
+          activeTextColor: args.options.getActiveTextColor(context),
+          languages: args.options.languages,
+          minimumDate: args.minimumDate ?? DateTimeUtil.defaultMinDate,
+          maximumDate: args.maximumDate ?? DateTimeUtil.defaultMaxDate,
+          startDayOfWeek: args.options.startDayOfWeek,
+          weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
+          onChangeDateType: args.onChangeDateType!,
+        ),
+      );
+    }
+
     return SizedBox(
-      child: CalendarWidget(
+      child: SingleCalendarWidget(
         key: calendarKey,
         dateState: args.dateState,
         boxDecoration: BoxDecoration(
@@ -102,6 +150,70 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         alignment: Alignment.topCenter,
         child: Row(
           children: items,
+        ),
+      ),
+    );
+  }
+
+  void moveFocus(bool next) {
+    for (var i = 0; i < args.listOptions.length; i++) {
+      final opt = args.listOptions[i];
+      if (opt.focusNode.hasFocus) {
+        int move = -1;
+        if (next) {
+          if (i != args.listOptions.length - 1) {
+            move = i + 1;
+          }
+        } else {
+          if (i != 0) {
+            move = i - 1;
+          }
+        }
+        if (move != -1) {
+          args.listOptions[move].focusNode.requestFocus();
+        }
+        break;
+      }
+    }
+  }
+
+  Widget keyboardMenu({required bool isWide}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: args.options.getForegroundColor(context).withOpacity(0.9),
+      ),
+      height: keyboardMenuHeight,
+      child: SingleChildScrollView(
+        child: Container(
+          height: keyboardMenuHeight,
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: Row(
+            children: [
+              CustomIconButton(
+                icon: Icons.arrow_back_rounded,
+                bgColor: args.options.getForegroundColor(context),
+                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                onTap: () => moveFocus(false),
+                // buttonSize: buttonSize,
+              ),
+              const SizedBox(width: 8),
+              CustomIconButton(
+                icon: Icons.arrow_forward_rounded,
+                bgColor: args.options.getForegroundColor(context),
+                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                onTap: () => moveFocus(true),
+                // buttonSize: buttonSize,
+              ),
+              const Expanded(child: SizedBox()),
+              CustomIconButton(
+                icon: Icons.keyboard_hide_rounded,
+                bgColor: args.options.getForegroundColor(context),
+                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                onTap: args.onKeyboadClose,
+                // buttonSize: buttonSize,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -157,7 +269,7 @@ class _PickerCalendarWideWidgetState
     }
 
     return Container(
-      height: height + args.keyboardHeightRatio() * 160,
+      height: height + args.keyboardHeightRatio() * 172,
       decoration: args.options.backgroundDecoration ??
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
@@ -238,24 +350,37 @@ class _PickerCalendarStandardWidgetState
     if (args.options.isTopTitleHeader) {
       height += 40;
     }
+    height += keyboardMenuHeight;
 
     return Container(
-      height: height + (args.keyboardHeightRatio() * 160),
+      height: height + (args.keyboardHeightRatio() * 172),
       decoration: args.options.backgroundDecoration ??
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
           ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      // padding: const EdgeInsets.symmetric(horizontal: 8),
       child: SafeArea(
         top: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: Column(
             children: [
-              if (args.options.isTopTitleHeader)
-                TopTitleWidget(options: args.options),
-              args.headerBuilder(context),
-              Expanded(child: contents()),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (args.options.isTopTitleHeader)
+                        TopTitleWidget(options: args.options),
+                      args.headerBuilder(context),
+                      Expanded(child: contents()),
+                    ],
+                  ),
+                ),
+              ),
+              // Menu when keyboard is displayed
+              keyboardMenu(isWide: false),
             ],
           ),
         ),

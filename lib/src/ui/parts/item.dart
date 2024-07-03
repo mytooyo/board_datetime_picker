@@ -105,6 +105,11 @@ class ItemWidgetState extends State<ItemWidget>
 
   void focusListener() {
     changeText(textController.text, toDefault: true);
+    if (widget.option.focusNode.hasFocus && !isTextEditing) {
+      setState(() {
+        isTextEditing = true;
+      });
+    }
   }
 
   void onChange(int index) {
@@ -157,6 +162,13 @@ class ItemWidgetState extends State<ItemWidget>
         );
       }
     });
+  }
+
+  void _updateFocusNode() {
+    final pf = FocusManager.instance.primaryFocus;
+    if (pf is! PickerItemFocusNode && pf is! BoardDateTimeInputFocusNode) {
+      pickerFocusNode.requestFocus();
+    }
   }
 
   @override
@@ -224,7 +236,7 @@ class ItemWidgetState extends State<ItemWidget>
                             ),
                           ),
                           onTapDown: (details) {
-                            pickerFocusNode.requestFocus();
+                            _updateFocusNode();
                           },
                           onTapUp: (details) {
                             double clickOffset;
@@ -240,7 +252,8 @@ class ItemWidgetState extends State<ItemWidget>
                                 (clickOffset / itemSize).round();
                             final newIndex = currentIndex + indexOffset;
                             toAnimateChange(newIndex);
-                            pickerFocusNode.requestFocus();
+
+                            _updateFocusNode();
                           },
                         ),
                       ),
@@ -280,6 +293,7 @@ class ItemWidgetState extends State<ItemWidget>
                 ),
                 Visibility(
                   visible: isTextEditing,
+                  maintainState: widget.inputable,
                   child: _centerAlign(
                     TextField(
                       key: ValueKey(widget.option.type.name),

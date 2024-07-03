@@ -5,17 +5,29 @@ It is both a calendar and a picker, offering a variety of options as a package.
 
 On tablets, the calendar and picker can be displayed simultaneously for easy date/time selection. In other cases, the calendar and picker can be switched at the touch of a button for easy date/time selection.  
 
+Multiple selections are supported, and you can also select the start and end date and time in a single Picker display.  
+
 ## Features
+
+### Picker Selection
+
+There are two types of Picker: a modal display and a builder display embedded in a widget.  
+Multi-selection supports only modal display.
+
+|Single|Multi|Builder|
+|---|---|---|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_single.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_multi.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_builder.gif" width="240" />|
+
+|Single|Multi|
+|---|---|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_single.gif" width="400" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_multi.gif" width="400" />|
+
+
+### Input Field
 
 |Standard|Wide|
 |---|---|
-|![standard](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_standard.gif)|![wide](https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_wide.gif)|
-
-### Modal Bottom Sheet & Input Field
-
-|Modal Sheed|Input Field|
-|---|---|
-|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_picker_modal.png" width="300" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/board_datetime_inputfield.gif" width="300" />|
+|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/standard_input.gif" width="240" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_input.gif" width="400" />|
 
 ## Getting Started
 
@@ -23,49 +35,21 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 1.6.9
+    board_datetime_picker: 2.0.0
 ```
 
 ## Usage
 
-### import
+
+Import it to your project file.
 
 ```dart
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 ```
 
-### Exapmle
+### Modal Dialog
 
-#### Builder
-
-```dart
-final controller = BoardDateTimeController();
-
-DateTime date = DateTime.now();
-
-@override
-Widget build(BuildContext context) {
-    return BoardDateTimeBuilder(
-        controller: controller,
-        pickerType: DateTimePickerType.datetime
-        builder: (context) {
-            return Scaffold(
-                appBar: AppBar(
-                    title: Text('Example'),
-                ),
-                body: Center(
-                    child: Text(BoardDateFormat('yyyy/MM/dd').format(date))
-                ),
-            );
-        },
-        onChange: (val) {
-            setState(() => date = val);
-        }
-    );
-}
-```
-
-#### Modal
+Show normal single-picker.
 
 ```dart
 final result = await showBoardDateTimePicker(
@@ -74,27 +58,47 @@ final result = await showBoardDateTimePicker(
 )
 ```
 
-Example of handling by button press.  
+Show picker making multiple selections.
 
 ```dart
-ElevatedButton(
-  child: Text(
-    BoardDateFormat('yyyy/MM/dd').format(date),
-  ),
-  onPressed: () {
-    final result = await showBoardDateTimePicker(
-      context: context,
-      pickerType: DateTimePickerType.datetime,
-    );
-    if (result != null) {
-      setState(() => d = result);
-    }
-  },
+final result = await showBoardDateTimeMultiPicker(
+  context: context,
+  pickerType: DateTimePickerType.datetime,
 )
-
 ```
 
-#### Input Field
+
+### Builder
+
+```dart
+final controller = BoardDateTimeController();
+
+DateTime date = DateTime.now();
+
+@override
+Widget build(BuildContext context) {
+  return BoardDateTimeBuilder(
+    controller: controller,
+    pickerType: DateTimePickerType.datetime
+    builder: (context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Example'),
+        ),
+        body: Center(
+          child: Text(BoardDateFormat('yyyy/MM/dd').format(date))
+        ),
+      );
+    },
+    onChange: (val) {
+      setState(() => date = val);
+    }
+  );
+}
+```
+
+
+### Input Field
 
 ```dart
 final textController = BoardDateTimeTextController();
@@ -128,7 +132,7 @@ Only [datetime] and [date] types can be displayed for calendars.
 
 ## Parameters
 
-In using `BoardDateTimeBuilder`, there are several parameters.  
+In using `BoardDateTimeBuilder` or `showBoardDateTimePicker`, there are several parameters.  
 Those without [required] are optional.  
 
 |Parameter|Type|Description|
@@ -138,16 +142,20 @@ Those without [required] are optional.
 |onChange    |void Function(DateTime)|[required] Callback when date is changed in the picker.|
 |pickerType  |DateTimePickerType|Display picker type. `datetime`, `date`. `time`. default is `datetime`.|
 |breakpoint  |double|Breakpoints for switching between Wide and Standard modes. default is `800`.|
-|initialDate |DateTime|Date and time of initial display. default is `DateTime.now()`.|
+|initialDate |DateTime|Date and time of initial display. default is `DateTime.now()`. `Builder` only parameter.|
 |minimumDate |DateTime|Minimum date in the selectable range. default is `DateTime(1970, 1, 1, 0, 0)`.|
 |maximumDate |DateTime|Maximum date in the selectable range. default is `DateTime(2050, 12, 31, 23, 59)`.|
 |resizeBottom|bool|Flag whether to resize the bottom of the specified Builder. If true, the picker is displayed under the builder in `Column`. default is `true`.|
 |options     |BoardDateTimeOptions|Class for defining options related to the UI used by [BoardDateTimeBuilder].|
 
+When using `showBoardDateTimeMultiPicker`, specify `startDate` and `endDate` instead of `initialDate`.  
+Please guarantee that the correct values are entered, as it will not work correctly if the start and end are reversed at the time of the function call.
+
 ### BoardDateTimeOptions
 
 Introduce the definition of the property class that controls UI among the `BoardDateTimeBuilder`'s parameters.  
 All properties are optional.  
+The same parameter is used in `showBoardDateTimePicker`.
 
 |Parameter|Type|Description|
 |---|---|---|
@@ -161,6 +169,13 @@ All properties are optional.
 |customOptions|BoardPickerCustomOptions|Option to specify items to be displayed in the picker by date and time. Only time can be specified. Default is `null`|
 |startDayOfWeek|int|First day of the week in the calendar. Defailt is `DateTime.sunday`|
 |pickerFormat|String|Date format for pickers. Specify if you want to change the display order of year, month, date. Default is `ymd`|
+|showDateButton|bool|Flag whether the `today` or `tomorrow` button is displayed in the header of the picker. Default is `true`|
+|boardTitle|String|Title to be displayed in the header of the Picker|
+|boardTitleTextStyle|TextStyle|Style of title to be displayed in the header of the Picker|
+|pickerSubTitles|BoardDateTimeItemTitles|Specify the title of each item to be displayed in the picker|
+|weekend|BoardPickerWeekendOptions|Specify the color of Saturday and Sunday to be displayed in the calendar|
+|inputable|bool|Flag whether the date to be selected should be text-enabled or not. Default is `true`|
+
 
 Sample of gradient background:
 
@@ -176,6 +191,19 @@ options: BoardDateTimeOptions(
     ),
 ),
 ```
+
+#### Picker Format
+
+The order in which picker dates are displayed can be specified.  
+The default is `ymd`, which displays dates in the picker in the order `year - month - day`.  
+The type specified is `BoardDateTimePickerFormat.  
+
+|PickerFotmat|format|
+|---|---|
+|`ymd`|year - month - day|
+|`Mdy`|month - day - year|
+|`dMy`|day - month - year|
+
 
 #### Language Option
 
