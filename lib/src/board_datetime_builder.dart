@@ -136,20 +136,23 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
 
   @override
   void initState() {
-    if (T.toString() != "BoardDateTimeCommonResult") {
-      void throwInvalidType() {
-        throw Exception('Oops..Type and type do not match.');
-      }
+    assert(() {
+      if (T.toString() != "BoardDateTimeCommonResult") {
+        void throwInvalidType() {
+          throw Exception('Oops..Type and type do not match.: ${T.toString()}');
+        }
 
-      // Perform type checks
-      if (widget.pickerType == DateTimePickerType.datetime) {
-        if (T.toString() != "BoardDateTimeResult") throwInvalidType();
-      } else if (widget.pickerType == DateTimePickerType.date) {
-        if (T.toString() != "BoardDateResult") throwInvalidType();
-      } else if (widget.pickerType == DateTimePickerType.time) {
-        if (T.toString() != "BoardTimeResult") throwInvalidType();
+        // Perform type checks
+        if (widget.pickerType == DateTimePickerType.datetime) {
+          if (T.toString() != "BoardDateTimeResult") throwInvalidType();
+        } else if (widget.pickerType == DateTimePickerType.date) {
+          if (T.toString() != "BoardDateResult") throwInvalidType();
+        } else if (widget.pickerType == DateTimePickerType.time) {
+          if (T.toString() != "BoardTimeResult") throwInvalidType();
+        }
       }
-    }
+      return true;
+    }());
 
     super.initState();
   }
