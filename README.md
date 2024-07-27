@@ -22,7 +22,6 @@ Multi-selection supports only modal display.
 |---|---|
 |<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_single.gif" width="400" />|<img src="https://raw.githubusercontent.com/mytooyo/board_datetime_picker/main/example/screenshots/wide_multi.gif" width="400" />|
 
-
 ### Input Field
 
 |Standard|Wide|
@@ -35,11 +34,10 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 2.0.0
+    board_datetime_picker: 2.1.0
 ```
 
 ## Usage
-
 
 Import it to your project file.
 
@@ -66,7 +64,6 @@ final result = await showBoardDateTimeMultiPicker(
   pickerType: DateTimePickerType.datetime,
 )
 ```
-
 
 ### Builder
 
@@ -96,7 +93,6 @@ Widget build(BuildContext context) {
   );
 }
 ```
-
 
 ### Input Field
 
@@ -176,7 +172,6 @@ The same parameter is used in `showBoardDateTimePicker`.
 |weekend|BoardPickerWeekendOptions|Specify the color of Saturday and Sunday to be displayed in the calendar|
 |inputable|bool|Flag whether the date to be selected should be text-enabled or not. Default is `true`|
 
-
 Sample of gradient background:
 
 ```dart
@@ -203,7 +198,6 @@ The type specified is `BoardDateTimePickerFormat.
 |`ymd`|year - month - day|
 |`Mdy`|month - day - year|
 |`dMy`|day - month - year|
-
 
 #### Language Option
 

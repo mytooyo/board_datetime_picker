@@ -40,6 +40,8 @@ extension BoardDateTimeOptionsExtension on BoardDateTimeOptions {
         return pickerSubTitles?.hour ?? 'Hour';
       case DateType.minute:
         return pickerSubTitles?.minute ?? 'Minute';
+      case DateType.second:
+        return pickerSubTitles?.second ?? 'Second';
     }
   }
 }

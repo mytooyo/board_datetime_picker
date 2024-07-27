@@ -436,6 +436,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
 
   @override
   void initState() {
+    bool withSecond = false;
     switch (widget.pickerType) {
       case DateTimePickerType.date:
         pickerFormat = options.pickerFormat;
@@ -444,12 +445,18 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         pickerFormat = '${options.pickerFormat}Hm';
         break;
       case DateTimePickerType.time:
-        pickerFormat = 'Hm';
+        if (options.withSecond) {
+          pickerFormat = 'Hms';
+          withSecond = true;
+        } else {
+          pickerFormat = 'Hm';
+        }
+
         break;
     }
 
     // TextFormat
-    format = pickerFormat.dateFormat(widget.delimiter);
+    format = pickerFormat.dateFormat(widget.delimiter, withSecond);
 
     minimumDate = widget.minimumDate ?? DateTimeUtil.defaultMinDate;
     maximumDate = widget.maximumDate ?? DateTimeUtil.defaultMaxDate;
@@ -651,6 +658,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           return ValidatorResult(
             error: BoardDateTimeInputError.illegal,
             pickerType: widget.pickerType,
+            withSecond: options.withSecond,
           );
         }
 
@@ -684,7 +692,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
               if (!(m >= 0 && m <= 23)) {
                 err = BoardDateTimeInputError.illegal;
               }
-            } else if (f == 'm') {
+            } else if (f == 'm' || f == 's') {
               final m = int.parse(data.text);
               if (!(m >= 0 && m <= 59)) {
                 err = BoardDateTimeInputError.illegal;
@@ -719,6 +727,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       splited: splited,
       error: retError,
       pickerType: widget.pickerType,
+      withSecond: options.withSecond,
     );
   }
 
@@ -773,16 +782,32 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       final minute = result.splited!.firstWhereOrNull(
         (e) => e.dateType == DateType.minute,
       );
-      if (complete &&
-          hour != null &&
-          hour.text.isNotEmpty &&
-          (minute == null || minute.text.isEmpty)) {
+      final second = result.splited!.firstWhereOrNull(
+        (e) => e.dateType == DateType.second,
+      );
+
+      final existHour = hour != null && hour.text.isNotEmpty;
+
+      if (complete && existHour && (minute == null || minute.text.isEmpty)) {
         final bloc = TextBloc(text: '00', start: 0, end: 0);
         bloc.dateType = DateType.minute;
         if (minute != null) {
           result.splited![result.splited!.length - 1] = bloc;
         } else {
           result.splited!.add(bloc);
+        }
+      }
+
+      if (complete &&
+          options.withSecond &&
+          existHour &&
+          (second == null || second.text.isEmpty)) {
+        final secondBloc = TextBloc(text: '00', start: 0, end: 0);
+        secondBloc.dateType = DateType.second;
+        if (second != null) {
+          result.splited![result.splited!.length - 1] = secondBloc;
+        } else {
+          result.splited!.add(secondBloc);
         }
       }
     }
