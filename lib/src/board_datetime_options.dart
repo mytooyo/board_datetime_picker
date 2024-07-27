@@ -19,6 +19,7 @@ class BoardDateTimeOptions {
     this.pickerSubTitles,
     this.weekend,
     this.inputable = true,
+    this.withSecond = false,
   });
 
   /// #### Picker Background Color
@@ -112,6 +113,11 @@ class BoardDateTimeOptions {
   /// If `false`, text input is not possible, only scrolling picker.
   /// Default is `true`.
   final bool inputable;
+
+  /// Flag to allow seconds to be specified.
+  /// This parameter is only valid if `DateTimePickerType` is `time`.
+  /// The `datetime` case is not supported at this time due to width issues.
+  final bool withSecond;
 }
 
 /// Optional settings for weekends
@@ -199,12 +205,16 @@ class BoardPickerCustomOptions {
   /// List to be displayed in the picker of the minute.
   final List<int> minutes;
 
+  /// List to be displayed in the picker of the second.
+  final List<int> seconds;
+
   BoardPickerCustomOptions({
     // this.years = const [],
     // this.months = const [],
     // this.days = const [],
     this.hours = const [],
     this.minutes = const [],
+    this.seconds = const [],
   });
 
   /// Picker display every 15 minutes
@@ -237,6 +247,7 @@ class BoardDateTimeItemTitles {
   final String? day;
   final String? hour;
   final String? minute;
+  final String? second;
 
   const BoardDateTimeItemTitles({
     this.year,
@@ -244,6 +255,7 @@ class BoardDateTimeItemTitles {
     this.day,
     this.hour,
     this.minute,
+    this.second,
   });
 
   bool get notSpecified {
@@ -251,6 +263,7 @@ class BoardDateTimeItemTitles {
         month == null &&
         day == null &&
         hour == null &&
-        minute == null;
+        minute == null &&
+        second == null;
   }
 }

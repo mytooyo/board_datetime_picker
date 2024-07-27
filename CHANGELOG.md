@@ -1,8 +1,13 @@
+## 2.1.0
+
+* Added the ability to select seconds for `DateTimePickerType.time`.
+  * Use with `withSecond` option.
+
 ## 2.0.0
 
 * Added multi-selection feature to allow selection of a range of dates.
-  - To use it, call `showBoardDateTimeMultiPicker`.
-  - Only modal display is supported.
+  * To use it, call `showBoardDateTimeMultiPicker`.
+  * Only modal display is supported.
 
 ## 1.6.9
 

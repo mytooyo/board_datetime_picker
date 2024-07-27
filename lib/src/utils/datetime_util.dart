@@ -10,10 +10,10 @@ class DateTimeUtil {
   static const int maximumYear = 2050;
 
   ///. Default Minimum Date
-  static DateTime defaultMinDate = DateTime(minimumYear, 1, 1, 0, 0);
+  static DateTime defaultMinDate = DateTime(minimumYear, 1, 1, 0, 0, 0);
 
   /// Default Maximum Date
-  static DateTime defaultMaxDate = DateTime(maximumYear, 12, 31, 23, 59);
+  static DateTime defaultMaxDate = DateTime(maximumYear, 12, 31, 23, 59, 59);
 
   /// List of days of the week beginning on Sunday
   static List<int> weekdayVals = [7, 1, 2, 3, 4, 5, 6];
@@ -142,6 +142,32 @@ extension DateTimeExtension on DateTime {
             day <= date.day &&
             hour <= date.hour &&
             operator(minute, date.minute);
+
+      case DateType.second:
+        if (year < date.year) return true;
+        if (year <= date.year && month < date.month) return true;
+        if (year <= date.year && month <= date.month && day < date.day) {
+          return true;
+        }
+        if (year <= date.year &&
+            month <= date.month &&
+            day <= date.day &&
+            hour < date.hour) {
+          return true;
+        }
+        if (year <= date.year &&
+            month <= date.month &&
+            day <= date.day &&
+            hour <= date.hour &&
+            minute < date.minute) {
+          return true;
+        }
+        return year <= date.year &&
+            month <= date.month &&
+            day <= date.day &&
+            hour <= date.hour &&
+            minute <= date.minute &&
+            operator(second, date.second);
     }
   }
 
@@ -192,6 +218,33 @@ extension DateTimeExtension on DateTime {
             day >= date.day &&
             hour >= date.hour &&
             operator(minute, date.minute);
+
+      case DateType.second:
+        if (year > date.year) return true;
+        if (year >= date.year && month > date.month) return true;
+        if (year >= date.year && month >= date.month && day > date.day) {
+          return true;
+        }
+        if (year >= date.year &&
+            month >= date.month &&
+            day >= date.day &&
+            hour > date.hour) {
+          return true;
+        }
+        if (year >= date.year &&
+            month >= date.month &&
+            day >= date.day &&
+            hour >= date.hour &&
+            minute > date.minute) {
+          return true;
+        }
+
+        return year >= date.year &&
+            month >= date.month &&
+            day >= date.day &&
+            hour >= date.hour &&
+            minute >= date.minute &&
+            operator(second, date.second);
     }
   }
 
@@ -257,6 +310,8 @@ extension DateTimeExtension on DateTime {
         return hour;
       case DateType.minute:
         return minute;
+      case DateType.second:
+        return second;
     }
   }
 }

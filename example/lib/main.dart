@@ -210,18 +210,25 @@ class PickerItemWidget extends StatelessWidget {
           final result = await showBoardDateTimePicker(
             context: context,
             pickerType: pickerType,
-            options: const BoardDateTimeOptions(
-              languages: BoardPickerLanguages.en(),
+            options: BoardDateTimeOptions(
+              languages: const BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
               // boardTitle: 'Board Picker',
               // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
+              withSecond: DateTimePickerType.time == pickerType,
+              customOptions: DateTimePickerType.time == pickerType
+                  ? BoardPickerCustomOptions(
+                      seconds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+                    )
+                  : null,
             ),
             // Specify if you want changes in the picker to take effect immediately.
             valueNotifier: date,
           );
           if (result != null) {
             date.value = result;
+            print('result: $result');
           }
         },
         child: Padding(
@@ -253,7 +260,9 @@ class PickerItemWidget extends StatelessWidget {
                 valueListenable: date,
                 builder: (context, data, _) {
                   return Text(
-                    BoardDateFormat(pickerType.format).format(data),
+                    BoardDateFormat(pickerType.formatter(
+                      withSecond: DateTimePickerType.time == pickerType,
+                    )).format(data),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -449,6 +458,8 @@ class InputFieldWidget extends StatelessWidget {
               pickerType: DateTimePickerType.datetime,
               options: const BoardDateTimeOptions(
                 languages: BoardPickerLanguages.en(),
+                // The following parameters are only for `time`
+                // withSecond: true,
               ),
               initialDate: DateTime.now(),
               maximumDate: DateTime(2040),
@@ -522,6 +533,17 @@ extension DateTimePickerTypeExtension on DateTimePickerType {
         return 'yyyy/MM/dd HH:mm';
       case DateTimePickerType.time:
         return 'HH:mm';
+    }
+  }
+
+  String formatter({bool withSecond = false}) {
+    switch (this) {
+      case DateTimePickerType.date:
+        return 'yyyy/MM/dd';
+      case DateTimePickerType.datetime:
+        return 'yyyy/MM/dd HH:mm';
+      case DateTimePickerType.time:
+        return withSecond ? 'HH:mm:ss' : 'HH:mm';
     }
   }
 }

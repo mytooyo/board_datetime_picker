@@ -15,6 +15,7 @@ BoardPickerItemOption initItemOption(
   DateTime? maximum,
   List<int>? customList,
   String? subTitle,
+  bool withSecond,
 ) {
   if (customList != null && customList.isNotEmpty) {
     return BoardPickerCustomItemOption.init(
@@ -24,9 +25,17 @@ BoardPickerItemOption initItemOption(
       minimum,
       maximum,
       subTitle,
+      withSecond: withSecond,
     );
   } else {
-    return BoardPickerItemOption.init(type, date, minimum, maximum, subTitle);
+    return BoardPickerItemOption.init(
+      type,
+      date,
+      minimum,
+      maximum,
+      subTitle,
+      withSecond: withSecond,
+    );
   }
 }
 
@@ -39,6 +48,7 @@ class BoardPickerItemOption {
     required this.minimumDate,
     required this.maximumDate,
     required this.subTitle,
+    required this.withSecond,
   });
 
   /// [DateType] year, month, day, hour, minute
@@ -65,14 +75,19 @@ class BoardPickerItemOption {
   /// Title to be displayed on item
   final String? subTitle;
 
+  /// Flag indicating whether to specify seconds
+  /// Specified by 0 if not specified
+  final bool withSecond;
+
   /// Constractor
   factory BoardPickerItemOption.init(
     DateType type,
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
-    String? subTitle,
-  ) {
+    String? subTitle, {
+    bool withSecond = false,
+  }) {
     Map<int, int> map = {};
     int selected;
 
@@ -100,6 +115,10 @@ class BoardPickerItemOption {
         map = minmaxList(DateType.minute, date, mi, ma);
         selected = indexFromValue(date.minute, map);
         break;
+      case DateType.second:
+        map = minmaxList(DateType.second, date, mi, ma);
+        selected = indexFromValue(date.second, map);
+        break;
     }
 
     return BoardPickerItemOption(
@@ -110,6 +129,7 @@ class BoardPickerItemOption {
       minimumDate: mi,
       maximumDate: ma,
       subTitle: subTitle,
+      withSecond: withSecond,
     );
   }
 
@@ -135,6 +155,7 @@ class BoardPickerItemOption {
       minimumDate: mi,
       maximumDate: ma,
       subTitle: subTitle,
+      withSecond: false,
     );
   }
 
@@ -170,6 +191,9 @@ class BoardPickerItemOption {
         break;
       case DateType.minute:
         selectedIndex = getIndexFromValue(date.minute) ?? 0;
+        break;
+      case DateType.second:
+        selectedIndex = getIndexFromValue(date.second) ?? 0;
         break;
     }
     stateKey.currentState?.toAnimateChange(selectedIndex, button: true);
@@ -344,6 +368,16 @@ class BoardPickerItemOption {
           maxMinute = maximum.minute;
         }
         return createMap(minMinute, maxMinute);
+      case DateType.second:
+        int minSecond = 0;
+        int maxSecond = 59;
+        if (date.isMinimum(minimum, DateType.minute)) {
+          minSecond = minimum.second;
+        }
+        if (date.isMaximum(maximum, DateType.minute)) {
+          maxSecond = maximum.second;
+        }
+        return createMap(minSecond, maxSecond);
     }
   }
 
@@ -356,6 +390,7 @@ class BoardPickerItemOption {
           newDay ?? date.day,
           date.hour,
           date.minute,
+          withSecond ? date.second : 0,
         );
       case DateType.month:
         return DateTime(
@@ -364,6 +399,7 @@ class BoardPickerItemOption {
           newDay ?? date.day,
           date.hour,
           date.minute,
+          withSecond ? date.second : 0,
         );
       case DateType.day:
         return DateTime(
@@ -372,6 +408,7 @@ class BoardPickerItemOption {
           newDay ?? map[selectedIndex]!,
           date.hour,
           date.minute,
+          withSecond ? date.second : 0,
         );
       case DateType.hour:
         return DateTime(
@@ -380,6 +417,7 @@ class BoardPickerItemOption {
           date.day,
           map[selectedIndex]!,
           date.minute,
+          withSecond ? date.second : 0,
         );
       case DateType.minute:
         return DateTime(
@@ -387,6 +425,16 @@ class BoardPickerItemOption {
           date.month,
           date.day,
           date.hour,
+          map[selectedIndex]!,
+          withSecond ? date.second : 0,
+        );
+      case DateType.second:
+        return DateTime(
+          date.year,
+          date.month,
+          date.day,
+          date.hour,
+          date.minute,
           map[selectedIndex]!,
         );
     }

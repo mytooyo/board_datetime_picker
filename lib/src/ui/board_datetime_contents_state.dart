@@ -220,6 +220,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
     final maxDate = maximumDate;
 
     final opts = widget.options.customOptions;
+    final withSecond = widget.options.withSecond;
 
     List<BoardPickerItemOption> ymdOptions = [];
 
@@ -234,17 +235,41 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         if (pf == 'y') {
           final subTitle = widget.options.getSubTitle(DateType.year);
           ymdOptions.add(
-            initItemOption(DateType.year, d, minDate, maxDate, null, subTitle),
+            initItemOption(
+              DateType.year,
+              d,
+              minDate,
+              maxDate,
+              null,
+              subTitle,
+              withSecond,
+            ),
           );
         } else if (pf == 'M') {
           final subTitle = widget.options.getSubTitle(DateType.month);
           ymdOptions.add(
-            initItemOption(DateType.month, d, minDate, maxDate, null, subTitle),
+            initItemOption(
+              DateType.month,
+              d,
+              minDate,
+              maxDate,
+              null,
+              subTitle,
+              withSecond,
+            ),
           );
         } else if (pf == 'd') {
           final subTitle = widget.options.getSubTitle(DateType.day);
           ymdOptions.add(
-            initItemOption(DateType.day, d, minDate, maxDate, null, subTitle),
+            initItemOption(
+              DateType.day,
+              d,
+              minDate,
+              maxDate,
+              null,
+              subTitle,
+              withSecond,
+            ),
           );
         }
       }
@@ -262,6 +287,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           maxDate,
           opts?.hours,
           widget.options.getSubTitle(DateType.hour),
+          withSecond,
         ),
         initItemOption(
           DateType.minute,
@@ -270,8 +296,19 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           maxDate,
           opts?.minutes,
           widget.options.getSubTitle(DateType.minute),
+          withSecond,
         ),
       ],
+      if (DateTimePickerType.time == type && widget.options.withSecond)
+        initItemOption(
+          DateType.second,
+          d,
+          minDate,
+          maxDate,
+          opts?.seconds,
+          widget.options.getSubTitle(DateType.second),
+          withSecond,
+        ),
     ];
 
     for (final x in itemOptions) {
@@ -376,6 +413,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       } else if (x.type == DateType.minute && x.value != newVal.minute) {
         x.changeDate(newVal);
+      } else if (x.type == DateType.second && x.value != newVal.second) {
+        x.changeDate(newVal);
       }
     }
     setNewValue(newVal);
@@ -398,6 +437,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
       } else if (x.type == DateType.hour && x.value != newVal.hour) {
         x.changeDate(newVal);
       } else if (x.type == DateType.minute && x.value != newVal.minute) {
+        x.changeDate(newVal);
+      } else if (x.type == DateType.second && x.value != newVal.second) {
         x.changeDate(newVal);
       }
     }

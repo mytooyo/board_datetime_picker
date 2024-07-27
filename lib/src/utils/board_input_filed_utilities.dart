@@ -20,11 +20,13 @@ class ValidatorResult {
   final List<TextBloc>? splited;
   final BoardDateTimeInputError? error;
   final DateTimePickerType pickerType;
+  final bool withSecond;
 
   ValidatorResult({
     this.splited,
     this.error,
     required this.pickerType,
+    required this.withSecond,
   });
 
   DateTime? get datetime {
@@ -38,12 +40,19 @@ class ValidatorResult {
         (e) => e.dateType == DateType.minute,
       );
 
+      final second = withSecond
+          ? splited?.firstWhereOrNull(
+              (e) => e.dateType == DateType.second,
+            )
+          : null;
+
       return DateTime(
         date.year,
         date.month,
         date.day,
         hour == null || hour.text.isEmpty ? 0 : int.parse(hour.text),
         minute == null || minute.text.isEmpty ? 0 : int.parse(minute.text),
+        second == null || second.text.isEmpty ? 0 : int.parse(second.text),
       );
     }
 
@@ -98,6 +107,7 @@ extension StringExtension on String {
       case 'd':
       case 'H':
       case 'm':
+      case 's':
         return 2;
       default:
         return 0;
@@ -116,12 +126,14 @@ extension StringExtension on String {
         return DateType.hour;
       case 'm':
         return DateType.minute;
+      case 's':
+        return DateType.second;
       default:
         return DateType.year;
     }
   }
 
-  String dateFormat(String delimiter) {
+  String dateFormat(String delimiter, bool withSecond) {
     switch (this) {
       case PickerFormat.mdy:
         return 'MM${delimiter}dd${delimiter}yyyy';
@@ -136,7 +148,7 @@ extension StringExtension on String {
       case '${PickerFormat.ymd}Hm':
         return 'yyyy${delimiter}MM${delimiter}dd HH:mm';
       default:
-        return 'HH:mm';
+        return 'HH:mm${withSecond ? ':ss' : ''}';
     }
   }
 }
