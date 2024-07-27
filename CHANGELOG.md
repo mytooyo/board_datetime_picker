@@ -1,6 +1,6 @@
 ## 2.1.0
 
-* Added the ability to select seconds for `DateTimePickerType.time`.
+* Added the feature to select seconds for `DateTimePickerType.time`.
   * Use with `withSecond` option.
 
 ## 2.0.0
