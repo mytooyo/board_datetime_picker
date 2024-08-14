@@ -26,6 +26,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onCreatedDateState,
     super.pickerFocusNode,
     super.onKeyboadClose,
+    super.onUpdateByClose,
     this.onChange,
     this.onResult,
   });
@@ -127,6 +128,19 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       BoardDateTimeCommonResult.init(pickerType, endDate.value) as T,
     );
     changedDate = true;
+  }
+
+  /// Set initial value at close
+  @override
+  void notifyInitialValue() {
+    // If the close button is pressed without ever changing the date,
+    // the default date is set once
+    if (!changedDate) {
+      widget.onUpdateByClose?.call(
+        rangeDate(startDate.value),
+        rangeDate(endDate.value),
+      );
+    }
   }
 
   @override

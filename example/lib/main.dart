@@ -210,6 +210,8 @@ class PickerItemWidget extends StatelessWidget {
           final result = await showBoardDateTimePicker(
             context: context,
             pickerType: pickerType,
+            // initialDate: DateTime.now(),
+            // minimumDate: DateTime.now().add(const Duration(days: 1)),
             options: BoardDateTimeOptions(
               languages: const BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
@@ -299,6 +301,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
           final result = await showBoardDateTimeMultiPicker(
             context: context,
             pickerType: pickerType,
+            // minimumDate: DateTime.now().add(const Duration(days: 1)),
+            startDate: start.value,
+            endDate: end.value,
             options: const BoardDateTimeOptions(
               languages: BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
