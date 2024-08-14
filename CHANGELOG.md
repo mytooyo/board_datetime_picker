@@ -1,3 +1,8 @@
+## 2.1.1
+
+* Fixed a bug in the value of the initial state result in modal display.
+* Fixed problem with list items not displaying in flutter 3.24.
+
 ## 2.1.0
 
 * Added the feature to select seconds for `DateTimePickerType.time`.

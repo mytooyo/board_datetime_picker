@@ -347,6 +347,10 @@ class _SingleBoardDateTimeWidgetState
       onCloseModal: () {
         Navigator.of(context).pop(date);
       },
+      onUpdateByClose: (val, val2) {
+        date = val;
+        widget.valueNotifier?.value = val;
+      },
     );
   }
 }
@@ -499,6 +503,12 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
       modal: true,
       onCloseModal: () {
         Navigator.of(context).pop(selection);
+      },
+      onUpdateByClose: (val, val2) {
+        selection = BoardDateTimeMultiSelection(
+          start: val,
+          end: val2 ?? selection.end,
+        );
       },
     );
   }

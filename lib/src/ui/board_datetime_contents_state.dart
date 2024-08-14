@@ -26,6 +26,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onCreatedDateState,
     this.pickerFocusNode,
     this.onKeyboadClose,
+    this.onUpdateByClose,
   });
 
   final double breakpoint;
@@ -50,6 +51,10 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
   final FocusNode? pickerFocusNode;
 
   final void Function()? onKeyboadClose;
+
+  /// Callback to update initial values if the date is never changed at close.
+  /// Valid only for modal display.
+  final void Function(DateTime val, DateTime? val2)? onUpdateByClose;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
@@ -133,10 +138,21 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
     openAnimationController.forward();
   }
 
+  /// Set initial value at close
+  void notifyInitialValue() {
+    // If the close button is pressed without ever changing the date,
+    // the default date is set once
+    if (!changedDate) {
+      widget.onUpdateByClose?.call(rangeDate(initialDate), null);
+    }
+  }
+
   /// Close Picker
   void close() {
     if (widget.modal) {
       FocusScope.of(context).unfocus();
+      notifyInitialValue();
+
       // if modal, close modal sheets
       if (widget.onCloseModal == null) {
         Navigator.of(context).pop();

@@ -406,31 +406,25 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   Widget _item(int i) {
-    double opacity = 1.0;
-    TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: widget.textColor,
-        );
+    TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge;
     if (selectedIndex == i) {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
         fontSize: 17,
+        color: widget.textColor?.withOpacity(isTextEditing ? 0.0 : 1.0),
       );
-      opacity = isTextEditing ? 0.0 : 1.0;
     } else {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
         fontSize: 14,
+        color: widget.textColor?.withOpacity(0.4),
       );
-      opacity = 0.4;
     }
 
     return Center(
-      child: Opacity(
-        opacity: opacity,
-        child: Text(
-          '${map[i]}',
-          style: textStyle,
-        ),
+      child: Text(
+        '${map[i]}',
+        style: textStyle,
       ),
     );
   }

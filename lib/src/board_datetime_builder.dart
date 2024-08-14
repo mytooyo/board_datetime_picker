@@ -221,6 +221,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onCreatedDateState,
     super.pickerFocusNode,
     super.onKeyboadClose,
+    super.onUpdateByClose,
   });
 
   final void Function(DateTime)? onChange;
