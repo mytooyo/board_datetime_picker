@@ -628,6 +628,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   ValidatorResult validate(String value, {bool complete = false}) {
     List<TextBloc> splited = [];
 
+    //set null if text is empty
+    if (value.isEmpty) {
+      selectedDate = null;
+      widget.controller?.updateSelectedDate(selectedDate);
+    }
+
     String text = '';
     int start = 0;
     for (var i = 0; i < value.length; i++) {
@@ -761,12 +767,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       selectedDate = null;
       widget.controller?.updateSelectedDate(selectedDate);
       return;
-    }
-
-    //set null if text is empty
-    if (val.isEmpty) {
-      selectedDate = null;
-      widget.controller?.updateSelectedDate(selectedDate);
     }
 
     // Input value check
