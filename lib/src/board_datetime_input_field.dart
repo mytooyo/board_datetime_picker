@@ -62,6 +62,17 @@ class BoardDateTimeTextController {
   void setDate(DateTime date) {
     _notifier.value = _InoutValue.from(date);
   }
+
+  DateTime? _selectedDate;
+
+  @protected
+  void updateSelectedDate(DateTime? newDate) {
+    _selectedDate = newDate;
+  }
+
+  DateTime? get selectedDate {
+    return _selectedDate;
+  }
 }
 
 class _InoutValue {
@@ -374,6 +385,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         textController.text = DateFormat(format).format(val);
         if (selectedDate != val) {
           selectedDate = val;
+          widget.controller?.updateSelectedDate(selectedDate);
           widget.onChanged(val);
           widget.onResult?.call(
             BoardDateTimeCommonResult.init(widget.pickerType, val) as T,
@@ -465,6 +477,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     if (widget.initialDate != null) {
       initial = rangeDate(widget.initialDate!);
       selectedDate = initial;
+      widget.controller?.updateSelectedDate(selectedDate);
     }
 
     textController = TextEditingController(
@@ -655,6 +668,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         // Error if the number of characters is larger than the specified number
         if (f.count < data.text.length) {
           selectedDate = null;
+          widget.controller?.updateSelectedDate(selectedDate);
           return ValidatorResult(
             error: BoardDateTimeInputError.illegal,
             pickerType: widget.pickerType,
@@ -701,6 +715,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           } catch (ex) {
             if (complete) {
               selectedDate = null;
+              widget.controller?.updateSelectedDate(selectedDate);
             }
             return err;
           }
@@ -721,7 +736,10 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       }
     }
 
-    if (retError != null) selectedDate = null;
+    if (retError != null) {
+      selectedDate = null;
+      widget.controller?.updateSelectedDate(selectedDate);
+    }
 
     return ValidatorResult(
       splited: splited,
@@ -741,6 +759,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         widget.validators._errorRequired();
       }
       selectedDate = null;
+      widget.controller?.updateSelectedDate(selectedDate);
       return;
     }
 
@@ -954,6 +973,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           datetime.isBefore(maximumDate) &&
           selectedDate != datetime) {
         selectedDate = datetime;
+        widget.controller?.updateSelectedDate(selectedDate);
         widget.onChanged.call(datetime);
         widget.onResult?.call(
           BoardDateTimeCommonResult.init(widget.pickerType, datetime) as T,
