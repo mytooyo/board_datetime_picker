@@ -445,7 +445,6 @@ class InputFieldWidget extends StatelessWidget {
   InputFieldWidget({super.key});
 
   final textController = BoardDateTimeTextController();
-
   @override
   Widget build(BuildContext context) {
     return Padding(
