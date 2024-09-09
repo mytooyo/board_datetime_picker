@@ -763,6 +763,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       return;
     }
 
+    //set null if text is empty
+    if (val.isEmpty) {
+      selectedDate = null;
+      widget.controller?.updateSelectedDate(selectedDate);
+    }
+
     // Input value check
     final result = validate(value, complete: complete);
 
