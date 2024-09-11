@@ -102,6 +102,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   DateTime? minimumDate,
   DateTime? maximumDate,
   BoardDateTimeOptions? options,
+  Widget? headerWidget,
   double breakpoint = 800,
   double radius = 24,
   Color? barrierColor,
@@ -123,6 +124,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
     minimumDate: minimumDate,
     maximumDate: maximumDate,
     options: options,
+    headerWidget: headerWidget,
     breakpoint: breakpoint,
     radius: radius,
     barrierColor: barrierColor,
@@ -167,6 +169,7 @@ Future<DateTime?> showBoardDateTimePickerForTime({
   DateTime? minimumDate,
   DateTime? maximumDate,
   BoardDateTimeOptions? options,
+  Widget? headerWidget,
   double breakpoint = 800,
   double radius = 24,
   Color? barrierColor,
@@ -188,6 +191,7 @@ Future<DateTime?> showBoardDateTimePickerForTime({
     minimumDate: minimumDate,
     maximumDate: maximumDate,
     options: options,
+    headerWidget: headerWidget,
     breakpoint: breakpoint,
     radius: radius,
     barrierColor: barrierColor,
@@ -236,6 +240,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   DateTime? minimumDate,
   DateTime? maximumDate,
   BoardDateTimeOptions? options,
+  Widget? headerWidget,
   double breakpoint = 800,
   double radius = 24,
   Color? barrierColor,
@@ -282,6 +287,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
           maximumDate: maximumDate,
           options: opt,
           valueNotifier: valueNotifier,
+          headerWidget: headerWidget,
           onChanged: onChanged,
           onResult: (val) => onResult?.call(val as T),
         ),
@@ -301,6 +307,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
     this.valueNotifier,
     this.onChanged,
     this.onResult,
+    required this.headerWidget,
   });
 
   final double breakpoint;
@@ -310,6 +317,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
   final ValueNotifier<DateTime>? valueNotifier;
+  final Widget? headerWidget;
   final void Function(DateTime)? onChanged;
   final void Function(BoardDateTimeCommonResult)? onResult;
 
@@ -343,6 +351,7 @@ class _SingleBoardDateTimeWidgetState
       initialDate: date,
       minimumDate: widget.minimumDate,
       maximumDate: widget.maximumDate,
+      headerWidget: widget.headerWidget,
       modal: true,
       onCloseModal: () {
         Navigator.of(context).pop(date);
@@ -386,6 +395,7 @@ Future<BoardDateTimeMultiSelection?>
   DateTime? minimumDate,
   DateTime? maximumDate,
   BoardDateTimeOptions? options,
+  Widget? headerWidget,
   double breakpoint = 800,
   double radius = 24,
   Color? barrierColor,
@@ -432,6 +442,7 @@ Future<BoardDateTimeMultiSelection?>
           minimumDate: minimumDate,
           maximumDate: maximumDate,
           options: opt,
+          headerWidget: headerWidget,
           // valueNotifier: valueNotifier,
           onChanged: onChanged,
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
@@ -453,6 +464,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
     // this.valueNotifier,
     this.onChanged,
     this.onResult,
+    this.headerWidget,
   });
 
   final double breakpoint;
@@ -462,6 +474,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
   final DateTime? maximumDate;
   final DateTimePickerType pickerType;
   final BoardDateTimeOptions options;
+  final Widget? headerWidget;
   // final ValueNotifier<DateTime>? valueNotifier;
   final void Function(BoardDateTimeMultiSelection)? onChanged;
   final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
@@ -500,6 +513,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
       endDate: selection.end,
       minimumDate: widget.minimumDate,
       maximumDate: widget.maximumDate,
+      headerWidget: widget.headerWidget,
       modal: true,
       onCloseModal: () {
         Navigator.of(context).pop(selection);

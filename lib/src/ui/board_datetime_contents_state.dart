@@ -27,6 +27,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.pickerFocusNode,
     this.onKeyboadClose,
     this.onUpdateByClose,
+    required this.headerWidget,
   });
 
   final double breakpoint;
@@ -55,6 +56,9 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
   /// Callback to update initial values if the date is never changed at close.
   /// Valid only for modal display.
   final void Function(DateTime val, DateTime? val2)? onUpdateByClose;
+
+  /// To be displayed at the top of the picker
+  final Widget? headerWidget;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,

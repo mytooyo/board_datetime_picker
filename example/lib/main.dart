@@ -308,7 +308,25 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
               languages: BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
+              // topMargin: 0,
             ),
+            // headerWidget: Container(
+            //   height: 60,
+            //   margin: const EdgeInsets.all((8)),
+            //   decoration: BoxDecoration(
+            //     color: Colors.white,
+            //     border: Border.all(color: Colors.red, width: 4),
+            //     borderRadius: BorderRadius.circular(24),
+            //   ),
+            //   alignment: Alignment.center,
+            //   child: Text(
+            //     'Header Widget',
+            //     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            //           fontWeight: FontWeight.bold,
+            //           color: Colors.red,
+            //         ),
+            //   ),
+            // ),
           );
           if (result != null) {
             start.value = result.start;

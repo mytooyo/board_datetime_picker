@@ -32,6 +32,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.modal,
     required this.withTextField,
     required this.pickerFocusNode,
+    required this.topMargin,
   });
 
   /// Wide mode display flag
@@ -99,6 +100,9 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Picker FocusNode
   final FocusNode? pickerFocusNode;
 
+  /// Header Top margin
+  final double topMargin;
+
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
@@ -145,7 +149,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   Widget build(BuildContext context) {
     final child = Container(
       height: widget.wide ? 64 : 52,
-      margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
+      margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: widget.foregroundColor.withOpacity(0.99),

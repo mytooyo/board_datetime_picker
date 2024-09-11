@@ -32,6 +32,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.currentDateType,
     required this.onChangeDateType,
     required this.pickerFormat,
+    required this.topMargin,
   });
 
   /// Wide mode display flag
@@ -105,6 +106,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// Picker Date Format
   final String pickerFormat;
 
+  /// Header Top margin
+  final double topMargin;
+
   @override
   State<BoardDateTimeMultiHeader> createState() =>
       _BoardDateTimeMultiHeaderState();
@@ -176,7 +180,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
 
     final child = Container(
       height: widget.wide ? 64 : 52,
-      margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
+      margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: widget.foregroundColor.withOpacity(0.99),

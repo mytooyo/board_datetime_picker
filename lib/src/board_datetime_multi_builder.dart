@@ -29,6 +29,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onUpdateByClose,
     this.onChange,
     this.onResult,
+    required super.headerWidget,
   });
 
   final DateTime startDate;
@@ -196,17 +197,23 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         axis: Axis.vertical,
         axisAlignment: -1.0,
         // child: isWide ? _widebuilder() : _standardBuilder(),
-        child: isWide
-            ? PickerCalendarWideWidget(
-                arguments: args,
-                closeKeyboard: closeKeyboard,
-              )
-            : PickerCalendarStandardWidget(
-                arguments: args,
-                calendarAnimationController: calendarAnimationController,
-                calendarAnimation: calendarAnimation,
-                pickerFormAnimation: pickerFormAnimation,
-              ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.headerWidget != null) widget.headerWidget!,
+            isWide
+                ? PickerCalendarWideWidget(
+                    arguments: args,
+                    closeKeyboard: closeKeyboard,
+                  )
+                : PickerCalendarStandardWidget(
+                    arguments: args,
+                    calendarAnimationController: calendarAnimationController,
+                    calendarAnimation: calendarAnimation,
+                    pickerFormAnimation: pickerFormAnimation,
+                  ),
+          ],
+        ),
       ),
     );
   }
@@ -264,6 +271,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       pickerFocusNode: widget.pickerFocusNode,
       currentDateType: currentDateType,
       onChangeDateType: onChangeDateType,
+      topMargin: widget.options.topMargin,
     );
   }
 }
