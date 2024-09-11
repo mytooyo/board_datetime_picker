@@ -88,6 +88,7 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
     this.breakpoint = 800,
     this.options,
     this.resizeBottom = true,
+    this.headerWidget,
   });
 
   /// #### [DateTimeBuilder] Builder
@@ -124,6 +125,9 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
   /// Flag whether to resize the bottom of the specified Builder.
   /// If true, the picker is displayed under the builder in `Column`.
   final bool resizeBottom;
+
+  /// This widget should be displayed above the picker.
+  final Widget? headerWidget;
 
   @override
   State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();
@@ -173,6 +177,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
         breakpoint: widget.breakpoint,
         options: widget.options ?? const BoardDateTimeOptions(),
         keyboardHeightNotifier: keyboardHeightNotifier,
+        headerWidget: widget.headerWidget,
       );
     }
 
@@ -222,6 +227,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.pickerFocusNode,
     super.onKeyboadClose,
     super.onUpdateByClose,
+    required super.headerWidget,
   });
 
   final void Function(DateTime)? onChange;
@@ -337,17 +343,23 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         axis: Axis.vertical,
         axisAlignment: -1.0,
         // child: isWide ? _widebuilder() : _standardBuilder(),
-        child: isWide
-            ? PickerCalendarWideWidget(
-                arguments: args,
-                closeKeyboard: closeKeyboard,
-              )
-            : PickerCalendarStandardWidget(
-                arguments: args,
-                calendarAnimationController: calendarAnimationController,
-                calendarAnimation: calendarAnimation,
-                pickerFormAnimation: pickerFormAnimation,
-              ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.headerWidget != null) widget.headerWidget!,
+            isWide
+                ? PickerCalendarWideWidget(
+                    arguments: args,
+                    closeKeyboard: closeKeyboard,
+                  )
+                : PickerCalendarStandardWidget(
+                    arguments: args,
+                    calendarAnimationController: calendarAnimationController,
+                    calendarAnimation: calendarAnimation,
+                    pickerFormAnimation: pickerFormAnimation,
+                  ),
+          ],
+        ),
       ),
     );
   }
@@ -405,6 +417,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       modal: widget.modal,
       withTextField: widget.withTextField,
       pickerFocusNode: widget.pickerFocusNode,
+      topMargin: widget.options.topMargin,
     );
   }
 }

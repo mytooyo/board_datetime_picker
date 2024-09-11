@@ -1025,6 +1025,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           },
           onCloseModal: onClosePicker,
           onKeyboadClose: onClosePicker,
+          headerWidget: null,
         ),
       ),
     );
