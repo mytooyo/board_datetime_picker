@@ -20,6 +20,7 @@ class BoardDateTimeOptions {
     this.weekend,
     this.inputable = true,
     this.withSecond = false,
+    this.topMargin = 20,
   });
 
   /// #### Picker Background Color
@@ -118,6 +119,10 @@ class BoardDateTimeOptions {
   /// This parameter is only valid if `DateTimePickerType` is `time`.
   /// The `datetime` case is not supported at this time due to width issues.
   final bool withSecond;
+
+  /// Set the margins above the top menu bar (calendar button, etc.).
+  /// Default is `20`
+  final double topMargin;
 }
 
 /// Optional settings for weekends

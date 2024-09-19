@@ -1,3 +1,11 @@
+## 2.1.3
+
+* Added Suport for Custom Header Widget.
+
+## 2.1.2
+
+* Added currentDate getter to BoardDateTimeTextController.
+
 ## 2.1.1
 
 * Fixed a bug in the value of the initial state result in modal display.
