@@ -349,8 +349,9 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       }
 
       // If the focus is out of focus, but the focus has moved to another InputField
+      // never tapped on the textfield, but text selected or modified
       final pf = FocusManager.instance.primaryFocus;
-      if (pf is BoardDateTimeInputFocusNode) {
+      if (pf is BoardDateTimeInputFocusNode || !scopeListenerRegistered) {
         closePicker();
         onFinished();
       }
@@ -425,6 +426,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     }
   }
 
+  bool scopeListenerRegistered = false;
   late final void Function() _focusScopeListener = focusScopeListener;
 
   void focusScopeListener() {
@@ -522,6 +524,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   @override
   void deactivate() {
     FocusScope.of(context).removeListener(_focusScopeListener);
+    scopeListenerRegistered = false;
     super.deactivate();
   }
 
@@ -612,6 +615,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
         ],
         onTap: () {
           FocusScope.of(context).addListener(_focusScopeListener);
+          scopeListenerRegistered = true;
         },
         onChanged: (val) {
           checkFormat(val);
