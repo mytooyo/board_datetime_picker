@@ -405,6 +405,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
   void onFinished() {
     widget.onFocusChange?.call(false, selectedDate, textController.text);
     FocusScope.of(context).removeListener(_focusScopeListener);
+    scopeListenerRegistered = false;
   }
 
   void _onFocused() {
