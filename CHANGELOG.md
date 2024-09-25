@@ -1,3 +1,7 @@
+## 2.1.4
+
+* Fixed a bug onFocusChanged not called.
+
 ## 2.1.3
 
 * Added Suport for Custom Header Widget.
