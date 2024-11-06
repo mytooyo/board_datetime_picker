@@ -33,6 +33,8 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.withTextField,
     required this.pickerFocusNode,
     required this.topMargin,
+    required this.onTopActionBuilder,
+    required this.actionButtonTypes,
   });
 
   /// Wide mode display flag
@@ -103,6 +105,12 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// Header Top margin
   final double topMargin;
 
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// List of buttons to select dates.
+  final List<BoardDateButtonType> actionButtonTypes;
+
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
@@ -110,6 +118,7 @@ class BoardDateTimeHeader extends StatefulWidget {
 class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   bool isToday = true;
   bool isTomorrow = false;
+  bool isYesterday = false;
 
   late ValueNotifier<DateTime> dateState;
 
@@ -143,24 +152,36 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     final now = DateTime.now();
     isToday = dateState.value.compareDate(now);
     isTomorrow = dateState.value.compareDate(now.addDay(1));
+    isYesterday = dateState.value.compareDate(now.addDay(-1));
   }
+
+  double get height => widget.wide ? 64 : 52;
 
   @override
   Widget build(BuildContext context) {
+    final topActionWidget = widget.onTopActionBuilder?.call(context);
+
     final child = Container(
-      height: widget.wide ? 64 : 52,
+      height: height,
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: widget.foregroundColor.withOpacity(0.99),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
-          if (widget.pickerType == DateTimePickerType.time)
-            ..._timeItems(context)
-          else
-            ..._dateItems(context),
-          Expanded(child: Container()),
+          if (topActionWidget == null) ...[
+            if (widget.pickerType == DateTimePickerType.time)
+              ..._timeItems(context)
+            else
+              ..._dateItems(context),
+            Expanded(child: Container())
+          ] else ...[
+            if (widget.pickerType != DateTimePickerType.time) _calendarButton(),
+            Expanded(child: topActionWidget),
+          ],
+
           // Visibility(
           //   visible: widget.keyboardHeightRatio == 0,
           //   child: Opacity(
@@ -209,47 +230,76 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     return child;
   }
 
+  Widget _calendarButton() {
+    if (widget.wide) {
+      return const SizedBox(width: 24);
+    } else {
+      return Opacity(
+        opacity: 0.6,
+        child: IconButton(
+          onPressed: widget.onCalendar,
+          icon: Transform.rotate(
+            angle: pi * 4 * widget.calendarAnimation.value,
+            child: Icon(
+              widget.calendarAnimation.value > 0.5
+                  ? Icons.view_day_rounded
+                  : Icons.calendar_month_rounded,
+              size: 20,
+            ),
+          ),
+          color: widget.textColor,
+        ),
+      );
+    }
+  }
+
   List<Widget> _dateItems(BuildContext context) {
     final today = DateTime.now();
     final tomorrow = today.addDay(1);
+    final yesterday = today.addDay(-1);
+
+    List<Widget> buttons = [];
+    for (final item in widget.actionButtonTypes) {
+      switch (item) {
+        case BoardDateButtonType.today:
+          if (today.isWithinRange(widget.minimumDate, widget.maximumDate)) {
+            buttons.add(_textButton(
+              context,
+              widget.languages.today,
+              () => widget.onChangeDate(DateTime.now()),
+              selected: isToday,
+            ));
+          }
+          break;
+        case BoardDateButtonType.tomorrow:
+          if (tomorrow.isWithinRange(widget.minimumDate, widget.maximumDate)) {
+            buttons.add(_textButton(
+              context,
+              widget.languages.tomorrow,
+              () => widget.onChangeDate(DateTime.now().addDayWithTime(1)),
+              selected: isTomorrow,
+            ));
+          }
+          break;
+        case BoardDateButtonType.yesterday:
+          if (yesterday.isWithinRange(widget.minimumDate, widget.maximumDate)) {
+            buttons.add(_textButton(
+              context,
+              widget.languages.yesterday,
+              () => widget.onChangeDate(DateTime.now().addDayWithTime(-1)),
+              selected: isYesterday,
+            ));
+          }
+          break;
+      }
+    }
+
     return [
-      if (widget.wide)
-        const SizedBox(width: 24)
-      else
-        Opacity(
-          opacity: 0.6,
-          child: IconButton(
-            onPressed: widget.onCalendar,
-            icon: Transform.rotate(
-              angle: pi * 4 * widget.calendarAnimation.value,
-              child: Icon(
-                widget.calendarAnimation.value > 0.5
-                    ? Icons.view_day_rounded
-                    : Icons.calendar_month_rounded,
-                size: 20,
-              ),
-            ),
-            color: widget.textColor,
-          ),
-        ),
-      if (today.isWithinRange(widget.minimumDate, widget.maximumDate))
-        _textButton(
-          context,
-          widget.languages.today,
-          () => widget.onChangeDate(DateTime.now()),
-          selected: isToday,
-        ),
-      if (tomorrow.isWithinRange(widget.minimumDate, widget.maximumDate)) ...[
-        SizedBox(width: widget.wide ? 20 : 12),
-        _textButton(
-          context,
-          widget.languages.tomorrow,
-          () {
-            widget.onChangeDate(DateTime.now().addDayWithTime(1));
-          },
-          selected: isTomorrow,
-        ),
-      ],
+      _calendarButton(),
+      Wrap(
+        spacing: widget.wide ? 20 : 12,
+        children: buttons,
+      )
     ];
   }
 

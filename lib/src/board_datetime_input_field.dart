@@ -163,6 +163,7 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
     this.autofocus = false,
     this.readOnly = false,
     this.enabled,
+    this.onTopActionBuilder,
   });
 
   /// #### Date of initial selection state.
@@ -211,6 +212,9 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
   /// Controller for setting text externally
   /// Text in the feeler can be updated by calling the `setText` method
   final BoardDateTimeTextController? controller;
+
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   final double breakpoint;
 
@@ -1031,6 +1035,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           onCloseModal: onClosePicker,
           onKeyboadClose: onClosePicker,
           headerWidget: null,
+          onTopActionBuilder: widget.onTopActionBuilder,
         ),
       ),
     );
