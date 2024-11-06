@@ -119,6 +119,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
 
   /// Open Picker
   void open({DateTime? date, DateTimePickerType? pickerType}) {
+    if (widget.modal) return;
+
     final d = rangeDate(date ?? currentDate);
     final pt = pickerType ?? widget.pickerType;
 

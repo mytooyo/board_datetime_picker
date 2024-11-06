@@ -26,6 +26,23 @@ class BoardDateTimeController {
   void close() {
     _key.currentState?.close();
   }
+
+  /// Update the picker on the specified date
+  void changeDate(DateTime val) {
+    _key.currentState?.changeDate(val);
+  }
+
+  /// Update the picker on the specified time
+  void changeTime(DateTime val) {
+    _key.currentState?.changeTime(val);
+  }
+
+  /// Update the picker on the specified datetime
+  void changeDateTime(DateTime val) {
+    _key.currentState?.changeDateTime(val);
+  }
+
+  GlobalKey get boardKey => _key;
 }
 
 /// Controller for displaying, hiding, and updating the value of the picker
@@ -89,6 +106,7 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
     this.options,
     this.resizeBottom = true,
     this.headerWidget,
+    this.onTopActionBuilder,
   });
 
   /// #### [DateTimeBuilder] Builder
@@ -128,6 +146,9 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
 
   /// This widget should be displayed above the picker.
   final Widget? headerWidget;
+
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   @override
   State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();
@@ -178,6 +199,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
         options: widget.options ?? const BoardDateTimeOptions(),
         keyboardHeightNotifier: keyboardHeightNotifier,
         headerWidget: widget.headerWidget,
+        onTopActionBuilder: widget.onTopActionBuilder,
       );
     }
 
@@ -228,10 +250,14 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onKeyboadClose,
     super.onUpdateByClose,
     required super.headerWidget,
+    required this.onTopActionBuilder,
   });
 
   final void Function(DateTime)? onChange;
   final void Function(T)? onResult;
+
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   final DateTime? initialDate;
 
@@ -418,6 +444,8 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       withTextField: widget.withTextField,
       pickerFocusNode: widget.pickerFocusNode,
       topMargin: widget.options.topMargin,
+      onTopActionBuilder: widget.onTopActionBuilder,
+      actionButtonTypes: widget.options.actionButtonTypes,
     );
   }
 }

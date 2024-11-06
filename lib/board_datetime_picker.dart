@@ -13,6 +13,7 @@ export 'src/board_datetime_input_field.dart'
 export 'src/board_datetime_options.dart'
     show
         BoardDateTimeOptions,
+        BoardDateButtonType,
         BoardPickerLanguages,
         BoardPickerCustomOptions,
         PickerFormat,

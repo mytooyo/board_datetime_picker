@@ -95,6 +95,7 @@ Future<DateTime?> showBoardDateTimePickerForDateTime({
 /// so please check there for a description of the parameters.
 Future<DateTime?> showBoardDateTimePickerForDate({
   required BuildContext context,
+  BoardDateTimeController? controller,
   ValueNotifier<DateTime>? valueNotifier,
   void Function(BoardDateResult)? onResult,
   void Function(DateTime)? onChanged,
@@ -113,29 +114,31 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
+  Widget Function(BuildContext context)? onTopActionBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateResult>(
-    context: context,
-    valueNotifier: valueNotifier,
-    pickerType: DateTimePickerType.date,
-    onChanged: onChanged,
-    onResult: onResult,
-    initialDate: initialDate,
-    minimumDate: minimumDate,
-    maximumDate: maximumDate,
-    options: options,
-    headerWidget: headerWidget,
-    breakpoint: breakpoint,
-    radius: radius,
-    barrierColor: barrierColor,
-    routeSettings: routeSettings,
-    transitionAnimationController: transitionAnimationController,
-    useRootNavigator: useRootNavigator,
-    isDismissible: isDismissible,
-    enableDrag: enableDrag,
-    showDragHandle: showDragHandle,
-    useSafeArea: useSafeArea,
-  );
+      context: context,
+      controller: controller,
+      valueNotifier: valueNotifier,
+      pickerType: DateTimePickerType.date,
+      onChanged: onChanged,
+      onResult: onResult,
+      initialDate: initialDate,
+      minimumDate: minimumDate,
+      maximumDate: maximumDate,
+      options: options,
+      headerWidget: headerWidget,
+      breakpoint: breakpoint,
+      radius: radius,
+      barrierColor: barrierColor,
+      routeSettings: routeSettings,
+      transitionAnimationController: transitionAnimationController,
+      useRootNavigator: useRootNavigator,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+      showDragHandle: showDragHandle,
+      useSafeArea: useSafeArea,
+      onTopActionBuilder: onTopActionBuilder);
 }
 
 /// Show a Modal Picker for Time bottom sheet.
@@ -162,6 +165,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
 /// so please check there for a description of the parameters.
 Future<DateTime?> showBoardDateTimePickerForTime({
   required BuildContext context,
+  BoardDateTimeController? controller,
   ValueNotifier<DateTime>? valueNotifier,
   void Function(BoardTimeResult)? onResult,
   void Function(DateTime)? onChanged,
@@ -180,29 +184,31 @@ Future<DateTime?> showBoardDateTimePickerForTime({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
+  Widget Function(BuildContext context)? onTopActionBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardTimeResult>(
-    context: context,
-    valueNotifier: valueNotifier,
-    pickerType: DateTimePickerType.time,
-    onChanged: onChanged,
-    onResult: onResult,
-    initialDate: initialDate,
-    minimumDate: minimumDate,
-    maximumDate: maximumDate,
-    options: options,
-    headerWidget: headerWidget,
-    breakpoint: breakpoint,
-    radius: radius,
-    barrierColor: barrierColor,
-    routeSettings: routeSettings,
-    transitionAnimationController: transitionAnimationController,
-    useRootNavigator: useRootNavigator,
-    isDismissible: isDismissible,
-    enableDrag: enableDrag,
-    showDragHandle: showDragHandle,
-    useSafeArea: useSafeArea,
-  );
+      context: context,
+      controller: controller,
+      valueNotifier: valueNotifier,
+      pickerType: DateTimePickerType.time,
+      onChanged: onChanged,
+      onResult: onResult,
+      initialDate: initialDate,
+      minimumDate: minimumDate,
+      maximumDate: maximumDate,
+      options: options,
+      headerWidget: headerWidget,
+      breakpoint: breakpoint,
+      radius: radius,
+      barrierColor: barrierColor,
+      routeSettings: routeSettings,
+      transitionAnimationController: transitionAnimationController,
+      useRootNavigator: useRootNavigator,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+      showDragHandle: showDragHandle,
+      useSafeArea: useSafeArea,
+      onTopActionBuilder: onTopActionBuilder);
 }
 
 /// Show a BoardDateTimePicker modal bottom sheet.
@@ -232,6 +238,7 @@ Future<DateTime?> showBoardDateTimePickerForTime({
 /// so please check there for a description of the parameters.
 Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   required BuildContext context,
+  BoardDateTimeController? controller,
   required DateTimePickerType pickerType,
   ValueNotifier<DateTime>? valueNotifier,
   void Function(DateTime)? onChanged,
@@ -251,6 +258,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
+  Widget Function(BuildContext context)? onTopActionBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -280,6 +288,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
           bottom: MediaQuery.of(ctx).viewInsets.bottom,
         ),
         child: _SingleBoardDateTimeWidget(
+          controller: controller,
           breakpoint: breakpoint,
           pickerType: pickerType,
           initialDate: initialDate,
@@ -290,6 +299,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
           headerWidget: headerWidget,
           onChanged: onChanged,
           onResult: (val) => onResult?.call(val as T),
+          onTopActionBuilder: onTopActionBuilder,
         ),
       );
     },
@@ -298,6 +308,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
 
 class _SingleBoardDateTimeWidget extends StatefulWidget {
   const _SingleBoardDateTimeWidget({
+    this.controller,
     this.breakpoint = 800,
     this.initialDate,
     this.minimumDate,
@@ -308,8 +319,10 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
     this.onChanged,
     this.onResult,
     required this.headerWidget,
+    required this.onTopActionBuilder,
   });
 
+  final BoardDateTimeController? controller;
   final double breakpoint;
   final DateTime? initialDate;
   final DateTime? minimumDate;
@@ -320,6 +333,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
   final Widget? headerWidget;
   final void Function(DateTime)? onChanged;
   final void Function(BoardDateTimeCommonResult)? onResult;
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   @override
   State<_SingleBoardDateTimeWidget> createState() =>
@@ -339,6 +353,7 @@ class _SingleBoardDateTimeWidgetState
   @override
   Widget build(BuildContext context) {
     return SingleBoardDateTimeContent(
+      key: widget.controller?.boardKey,
       onChange: (val) {
         date = val;
         widget.valueNotifier?.value = val;
@@ -360,6 +375,7 @@ class _SingleBoardDateTimeWidgetState
         date = val;
         widget.valueNotifier?.value = val;
       },
+      onTopActionBuilder: widget.onTopActionBuilder,
     );
   }
 }

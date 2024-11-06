@@ -1,3 +1,7 @@
+## 2.1.5
+
+* Added the ability to customize the action area.
+
 ## 2.1.4
 
 * Fixed a bug onFocusChanged not called.

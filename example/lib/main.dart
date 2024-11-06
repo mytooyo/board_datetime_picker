@@ -203,6 +203,7 @@ class PickerItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = BoardDateTimeController();
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -227,6 +228,38 @@ class PickerItemWidget extends StatelessWidget {
             ),
             // Specify if you want changes in the picker to take effect immediately.
             valueNotifier: date,
+            controller: controller,
+            // onTopActionBuilder: (context) {
+            //   return Padding(
+            //     padding: const EdgeInsets.symmetric(horizontal: 16),
+            //     child: Wrap(
+            //       alignment: WrapAlignment.center,
+            //       spacing: 8,
+            //       children: [
+            //         IconButton(
+            //           onPressed: () {
+            //             controller.changeDateTime(
+            //                 date.value.add(const Duration(days: -1)));
+            //           },
+            //           icon: const Icon(Icons.arrow_back_rounded),
+            //         ),
+            //         IconButton(
+            //           onPressed: () {
+            //             controller.changeDateTime(DateTime.now());
+            //           },
+            //           icon: const Icon(Icons.stop_circle_rounded),
+            //         ),
+            //         IconButton(
+            //           onPressed: () {
+            //             controller.changeDateTime(
+            //                 date.value.add(const Duration(days: 1)));
+            //           },
+            //           icon: const Icon(Icons.arrow_forward_rounded),
+            //         ),
+            //       ],
+            //     ),
+            //   );
+            // },
           );
           if (result != null) {
             date.value = result;

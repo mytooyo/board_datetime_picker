@@ -21,6 +21,10 @@ class BoardDateTimeOptions {
     this.inputable = true,
     this.withSecond = false,
     this.topMargin = 20,
+    this.actionButtonTypes = const [
+      BoardDateButtonType.today,
+      BoardDateButtonType.tomorrow
+    ],
   });
 
   /// #### Picker Background Color
@@ -123,7 +127,15 @@ class BoardDateTimeOptions {
   /// Set the margins above the top menu bar (calendar button, etc.).
   /// Default is `20`
   final double topMargin;
+
+  /// List of buttons to select dates.
+  /// Set the enum you want to display with a choice of yesterday, today, or tomorrow.
+  /// The order in which the buttons are displayed must match the order of the list,
+  /// and if empty, they will not be displayed.
+  final List<BoardDateButtonType> actionButtonTypes;
 }
+
+enum BoardDateButtonType { yesterday, today, tomorrow }
 
 /// Optional settings for weekends
 class BoardPickerWeekendOptions {
@@ -151,6 +163,10 @@ class BoardPickerLanguages {
   /// Default is [TOMORROW].
   final String tomorrow;
 
+  /// Button text to move date to yesterday.
+  /// Default is [YESTERDAY].
+  final String yesterday;
+
   /// Button text to move date/time to current time
   /// Default is [NOW].
   final String now;
@@ -161,11 +177,13 @@ class BoardPickerLanguages {
 
   static const _enToday = 'TODAY';
   static const _enTomorrow = 'TOMORROW';
+  static const _enYesterday = 'YESTERDAY';
   static const _enNow = 'NOW';
 
   const BoardPickerLanguages({
     this.today = _enToday,
     this.tomorrow = _enTomorrow,
+    this.yesterday = _enYesterday,
     this.now = _enNow,
     this.locale = 'en',
   });
@@ -174,6 +192,7 @@ class BoardPickerLanguages {
   const BoardPickerLanguages.en()
       : today = _enToday,
         tomorrow = _enTomorrow,
+        yesterday = _enYesterday,
         now = _enNow,
         locale = 'en';
 
@@ -181,6 +200,7 @@ class BoardPickerLanguages {
   const BoardPickerLanguages.ja()
       : today = '今日',
         tomorrow = '明日',
+        yesterday = '昨日',
         now = '現在',
         locale = 'ja';
 
@@ -188,6 +208,7 @@ class BoardPickerLanguages {
   const BoardPickerLanguages.it()
       : today = 'oggi',
         tomorrow = 'domani',
+        yesterday = 'ieri',
         now = 'adesso',
         locale = 'it';
 }
