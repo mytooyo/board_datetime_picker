@@ -18,6 +18,8 @@ class SingleCalendarWidget extends CalendarWidget {
     required super.maximumDate,
     required super.startDayOfWeek,
     required super.weekend,
+    required super.calendarSelectionBuilder,
+    required super.calendarSelectionRadius,
   });
 
   final ValueNotifier<DateTime> dateState;
@@ -79,6 +81,8 @@ abstract class CalendarWidget extends StatefulWidget {
     required this.maximumDate,
     required this.startDayOfWeek,
     required this.weekend,
+    required this.calendarSelectionBuilder,
+    required this.calendarSelectionRadius,
   });
 
   final bool wide;
@@ -92,6 +96,8 @@ abstract class CalendarWidget extends StatefulWidget {
   final DateTime maximumDate;
   final int startDayOfWeek;
   final BoardPickerWeekendOptions weekend;
+  final CalendarSelectionBuilder? calendarSelectionBuilder;
+  final double? calendarSelectionRadius;
 }
 
 abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
@@ -384,7 +390,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
   CalendarSelectedProps getProps(DateTime date) {
     return CalendarSelectedProps(
       margin: const EdgeInsets.all(4),
-      borderRadius: BorderRadius.circular(50),
+      borderRadius: BorderRadius.circular(widget.calendarSelectionRadius ?? 50),
     );
   }
 
@@ -394,6 +400,23 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
     final selected = isSelected(z);
 
     final props = getProps(z);
+
+    final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: selected
+              ? widget.activeTextColor
+              : textColor(z.weekday, disabled),
+        );
+    Widget child = Text('$i', style: textStyle);
+    if (selected) {
+      final built = widget.calendarSelectionBuilder?.call(
+        context,
+        '$i',
+        textStyle,
+      );
+      if (built != null) {
+        child = built;
+      }
+    }
 
     return Material(
       color: Colors.transparent,
@@ -412,14 +435,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
               color: selected ? widget.activeColor : Colors.transparent,
             ),
             child: Center(
-              child: Text(
-                '$i',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: selected
-                          ? widget.activeTextColor
-                          : textColor(z.weekday, disabled),
-                    ),
-              ),
+              child: child,
             ),
           ),
         ),

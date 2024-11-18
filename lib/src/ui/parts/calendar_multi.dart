@@ -21,6 +21,8 @@ class MultipleCalendarWidget extends CalendarWidget {
     required super.startDayOfWeek,
     required super.weekend,
     required this.onChangeDateType,
+    required super.calendarSelectionBuilder,
+    required super.calendarSelectionRadius,
   });
 
   final ValueNotifier<DateTime> startDate;
@@ -137,7 +139,7 @@ class _MultipleCalendarWidgetState
     final result = date.isWithinRangeAndEqualsDate(first, last);
 
     const double space = 4;
-    const double radius = 50;
+    double radius = widget.calendarSelectionRadius ?? 50;
 
     if (result) {
       if (first.compareDate(last)) {
@@ -149,7 +151,7 @@ class _MultipleCalendarWidgetState
       if (date.compareDate(first)) {
         return CalendarSelectedProps(
           margin: const EdgeInsets.only(left: space, top: space, bottom: space),
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(radius),
             bottomLeft: Radius.circular(radius),
           ),
@@ -158,7 +160,7 @@ class _MultipleCalendarWidgetState
         return CalendarSelectedProps(
           margin:
               const EdgeInsets.only(right: space, top: space, bottom: space),
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topRight: Radius.circular(radius),
             bottomRight: Radius.circular(radius),
           ),

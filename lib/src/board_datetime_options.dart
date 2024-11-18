@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+typedef CalendarSelectionBuilder = Widget Function(
+    BuildContext context, String day, TextStyle? textStyle);
+
 /// Class for defining options related to the UI used by [BoardDateTimeBuilder]
 class BoardDateTimeOptions {
   const BoardDateTimeOptions({
@@ -21,10 +24,12 @@ class BoardDateTimeOptions {
     this.inputable = true,
     this.withSecond = false,
     this.topMargin = 20,
+    this.calendarSelectionRadius,
     this.actionButtonTypes = const [
       BoardDateButtonType.today,
       BoardDateButtonType.tomorrow
     ],
+    this.calendarSelectionBuilder,
   });
 
   /// #### Picker Background Color
@@ -133,6 +138,35 @@ class BoardDateTimeOptions {
   /// The order in which the buttons are displayed must match the order of the list,
   /// and if empty, they will not be displayed.
   final List<BoardDateButtonType> actionButtonTypes;
+
+  /// Callback to build a Widget that displays the selected item in the calendar.
+  /// The date and text style to be displayed as parameters.
+  ///
+  /// ### example
+  /// ```dart
+  /// calendarSelectionBuilder: (context, day, textStyle) {
+  ///   return Column(
+  ///     mainAxisSize: MainAxisSize.min,
+  ///     children: [
+  ///       Text(day, style: textStyle),
+  ///       Padding(
+  ///         padding: EdgeInsets.only(top: 2),
+  ///         child: Text(
+  ///           'selected',
+  ///           style: textStyle?.copyWith(
+  ///             fontSize: 10,
+  ///           ),
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// },
+  /// ```
+  final CalendarSelectionBuilder? calendarSelectionBuilder;
+
+  /// Background radius for the date selected in the calendar.
+  /// If not specified, display as a circle
+  final double? calendarSelectionRadius;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }

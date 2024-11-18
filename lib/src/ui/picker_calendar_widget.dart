@@ -96,6 +96,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
           startDayOfWeek: args.options.startDayOfWeek,
           weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
           onChangeDateType: args.onChangeDateType!,
+          calendarSelectionBuilder: args.options.calendarSelectionBuilder,
+          calendarSelectionRadius: args.options.calendarSelectionRadius,
         ),
       );
     }
@@ -119,6 +121,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         maximumDate: args.maximumDate ?? DateTimeUtil.defaultMaxDate,
         startDayOfWeek: args.options.startDayOfWeek,
         weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
+        calendarSelectionBuilder: args.options.calendarSelectionBuilder,
+        calendarSelectionRadius: args.options.calendarSelectionRadius,
       ),
     );
   }

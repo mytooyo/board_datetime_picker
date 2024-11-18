@@ -1,3 +1,7 @@
+## 2.1.6
+
+* Added feature to customize selected items in the calendar.
+
 ## 2.1.5
 
 * Added the ability to customize the action area.
