@@ -35,6 +35,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.topMargin,
     required this.onTopActionBuilder,
     required this.actionButtonTypes,
+    required this.customCloseButtonBuilder,
   });
 
   /// Wide mode display flag
@@ -110,6 +111,13 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// List of buttons to select dates.
   final List<BoardDateButtonType> actionButtonTypes;
+
+  /// Custom Close Button
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -197,24 +205,29 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           //     ),
           //   ),
           // ),
-          widget.modal
-              ? IconButton(
-                  onPressed: () {
-                    widget.onClose();
-                  },
-                  icon: const Icon(Icons.check_circle_rounded),
-                  color: widget.activeColor,
-                )
-              : Opacity(
-                  opacity: 0.6,
-                  child: IconButton(
+          if (widget.customCloseButtonBuilder != null) ...[
+            widget.customCloseButtonBuilder!(
+                context, widget.modal, widget.onClose),
+          ] else ...[
+            widget.modal
+                ? IconButton(
                     onPressed: () {
                       widget.onClose();
                     },
-                    icon: const Icon(Icons.close_rounded),
-                    color: widget.textColor,
+                    icon: const Icon(Icons.check_circle_rounded),
+                    color: widget.activeColor,
+                  )
+                : Opacity(
+                    opacity: 0.6,
+                    child: IconButton(
+                      onPressed: () {
+                        widget.onClose();
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                      color: widget.textColor,
+                    ),
                   ),
-                ),
+          ]
         ],
       ),
     );
@@ -365,6 +378,7 @@ class BoardDateTimeNoneButtonHeader extends StatefulWidget {
     required this.onClose,
     required this.modal,
     required this.pickerFocusNode,
+    this.customCloseButtonBuilder,
   });
 
   final BoardDateTimeOptions options;
@@ -398,6 +412,13 @@ class BoardDateTimeNoneButtonHeader extends StatefulWidget {
 
   /// Picker FocusNode
   final FocusNode? pickerFocusNode;
+
+  // Custom Close Button
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeNoneButtonHeader> createState() =>
@@ -490,21 +511,26 @@ class _BoardDateTimeNoneButtonHeaderState
     //   );
     // }
 
-    Widget child = widget.modal
-        ? CustomIconButton(
-            icon: Icons.check_circle_rounded,
-            bgColor: widget.options.getActiveColor(context),
-            fgColor: widget.options.getActiveTextColor(context),
-            onTap: widget.onClose,
-            buttonSize: buttonSize,
-          )
-        : CustomIconButton(
-            icon: Icons.close_rounded,
-            bgColor: widget.options.getForegroundColor(context),
-            fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
-            onTap: widget.onClose,
-            buttonSize: buttonSize,
-          );
+    Widget child = widget.customCloseButtonBuilder?.call(
+          context,
+          widget.modal,
+          widget.onClose,
+        ) ??
+        (widget.modal
+            ? CustomIconButton(
+                icon: Icons.check_circle_rounded,
+                bgColor: widget.options.getActiveColor(context),
+                fgColor: widget.options.getActiveTextColor(context),
+                onTap: widget.onClose,
+                buttonSize: buttonSize,
+              )
+            : CustomIconButton(
+                icon: Icons.close_rounded,
+                bgColor: widget.options.getForegroundColor(context),
+                fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+                onTap: widget.onClose,
+                buttonSize: buttonSize,
+              ));
 
     return [
       // if (closeKeyboard != null) ...[

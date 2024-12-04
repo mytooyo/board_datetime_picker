@@ -107,6 +107,7 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
     this.resizeBottom = true,
     this.headerWidget,
     this.onTopActionBuilder,
+    this.customCloseButtonBuilder,
   });
 
   /// #### [DateTimeBuilder] Builder
@@ -149,6 +150,12 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
 
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();
@@ -251,6 +258,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onUpdateByClose,
     required super.headerWidget,
     required this.onTopActionBuilder,
+    super.customCloseButtonBuilder,
   });
 
   final void Function(DateTime)? onChange;
@@ -446,6 +454,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       topMargin: widget.options.topMargin,
       onTopActionBuilder: widget.onTopActionBuilder,
       actionButtonTypes: widget.options.actionButtonTypes,
+      customCloseButtonBuilder: widget.customCloseButtonBuilder,
     );
   }
 }

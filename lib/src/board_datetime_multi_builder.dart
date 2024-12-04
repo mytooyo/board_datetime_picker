@@ -30,6 +30,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onChange,
     this.onResult,
     required super.headerWidget,
+    super.customCloseButtonBuilder,
   });
 
   final DateTime startDate;

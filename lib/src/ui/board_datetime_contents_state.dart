@@ -28,6 +28,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onKeyboadClose,
     this.onUpdateByClose,
     required this.headerWidget,
+    required this.customCloseButtonBuilder,
   });
 
   final double breakpoint;
@@ -59,6 +60,12 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   /// To be displayed at the top of the picker
   final Widget? headerWidget;
+
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
