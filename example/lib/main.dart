@@ -112,6 +112,23 @@ class _MySampleAppState extends State<MySampleApp> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Picker (Custom close button)',
+                    items: [
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                        customCloseButtonBuilder: (context, isModal, onClose) {
+                          return TextButton.icon(
+                            onPressed: onClose,
+                            icon: const Icon(Icons.check_circle_outline),
+                            iconAlignment: IconAlignment.end,
+                            label: const Text('Close'),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -195,9 +212,16 @@ class PickerItemWidget extends StatelessWidget {
   PickerItemWidget({
     super.key,
     required this.pickerType,
+    this.customCloseButtonBuilder,
   });
 
   final DateTimePickerType pickerType;
+
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 
   final ValueNotifier<DateTime> date = ValueNotifier(DateTime.now());
 
@@ -229,6 +253,7 @@ class PickerItemWidget extends StatelessWidget {
             // Specify if you want changes in the picker to take effect immediately.
             valueNotifier: date,
             controller: controller,
+            customCloseButtonBuilder: customCloseButtonBuilder,
             // onTopActionBuilder: (context) {
             //   return Padding(
             //     padding: const EdgeInsets.symmetric(horizontal: 16),
