@@ -1,3 +1,7 @@
+## 2.2.0
+
+* Deprecation fixes in Flutter 3.27
+
 ## 2.1.6
 
 * Added feature to customize selected items in the calendar.

@@ -183,7 +183,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.foregroundColor.withOpacity(0.99),
+        color: widget.foregroundColor.withValues(alpha: 0.99),
       ),
       child: Row(
         children: [
@@ -310,7 +310,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
     return Material(
       color: selected
           ? widget.activeColor
-          : widget.backgroundColor.withOpacity(0.8),
+          : widget.backgroundColor.withValues(alpha: 0.8),
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
@@ -333,7 +333,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: selected
                             ? widget.activeTextColor
-                            : widget.textColor?.withOpacity(0.9),
+                            : widget.textColor?.withValues(alpha: 0.9),
                       ),
                 ),
               );

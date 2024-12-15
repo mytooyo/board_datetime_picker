@@ -446,7 +446,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
   /// Text Color
   Color? textColor(int weekday, bool disabled) {
     if (disabled) {
-      return widget.textColor?.withOpacity(0.4);
+      return widget.textColor?.withValues(alpha: 0.4);
     } else if (weekday == 7 || weekday == 0) {
       return widget.weekend.sundayColor;
     } else if (weekday == 6) {

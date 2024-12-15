@@ -529,8 +529,9 @@ class InputFieldWidget extends StatelessWidget {
               },
               onResult: (p0) {},
               decoration: InputDecoration(
-                fillColor:
-                    Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+                fillColor: Theme.of(context)
+                    .scaffoldBackgroundColor
+                    .withValues(alpha: 0.6),
                 filled: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),

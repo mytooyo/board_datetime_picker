@@ -83,7 +83,7 @@ class ItemWidgetState extends State<ItemWidget>
     );
     correctColor = ColorTween(
       begin: widget.foregroundColor,
-      end: Colors.redAccent.withOpacity(0.8),
+      end: Colors.redAccent.withValues(alpha: 0.8),
     ).animate(correctAnimationController);
 
     correctAnimationController.addStatusListener((status) {
@@ -186,7 +186,7 @@ class ItemWidgetState extends State<ItemWidget>
               child: Text(
                 widget.subTitle!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: widget.textColor?.withOpacity(0.5),
+                      color: widget.textColor?.withValues(alpha: 0.5),
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -411,13 +411,13 @@ class ItemWidgetState extends State<ItemWidget>
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
         fontSize: 17,
-        color: widget.textColor?.withOpacity(isTextEditing ? 0.0 : 1.0),
+        color: widget.textColor?.withValues(alpha: isTextEditing ? 0.0 : 1.0),
       );
     } else {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
         fontSize: 14,
-        color: widget.textColor?.withOpacity(0.4),
+        color: widget.textColor?.withValues(alpha: 0.4),
       );
     }
 

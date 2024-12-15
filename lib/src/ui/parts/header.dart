@@ -166,7 +166,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.foregroundColor.withOpacity(0.99),
+        color: widget.foregroundColor.withValues(alpha: 0.99),
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
@@ -327,7 +327,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     return Material(
       color: selected
           ? widget.activeColor
-          : widget.backgroundColor.withOpacity(0.8),
+          : widget.backgroundColor.withValues(alpha: 0.8),
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
@@ -341,7 +341,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: selected
                         ? widget.activeTextColor
-                        : widget.textColor?.withOpacity(0.9),
+                        : widget.textColor?.withValues(alpha: 0.9),
                   ),
             ),
           ),
@@ -419,7 +419,8 @@ class _BoardDateTimeNoneButtonHeaderState
             CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),
-              fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+              fgColor:
+                  widget.options.getTextColor(context)?.withValues(alpha: 0.8),
               onTap: widget.onCalendar,
               buttonSize: buttonSize,
               child: Transform.rotate(
@@ -501,7 +502,8 @@ class _BoardDateTimeNoneButtonHeaderState
         : CustomIconButton(
             icon: Icons.close_rounded,
             bgColor: widget.options.getForegroundColor(context),
-            fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+            fgColor:
+                widget.options.getTextColor(context)?.withValues(alpha: 0.8),
             onTap: widget.onClose,
             buttonSize: buttonSize,
           );
