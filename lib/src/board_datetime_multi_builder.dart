@@ -7,12 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'ui/parts/header_multi.dart';
-import 'utils/board_enum.dart';
+
+class BoardMultiDateTimeController extends BoardDateTimeController {
+  // ignore: library_private_types_in_public_api
+  final GlobalKey<_MultiBoardDateTimeContentState> _key = GlobalKey();
+
+  @override
+  GlobalKey get boardKey => _key;
+
+  void changeValue(DateTime date, MultiCurrentDateType dateType) {
+    _key.currentState?.changeMultiDate(date, dateType);
+  }
+}
 
 class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     extends BoardDateTimeContent<T> {
   const MultiBoardDateTimeContent({
     super.key,
+    this.controller,
     required super.pickerType,
     required this.startDate,
     required this.endDate,
@@ -30,8 +42,10 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onChange,
     this.onResult,
     required super.headerWidget,
+    required super.onTopActionBuilder,
   });
 
+  final BoardMultiDateTimeController? controller;
   final DateTime startDate;
   final DateTime endDate;
 
@@ -105,16 +119,24 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
   @override
   void setNewValue(DateTime val, {bool byPicker = false}) {
-    if (currentDateType.value == MultiCurrentDateType.start) {
+    changeMultiDate(val, currentDateType.value, byPicker: byPicker);
+  }
+
+  @override
+  void onChanged(DateTime date, T result) {}
+
+  void changeMultiDate(
+    DateTime val,
+    MultiCurrentDateType type, {
+    bool byPicker = false,
+  }) {
+    if (type == MultiCurrentDateType.start) {
       startDate.value = val;
     } else {
       endDate.value = val;
     }
     _setFocusNode(byPicker);
   }
-
-  @override
-  void onChanged(DateTime date, T result) {}
 
   /// Notification of change to caller.
   void notify() {
@@ -272,6 +294,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       currentDateType: currentDateType,
       onChangeDateType: onChangeDateType,
       topMargin: widget.options.topMargin,
+      onTopActionBuilder: widget.onTopActionBuilder,
     );
   }
 }

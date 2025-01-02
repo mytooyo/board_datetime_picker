@@ -188,7 +188,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
 
     Widget child() {
       return SingleBoardDateTimeContent<T>(
-        key: widget.controller._key,
+        key: widget.controller.boardKey,
         onChange: widget.onChange,
         onResult: widget.onResult,
         pickerType: widget.pickerType,
@@ -250,14 +250,11 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onKeyboadClose,
     super.onUpdateByClose,
     required super.headerWidget,
-    required this.onTopActionBuilder,
+    required super.onTopActionBuilder,
   });
 
   final void Function(DateTime)? onChange;
   final void Function(T)? onResult;
-
-  /// Specify a Widget to be displayed in the action button area externally
-  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   final DateTime? initialDate;
 

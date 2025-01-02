@@ -10,6 +10,8 @@ export 'src/board_datetime_input_field.dart'
         BoardDateTimeInputFieldValidators,
         BoardDateTimeFieldPickerType,
         BoardDateTimeTextController;
+export 'src/board_datetime_multi_builder.dart'
+    show BoardMultiDateTimeController;
 export 'src/board_datetime_options.dart'
     show
         BoardDateTimeOptions,
@@ -28,7 +30,8 @@ export 'src/board_datetime_widget.dart'
         showBoardDateTimeMultiPicker;
 export 'src/ui/parts/focus_node.dart' show BoardDateTimeInputFocusNode;
 export 'src/utils/board_datetime_result.dart';
-export 'src/utils/board_enum.dart' show DateTimePickerType;
+export 'src/utils/board_enum.dart'
+    show DateTimePickerType, MultiCurrentDateType;
 
 class BoardDateFormat {
   BoardDateFormat(this.f);

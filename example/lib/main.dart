@@ -360,6 +360,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             //         ),
             //   ),
             // ),
+            onTopActionBuilder: (context) {
+              return const SizedBox();
+            },
           );
           if (result != null) {
             start.value = result.start;
