@@ -1,4 +1,5 @@
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
+import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -350,12 +351,19 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
     // Inactive if less than the specified minimum date on the first page
     // or greater than the specified maximum date on the last page
     List<int> diabledList = [];
+    // minimum date
     if (date.year == minimumDate.year && date.month == minimumDate.month) {
       diabledList.addAll(
         [for (var i = 1; i < minimumDate.day; i++) i],
       );
-    } else if (date.year == maximumDate.year &&
-        date.month == maximumDate.month) {
+    } else if (date.isMinimum(minimumDate, DateType.month)) {
+      diabledList.addAll(
+        [for (var i = 1; i <= y.day; i++) i],
+      );
+    }
+
+    // max date
+    if (date.year == maximumDate.year && date.month == maximumDate.month) {
       diabledList.addAll(
         [for (var i = maximumDate.day + 1; i <= y.day; i++) i],
       );
