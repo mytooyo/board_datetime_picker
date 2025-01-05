@@ -282,9 +282,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     super.dispose();
   }
 
-  @override
-  void setNewValue(DateTime val, {bool byPicker = false}) {
-    dateState.value = val;
+  void _setFocusNode(bool byPicker) {
     if (byPicker && widget.pickerFocusNode != null) {
       final fn = widget.pickerFocusNode!;
       if (!fn.hasFocus &&
@@ -292,6 +290,12 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         fn.requestFocus();
       }
     }
+  }
+
+  @override
+  void setNewValue(DateTime val, {bool byPicker = false}) {
+    dateState.value = val;
+    _setFocusNode(byPicker);
   }
 
   @override
@@ -319,6 +323,18 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       BoardDateTimeCommonResult.init(pickerType, dateState.value) as T,
     );
     changedDate = true;
+  }
+
+  /// Reset date.
+  /// During this process, re-register the Listener to avoid sending unnecessary notifications.
+  void reset() {
+    dateState.removeListener(notify);
+    dateState.value = defaultDate ?? DateTime.now();
+    changeDateTime(dateState.value);
+    dateState.addListener(notify);
+
+    notify();
+    _setFocusNode(false);
   }
 
   @override
@@ -443,6 +459,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       topMargin: widget.options.topMargin,
       onTopActionBuilder: widget.onTopActionBuilder,
       actionButtonTypes: widget.options.actionButtonTypes,
+      onReset: widget.options.useResetButton ? reset : null,
     );
   }
 }

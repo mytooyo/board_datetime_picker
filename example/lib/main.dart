@@ -325,6 +325,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
     DateTime.now().add(const Duration(days: 7)),
   );
 
+  final BoardMultiDateTimeController controller =
+      BoardMultiDateTimeController();
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -333,6 +336,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
         onTap: () async {
           final result = await showBoardDateTimeMultiPicker(
             context: context,
+            controller: controller,
             pickerType: pickerType,
             // minimumDate: DateTime.now().add(const Duration(days: 1)),
             startDate: start.value,
@@ -360,9 +364,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             //         ),
             //   ),
             // ),
-            onTopActionBuilder: (context) {
-              return const SizedBox();
-            },
+            // onTopActionBuilder: (context) {
+            //   return const SizedBox();
+            // },
           );
           if (result != null) {
             start.value = result.start;

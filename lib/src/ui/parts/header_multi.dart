@@ -34,6 +34,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.pickerFormat,
     required this.topMargin,
     required this.onTopActionBuilder,
+    required this.onReset,
   });
 
   /// Wide mode display flag
@@ -113,6 +114,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
 
+  /// reset button callback (if use reset)
+  final void Function()? onReset;
+
   @override
   State<BoardDateTimeMultiHeader> createState() =>
       _BoardDateTimeMultiHeaderState();
@@ -163,6 +167,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
 
   @override
   Widget build(BuildContext context) {
+    final onReset = widget.onReset;
     final topActionWidget = widget.onTopActionBuilder?.call(context);
 
     final rightIcon = widget.modal
@@ -193,11 +198,16 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       ),
       child: Row(
         children: [
-          if (widget.pickerType != DateTimePickerType.time) _calendarButton(),
+          if (widget.pickerType != DateTimePickerType.time)
+            _calendarButton()
+          else
+            const SizedBox(width: 8),
           if (topActionWidget == null) ...[
             Expanded(
               child: Align(
-                alignment: Alignment.center,
+                alignment: onReset != null && !widget.wide
+                    ? Alignment.centerLeft
+                    : Alignment.center,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: AnimatedBuilder(
@@ -248,6 +258,21 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
           ] else ...[
             Expanded(child: topActionWidget),
           ],
+          if (onReset != null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: () {
+                    widget.onReset?.call();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+              onTap: () {},
+            ),
           GestureDetector(
             child: Container(
               width: 40,
@@ -273,7 +298,11 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
 
   Widget _calendarButton() {
     if (widget.wide) {
-      return const SizedBox(width: 24);
+      if (widget.onReset == null) {
+        return const SizedBox(width: 40);
+      } else {
+        return const SizedBox(width: 80);
+      }
     } else {
       return Opacity(
         opacity: 0.6,

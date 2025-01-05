@@ -446,7 +446,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
     setNewValue(newVal);
   }
 
-  void changeDateTime(DateTime val) {
+  void changeDateTime(DateTime val, {bool needNotify = true}) {
     DateTime newVal = DateTimeUtil.rangeDate(
       val,
       minimumDate,
@@ -468,6 +468,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       }
     }
-    setNewValue(newVal);
+    if (needNotify) {
+      setNewValue(newVal);
+    }
   }
 }

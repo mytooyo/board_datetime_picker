@@ -35,6 +35,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.topMargin,
     required this.onTopActionBuilder,
     required this.actionButtonTypes,
+    required this.onReset,
   });
 
   /// Wide mode display flag
@@ -111,6 +112,9 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// List of buttons to select dates.
   final List<BoardDateButtonType> actionButtonTypes;
 
+  /// reset button callback (if use reset)
+  final void Function()? onReset;
+
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
 }
@@ -159,6 +163,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final onReset = widget.onReset;
     final topActionWidget = widget.onTopActionBuilder?.call(context);
 
     final child = Container(
@@ -197,6 +202,21 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           //     ),
           //   ),
           // ),
+          if (onReset != null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: () {
+                    widget.onReset?.call();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+              onTap: () {},
+            ),
           widget.modal
               ? IconButton(
                   onPressed: () {

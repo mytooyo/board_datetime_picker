@@ -153,6 +153,27 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     changedDate = true;
   }
 
+  /// Reset the start and end dates.
+  /// During this process, re-register the Listener to avoid sending unnecessary notifications.
+  void reset() {
+    startDate.removeListener(notify);
+    endDate.removeListener(notify);
+
+    startDate.value = widget.startDate;
+    endDate.value = widget.endDate;
+    changeDateTime(
+      currentDateType.value == MultiCurrentDateType.start
+          ? startDate.value
+          : endDate.value,
+    );
+
+    startDate.addListener(notify);
+    endDate.addListener(notify);
+
+    notify();
+    _setFocusNode(false);
+  }
+
   /// Set initial value at close
   @override
   void notifyInitialValue() {
@@ -295,6 +316,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onChangeDateType: onChangeDateType,
       topMargin: widget.options.topMargin,
       onTopActionBuilder: widget.onTopActionBuilder,
+      onReset: widget.options.useResetButton ? reset : null,
     );
   }
 }
