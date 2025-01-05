@@ -355,7 +355,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       // If the focus is out of focus, but the focus has moved to another InputField
       // never tapped on the textfield, but text selected or modified
       final pf = FocusManager.instance.primaryFocus;
+      final focusList = pf?.children ?? [];
+      final existsBdtFocusNode =
+          focusList.any((x) => x is BoardDateTimeInputFocusNode);
       if (pf is BoardDateTimeInputFocusNode || !scopeListenerRegistered) {
+        closePicker();
+        onFinished();
+      } else if (!existsBdtFocusNode) {
         closePicker();
         onFinished();
       }

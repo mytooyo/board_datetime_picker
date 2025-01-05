@@ -28,6 +28,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onKeyboadClose,
     this.onUpdateByClose,
     required this.headerWidget,
+    required this.onTopActionBuilder,
   });
 
   final double breakpoint;
@@ -59,6 +60,9 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   /// To be displayed at the top of the picker
   final Widget? headerWidget;
+
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
@@ -442,7 +446,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
     setNewValue(newVal);
   }
 
-  void changeDateTime(DateTime val) {
+  void changeDateTime(DateTime val, {bool needNotify = true}) {
     DateTime newVal = DateTimeUtil.rangeDate(
       val,
       minimumDate,
@@ -464,6 +468,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
         x.changeDate(newVal);
       }
     }
-    setNewValue(newVal);
+    if (needNotify) {
+      setNewValue(newVal);
+    }
   }
 }

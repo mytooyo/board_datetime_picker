@@ -402,6 +402,7 @@ class _SingleBoardDateTimeWidgetState
 Future<BoardDateTimeMultiSelection?>
     showBoardDateTimeMultiPicker<T extends BoardDateTimeCommonResult>({
   required BuildContext context,
+  BoardMultiDateTimeController? controller,
   required DateTimePickerType pickerType,
   // ValueNotifier<DateTime>? valueNotifier,
   void Function(BoardDateTimeMultiSelection)? onChanged,
@@ -422,6 +423,7 @@ Future<BoardDateTimeMultiSelection?>
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
+  Widget Function(BuildContext context)? onTopActionBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -451,6 +453,7 @@ Future<BoardDateTimeMultiSelection?>
           bottom: MediaQuery.of(ctx).viewInsets.bottom,
         ),
         child: _MultiBoardDateTimeWidget(
+          controller: controller,
           breakpoint: breakpoint,
           pickerType: pickerType,
           startDate: startDate,
@@ -462,6 +465,7 @@ Future<BoardDateTimeMultiSelection?>
           // valueNotifier: valueNotifier,
           onChanged: onChanged,
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
+          onTopActionBuilder: onTopActionBuilder,
         ),
       );
     },
@@ -470,6 +474,7 @@ Future<BoardDateTimeMultiSelection?>
 
 class _MultiBoardDateTimeWidget extends StatefulWidget {
   const _MultiBoardDateTimeWidget({
+    this.controller,
     this.breakpoint = 800,
     this.startDate,
     this.endDate,
@@ -481,8 +486,10 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
     this.onChanged,
     this.onResult,
     this.headerWidget,
+    this.onTopActionBuilder,
   });
 
+  final BoardMultiDateTimeController? controller;
   final double breakpoint;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -495,6 +502,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
   final void Function(BoardDateTimeMultiSelection)? onChanged;
   final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
       onResult;
+  final Widget Function(BuildContext context)? onTopActionBuilder;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
@@ -516,6 +524,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
   @override
   Widget build(BuildContext context) {
     return MultiBoardDateTimeContent(
+      key: widget.controller?.boardKey,
       onChange: (start, end) {
         selection = BoardDateTimeMultiSelection(start: start, end: end);
         // widget.valueNotifier?.value = val;
@@ -540,6 +549,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
           end: val2 ?? selection.end,
         );
       },
+      onTopActionBuilder: widget.onTopActionBuilder,
     );
   }
 }

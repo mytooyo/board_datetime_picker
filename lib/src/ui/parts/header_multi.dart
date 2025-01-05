@@ -33,6 +33,8 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.onChangeDateType,
     required this.pickerFormat,
     required this.topMargin,
+    required this.onTopActionBuilder,
+    required this.onReset,
   });
 
   /// Wide mode display flag
@@ -109,6 +111,12 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// Header Top margin
   final double topMargin;
 
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// reset button callback (if use reset)
+  final void Function()? onReset;
+
   @override
   State<BoardDateTimeMultiHeader> createState() =>
       _BoardDateTimeMultiHeaderState();
@@ -159,6 +167,9 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
 
   @override
   Widget build(BuildContext context) {
+    final onReset = widget.onReset;
+    final topActionWidget = widget.onTopActionBuilder?.call(context);
+
     final rightIcon = widget.modal
         ? IconButton(
             onPressed: () {
@@ -187,73 +198,81 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       ),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            alignment: Alignment.center,
-            child: widget.pickerType != DateTimePickerType.time && !widget.wide
-                ? Opacity(
-                    opacity: 0.6,
-                    child: IconButton(
-                      onPressed: widget.onCalendar,
-                      icon: Transform.rotate(
-                        angle: pi * 4 * widget.calendarAnimation.value,
-                        child: Icon(
-                          widget.calendarAnimation.value > 0.5
-                              ? Icons.view_day_rounded
-                              : Icons.calendar_month_rounded,
-                          size: 20,
-                        ),
-                      ),
-                      color: widget.textColor,
-                    ),
-                  )
-                : const SizedBox(),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.center,
-              child: AnimatedBuilder(
-                animation: animationController,
-                builder: (context, child) {
-                  return ValueListenableBuilder(
-                    valueListenable: widget.currentDateType,
-                    builder: (context, value, child) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: dateItemWidth * startScaleAnimation.value,
-                            height: 32 * startScaleAnimation.value,
-                            child: _datetimeItem(
-                              widget.startDate,
-                              MultiCurrentDateType.start,
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            height: 2,
-                            width: 12,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1),
-                              color: widget.backgroundColor,
-                            ),
-                          ),
-                          SizedBox(
-                            width: dateItemWidth * endScaleAnimation.value,
-                            height: 32 * endScaleAnimation.value,
-                            child: _datetimeItem(
-                              widget.endDate,
-                              MultiCurrentDateType.end,
-                            ),
-                          ),
-                        ],
+          if (widget.pickerType != DateTimePickerType.time)
+            _calendarButton()
+          else
+            const SizedBox(width: 8),
+          if (topActionWidget == null) ...[
+            Expanded(
+              child: Align(
+                alignment: onReset != null && !widget.wide
+                    ? Alignment.centerLeft
+                    : Alignment.center,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: AnimatedBuilder(
+                    animation: animationController,
+                    builder: (context, child) {
+                      return ValueListenableBuilder(
+                        valueListenable: widget.currentDateType,
+                        builder: (context, value, child) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width:
+                                    dateItemWidth * startScaleAnimation.value,
+                                height: 32 * startScaleAnimation.value,
+                                child: _datetimeItem(
+                                  widget.startDate,
+                                  MultiCurrentDateType.start,
+                                ),
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                height: 2,
+                                width: 12,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(1),
+                                  color: widget.backgroundColor,
+                                ),
+                              ),
+                              SizedBox(
+                                width: dateItemWidth * endScaleAnimation.value,
+                                height: 32 * endScaleAnimation.value,
+                                child: _datetimeItem(
+                                  widget.endDate,
+                                  MultiCurrentDateType.end,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          ),
+          ] else ...[
+            Expanded(child: topActionWidget),
+          ],
+          if (onReset != null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: () {
+                    widget.onReset?.call();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+              onTap: () {},
+            ),
           GestureDetector(
             child: Container(
               width: 40,
@@ -275,6 +294,33 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       );
     }
     return child;
+  }
+
+  Widget _calendarButton() {
+    if (widget.wide) {
+      if (widget.onReset == null) {
+        return const SizedBox(width: 40);
+      } else {
+        return const SizedBox(width: 80);
+      }
+    } else {
+      return Opacity(
+        opacity: 0.6,
+        child: IconButton(
+          onPressed: widget.onCalendar,
+          icon: Transform.rotate(
+            angle: pi * 4 * widget.calendarAnimation.value,
+            child: Icon(
+              widget.calendarAnimation.value > 0.5
+                  ? Icons.view_day_rounded
+                  : Icons.calendar_month_rounded,
+              size: 20,
+            ),
+          ),
+          color: widget.textColor,
+        ),
+      );
+    }
   }
 
   Widget _datetimeItem(

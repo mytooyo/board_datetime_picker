@@ -1,3 +1,8 @@
+## 2.2.1
+
+* Added feature to reset button.
+* Fixed bugs.
+
 ## 2.2.0
 
 * Deprecation fixes in Flutter 3.27
