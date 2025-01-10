@@ -537,6 +537,9 @@ class InputFieldWidget extends StatelessWidget {
                 print('on focus changed date: $val, $date, $text');
               },
               onResult: (p0) {},
+              validators: const BoardDateTimeInputFieldValidators(
+                showMessage: true,
+              ),
               decoration: InputDecoration(
                 fillColor: Theme.of(context)
                     .scaffoldBackgroundColor
