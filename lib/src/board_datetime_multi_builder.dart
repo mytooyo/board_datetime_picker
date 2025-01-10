@@ -75,18 +75,62 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
   @override
   DateTime? get minimumDate {
-    if (currentDateType.value == MultiCurrentDateType.end) {
-      return startDate.value;
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      if (currentDateType.value == MultiCurrentDateType.end) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          startDate.value.hour,
+          startDate.value.minute,
+          startDate.value.second,
+        );
+      }
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+        widget.minimumDate?.hour ?? 0,
+        widget.minimumDate?.minute ?? 0,
+        widget.minimumDate?.second ?? 0,
+      );
+    } else {
+      if (currentDateType.value == MultiCurrentDateType.end) {
+        return startDate.value;
+      }
+      return widget.minimumDate;
     }
-    return widget.minimumDate;
   }
 
   @override
   DateTime? get maximumDate {
-    if (currentDateType.value == MultiCurrentDateType.start) {
-      return endDate.value;
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      if (currentDateType.value == MultiCurrentDateType.start) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          endDate.value.hour,
+          endDate.value.minute,
+          endDate.value.second,
+        );
+      }
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+        widget.maximumDate?.hour ?? 23,
+        widget.maximumDate?.minute ?? 59,
+        widget.maximumDate?.second ?? 59,
+      );
+    } else {
+      if (currentDateType.value == MultiCurrentDateType.start) {
+        return endDate.value;
+      }
+      return widget.maximumDate;
     }
-    return widget.maximumDate;
   }
 
   @override
@@ -131,8 +175,18 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     bool byPicker = false,
   }) {
     if (type == MultiCurrentDateType.start) {
+      // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
+      if (startDate.value == val) {
+        notify();
+      }
+
       startDate.value = val;
     } else {
+      // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
+      if (endDate.value == val) {
+        notify();
+      }
+
       endDate.value = val;
     }
     _setFocusNode(byPicker);
@@ -219,7 +273,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       maximumDate: widget.maximumDate,
       multiple: true,
       headerBuilder: (ctx) => _header,
-      onChange: changeDate,
+      onChangeByCalendar: changeDate,
       onChangeByPicker: onChangeByPicker,
       onKeyboadClose: closeKeyboard,
       keyboardHeightRatio: () => keyboardHeightRatio,
@@ -317,6 +371,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       topMargin: widget.options.topMargin,
       onTopActionBuilder: widget.onTopActionBuilder,
       onReset: widget.options.useResetButton ? reset : null,
+      useAmpm: widget.options.useAmpm,
     );
   }
 }

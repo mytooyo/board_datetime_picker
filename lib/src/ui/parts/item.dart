@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
+import 'package:board_datetime_picker/src/utils/board_enum.dart';
+import 'package:board_datetime_picker/src/utils/datetime_util.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -63,10 +66,72 @@ class ItemWidgetState extends State<ItemWidget>
 
   final pickerFocusNode = PickerWheelItemFocusNode();
 
+  bool get useAmpmMode {
+    return widget.option.type == DateType.hour &&
+        widget.option.useAmpm &&
+        widget.option.ampm != null;
+  }
+
+  void setMap({Map<int, int>? newMap}) {
+    if (useAmpmMode) {
+      final values = widget.option.itemMap.values.toList();
+      final mapEntry = DateTimeUtil.ampmContrastMap.entries.where((x) {
+        return values.contains(x.key) && x.value.ampm == widget.option.ampm;
+      }).toList();
+      map = {
+        for (var i = 0; i < mapEntry.length; i++) i: mapEntry[i].value.hour,
+      };
+    } else {
+      map = newMap ?? widget.option.itemMap;
+    }
+  }
+
+  int getWheelIndex(int index) {
+    if (useAmpmMode) {
+      final hour = widget.option.itemMap[index];
+      final cotrast = DateTimeUtil.ampmContrastMap[hour]!;
+      final i = map.entries
+          .firstWhereOrNull(
+            (x) => x.value == cotrast.hour,
+          )
+          ?.key;
+      return i ?? cotrast.index;
+      // return DateTimeUtil.ampmContrastMap[hour]!.index;
+    } else {
+      return index;
+    }
+  }
+
+  /// Notify caller of changed index
+  void callbackOnChange(int index) {
+    if (useAmpmMode) {
+      Map<int, AmpmCotrast> contrastMap;
+      if (widget.option.ampm! == AmPm.am) {
+        contrastMap = DateTimeUtil.ampmContrastAmMap;
+      } else {
+        contrastMap = DateTimeUtil.ampmContrastPmMap;
+      }
+
+      final hour = map[index];
+      final mapIndex =
+          contrastMap.entries.firstWhereOrNull((e) => e.value.hour == hour);
+      if (mapIndex != null) {
+        final idx = widget.option.itemMap.entries.firstWhereOrNull(
+          (e) => e.value == mapIndex.key,
+        );
+        if (idx != null) {
+          widget.onChange(idx.key);
+        }
+      }
+    } else {
+      widget.onChange(index);
+    }
+  }
+
   @override
   void initState() {
-    map = widget.option.map;
-    selectedIndex = widget.option.selectedIndex;
+    setMap();
+    selectedIndex = getWheelIndex(widget.option.selectedIndex);
     scrollController = FixedExtentScrollController(
       initialItem: selectedIndex,
     );
@@ -139,9 +204,8 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   void toAnimateChange(int index, {bool button = false}) {
-    if (!widget.option.map.keys.contains(index)) return;
-
-    selectedIndex = index;
+    if (!widget.option.itemMap.keys.contains(index)) return;
+    selectedIndex = getWheelIndex(index);
     scrollController.animateToItem(
       index,
       duration: duration,
@@ -151,15 +215,34 @@ class ItemWidgetState extends State<ItemWidget>
 
   void updateState(Map<int, int> newMap, int newIndex) {
     if (!mounted) return;
+
+    bool needAnimation = false;
     setState(() {
-      map = newMap;
-      if (selectedIndex != newIndex) {
-        selectedIndex = newIndex;
+      // 表示する数字が同じ場合はアニメーションしない
+      final oldValue = map[selectedIndex];
+
+      setMap(newMap: newMap);
+      final newWheelIndex = getWheelIndex(newIndex);
+      if (selectedIndex != newWheelIndex) {
+        selectedIndex = newWheelIndex;
+
+        final newValue = map[newWheelIndex];
+
+        if (oldValue != newValue) {
+          needAnimation = true;
+        }
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 10)).then((_) {
+      if (needAnimation) {
         scrollController.animateToItem(
           selectedIndex,
           duration: duration,
           curve: Curves.easeIn,
         );
+      } else {
+        scrollController.jumpToItem(selectedIndex);
       }
     });
   }
@@ -260,7 +343,7 @@ class ItemWidgetState extends State<ItemWidget>
                       onNotification: (info) {
                         if (info is ScrollEndNotification) {
                           // Change callback
-                          widget.onChange(selectedIndex);
+                          callbackOnChange(selectedIndex);
                         }
                         return true;
                       },
@@ -374,7 +457,7 @@ class ItemWidgetState extends State<ItemWidget>
     // Animated wheel movement
     toAnimateChange(index);
     // Change callback
-    widget.onChange(index);
+    callbackOnChange(index);
   }
 
   /// Processing when text is changed
@@ -407,6 +490,7 @@ class ItemWidgetState extends State<ItemWidget>
 
   Widget _item(int i) {
     TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge;
+
     if (selectedIndex == i) {
       textStyle = textStyle?.copyWith(
         fontWeight: FontWeight.bold,
@@ -455,5 +539,202 @@ class AllowTextInputFormatter extends TextInputFormatter {
       return oldValue;
     }
     return newValue;
+  }
+}
+
+class AmpmItemWidget extends StatefulWidget {
+  const AmpmItemWidget({
+    super.key,
+    required this.initialValue,
+    required this.onChange,
+    required this.foregroundColor,
+    required this.showedKeyboard,
+    required this.textColor,
+    required this.wide,
+  });
+
+  final AmPm initialValue;
+  final void Function(AmPm) onChange;
+  final Color foregroundColor;
+  final bool Function() showedKeyboard;
+  final Color? textColor;
+  final bool wide;
+
+  @override
+  State<AmpmItemWidget> createState() => AmpmItemWidgetState();
+}
+
+class AmpmItemWidgetState extends State<AmpmItemWidget> {
+  final double itemSize = 44;
+  final duration = const Duration(milliseconds: 200);
+  final borderRadius = BorderRadius.circular(12);
+
+  int selectedIndex = 0;
+
+  final pickerFocusNode = PickerWheelItemFocusNode();
+
+  /// ScrollController
+  late FixedExtentScrollController scrollController;
+
+  final Map<int, AmPm> map = {0: AmPm.am, 1: AmPm.pm};
+
+  /// Number of items to display in the list
+  int get wheelCount => widget.wide ? 7 : 5;
+
+  AmPm getAmPmByIndex(int index) {
+    return map[index]!;
+  }
+
+  @override
+  void initState() {
+    selectedIndex = widget.initialValue == AmPm.am ? 0 : 1;
+    scrollController = FixedExtentScrollController(
+      initialItem: selectedIndex,
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void onChange(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+    widget.onChange(getAmPmByIndex(index));
+  }
+
+  void updateState(AmPm ampm) {
+    if (!mounted) return;
+    final index = ampm == AmPm.am ? 0 : 1;
+    if (selectedIndex == index) return;
+    toAnimateChange(index);
+  }
+
+  void toAnimateChange(int index, {bool button = false}) {
+    if (!map.containsKey(index)) return;
+
+    selectedIndex = index;
+    scrollController.animateToItem(
+      index,
+      duration: duration,
+      curve: Curves.easeIn,
+    );
+  }
+
+  void _updateFocusNode() {
+    final pf = FocusManager.instance.primaryFocus;
+    if (pf is! PickerItemFocusNode && pf is! BoardDateTimeInputFocusNode) {
+      pickerFocusNode.requestFocus();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Material(
+                    color: widget.foregroundColor,
+                    borderRadius: borderRadius,
+                    child: SizedBox(
+                      height: itemSize,
+                      width: double.infinity,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: NotificationListener(
+                      child: SizedBox(
+                        height: itemSize * wheelCount,
+                        child: GestureDetector(
+                          child: Focus(
+                            focusNode: pickerFocusNode,
+                            child: ListWheelScrollView.useDelegate(
+                              controller: scrollController,
+                              physics: const FixedExtentScrollPhysics(),
+                              itemExtent: itemSize,
+                              diameterRatio: 8,
+                              perspective: 0.01,
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              onSelectedItemChanged: onChange,
+                              childDelegate: ListWheelChildListDelegate(
+                                children: [
+                                  for (final i in map.keys) _item(i),
+                                ],
+                              ),
+                            ),
+                          ),
+                          onTapDown: (details) {},
+                          onTapUp: (details) {
+                            double clickOffset;
+                            if (widget.showedKeyboard()) {
+                              clickOffset =
+                                  details.localPosition.dy - (itemSize * 3 / 2);
+                            } else {
+                              clickOffset = details.localPosition.dy -
+                                  (itemSize * wheelCount / 2);
+                            }
+                            final currentIndex = scrollController.selectedItem;
+                            final indexOffset =
+                                (clickOffset / itemSize).round();
+                            final newIndex = currentIndex + indexOffset;
+                            toAnimateChange(newIndex);
+
+                            _updateFocusNode();
+                          },
+                        ),
+                      ),
+                      onNotification: (info) {
+                        if (info is ScrollEndNotification) {
+                          // Change callback
+                          widget.onChange(getAmPmByIndex(selectedIndex));
+                        }
+                        return true;
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _item(int i) {
+    TextStyle? textStyle = Theme.of(context).textTheme.bodyLarge;
+    if (selectedIndex == i) {
+      textStyle = textStyle?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 17,
+        color: widget.textColor?.withValues(alpha: 1.0),
+      );
+    } else {
+      textStyle = textStyle?.copyWith(
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+        color: widget.textColor?.withValues(alpha: 0.4),
+      );
+    }
+
+    return Center(
+      child: Text(
+        map[i]!.display,
+        style: textStyle,
+      ),
+    );
   }
 }

@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:board_datetime_picker/src/ui/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../ui/parts/focus_node.dart';
 import 'board_custom_item_option.dart';
 
 BoardPickerItemOption initItemOption(
+  DateTimePickerType pickerType,
   DateType type,
   DateTime date,
   DateTime? minimum,
@@ -16,9 +18,11 @@ BoardPickerItemOption initItemOption(
   List<int>? customList,
   String? subTitle,
   bool withSecond,
+  bool useAmpm,
 ) {
   if (customList != null && customList.isNotEmpty) {
     return BoardPickerCustomItemOption.init(
+      pickerType,
       type,
       customList,
       date,
@@ -29,27 +33,34 @@ BoardPickerItemOption initItemOption(
     );
   } else {
     return BoardPickerItemOption.init(
+      pickerType,
       type,
       date,
       minimum,
       maximum,
       subTitle,
       withSecond: withSecond,
+      useAmpm: useAmpm,
     );
   }
 }
 
 class BoardPickerItemOption {
   BoardPickerItemOption({
+    required this.pickerType,
     required this.type,
     required this.focusNode,
-    required this.map,
+    required this.itemMap,
     required this.selectedIndex,
     required this.minimumDate,
     required this.maximumDate,
     required this.subTitle,
     required this.withSecond,
+    required this.useAmpm,
+    this.ampm,
   });
+
+  final DateTimePickerType pickerType;
 
   /// [DateType] year, month, day, hour, minute
   final DateType type;
@@ -58,13 +69,14 @@ class BoardPickerItemOption {
   final PickerItemFocusNode focusNode;
 
   /// Picker item map.
-  Map<int, int> map;
+  Map<int, int> itemMap;
 
   /// Selected item for list.
   int selectedIndex;
 
   /// Keys for date item widget
   final stateKey = GlobalKey<ItemWidgetState>();
+  final ampmStateKey = GlobalKey<AmpmItemWidgetState>();
 
   /// Minimum year that can be specified
   final DateTime minimumDate;
@@ -79,17 +91,25 @@ class BoardPickerItemOption {
   /// Specified by 0 if not specified
   final bool withSecond;
 
+  /// Flag whether the time should be displayed as AM/PM or not
+  final bool useAmpm;
+
+  AmPm? ampm;
+
   /// Constractor
   factory BoardPickerItemOption.init(
+    DateTimePickerType pickerType,
     DateType type,
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
     String? subTitle, {
     bool withSecond = false,
+    required bool useAmpm,
   }) {
     Map<int, int> map = {};
     int selected;
+    AmPm? ampm;
 
     // Define specified minimum and maximum dates
     final mi = minimum ?? DateTimeUtil.defaultMinDate;
@@ -97,44 +117,59 @@ class BoardPickerItemOption {
 
     switch (type) {
       case DateType.year:
-        return BoardPickerItemOption.year(date, minimum, maximum, subTitle);
+        return BoardPickerItemOption.year(
+          pickerType,
+          date,
+          minimum,
+          maximum,
+          subTitle,
+        );
       case DateType.month:
-        map = minmaxList(DateType.month, date, mi, ma);
+        map = minmaxList(pickerType, DateType.month, date, mi, ma);
         selected = indexFromValue(date.month, map);
 
         break;
       case DateType.day:
-        map = minmaxList(DateType.day, date, mi, ma);
+        map = minmaxList(pickerType, DateType.day, date, mi, ma);
         selected = indexFromValue(date.day, map);
         break;
       case DateType.hour:
-        map = minmaxList(DateType.hour, date, mi, ma);
+        map = minmaxList(pickerType, DateType.hour, date, mi, ma);
         selected = indexFromValue(date.hour, map);
+
+        // set ampm
+        final hour = map[selected];
+        ampm = DateTimeUtil.ampmContrastMap[hour]?.ampm;
+
         break;
       case DateType.minute:
-        map = minmaxList(DateType.minute, date, mi, ma);
+        map = minmaxList(pickerType, DateType.minute, date, mi, ma);
         selected = indexFromValue(date.minute, map);
         break;
       case DateType.second:
-        map = minmaxList(DateType.second, date, mi, ma);
+        map = minmaxList(pickerType, DateType.second, date, mi, ma);
         selected = indexFromValue(date.second, map);
         break;
     }
 
     return BoardPickerItemOption(
       focusNode: PickerItemFocusNode(),
-      map: map,
+      itemMap: map,
+      pickerType: pickerType,
       type: type,
       selectedIndex: selected,
       minimumDate: mi,
       maximumDate: ma,
       subTitle: subTitle,
       withSecond: withSecond,
+      useAmpm: useAmpm,
+      ampm: ampm,
     );
   }
 
   /// Constractor for year item
   factory BoardPickerItemOption.year(
+    DateTimePickerType pickerType,
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
@@ -146,16 +181,18 @@ class BoardPickerItemOption {
     final mi = minimum ?? DateTime(DateTimeUtil.minimumYear, 1, 1, 0, 0);
     final ma = maximum ?? DateTime(DateTimeUtil.maximumYear, 12, 31, 23, 59);
 
-    final map = minmaxList(DateType.year, date, mi, ma);
+    final map = minmaxList(pickerType, DateType.year, date, mi, ma);
     return BoardPickerItemOption(
       focusNode: PickerItemFocusNode(),
-      map: map,
+      itemMap: map,
+      pickerType: pickerType,
       type: DateType.year,
       selectedIndex: indexFromValue(max(date.year, minY), map),
       minimumDate: mi,
       maximumDate: ma,
       subTitle: subTitle,
       withSecond: false,
+      useAmpm: false,
     );
   }
 
@@ -178,31 +215,35 @@ class BoardPickerItemOption {
   void changeDate(DateTime date) {
     switch (type) {
       case DateType.year:
-        selectedIndex = getIndexFromValue(date.year) ?? 0;
+        selectedIndex = _getIndexFromValue(date.year) ?? 0;
         break;
       case DateType.month:
-        selectedIndex = getIndexFromValue(date.month) ?? 0;
+        selectedIndex = _getIndexFromValue(date.month) ?? 0;
         break;
       case DateType.day:
-        selectedIndex = getIndexFromValue(date.day) ?? 0;
+        selectedIndex = _getIndexFromValue(date.day) ?? 0;
         break;
       case DateType.hour:
-        selectedIndex = getIndexFromValue(date.hour) ?? 0;
+        selectedIndex = _getIndexFromValue(date.hour) ?? 0;
+
+        // set ampm
+        final hour = itemMap[selectedIndex];
+        ampm = DateTimeUtil.ampmContrastMap[hour]?.ampm;
         break;
       case DateType.minute:
-        selectedIndex = getIndexFromValue(date.minute) ?? 0;
+        selectedIndex = _getIndexFromValue(date.minute) ?? 0;
         break;
       case DateType.second:
-        selectedIndex = getIndexFromValue(date.second) ?? 0;
+        selectedIndex = _getIndexFromValue(date.second) ?? 0;
         break;
     }
     stateKey.currentState?.toAnimateChange(selectedIndex, button: true);
   }
 
   /// Get the map index from the value and return it
-  int? getIndexFromValue(int val) {
-    for (final index in map.keys) {
-      if (map[index] == val) return index;
+  int? _getIndexFromValue(int val) {
+    for (final index in itemMap.keys) {
+      if (itemMap[index] == val) return index;
     }
     return null;
   }
@@ -215,7 +256,7 @@ class BoardPickerItemOption {
   }
 
   /// Get the currently selected value
-  int get value => map[selectedIndex]!;
+  int get value => itemMap[selectedIndex]!;
 
   /// input content check
   void checkInputField() {
@@ -223,7 +264,7 @@ class BoardPickerItemOption {
     if (text != null) {
       try {
         final data = int.parse(text);
-        if (map.values.contains(data)) return;
+        if (itemMap.values.contains(data)) return;
       } catch (_) {}
     }
 
@@ -238,7 +279,7 @@ class BoardPickerItemOption {
     //  Retrieve existing values
     final tmp = value;
     // Generate new maps
-    map = minmaxList(type, date, minimumDate, maximumDate);
+    itemMap = minmaxList(pickerType, type, date, minimumDate, maximumDate);
     updateState(tmp, date);
   }
 
@@ -276,25 +317,84 @@ class BoardPickerItemOption {
       newMap[index] = i;
       index++;
     }
-    map = newMap;
+    itemMap = newMap;
     updateState(tmp, newDate);
   }
 
   void updateState(int tmpValue, DateTime date) {
     // Get the index of the value that was selected
     // before the update and update it to that value
-    final index = getIndexFromValue(tmpValue);
+    final index = _getIndexFromValue(tmpValue);
     if (index != null) {
       selectedIndex = index;
-    } else if (map.values.first > tmpValue) {
+    } else if (itemMap.values.first > tmpValue) {
       selectedIndex = 0;
-    } else if (selectedIndex >= map.keys.length) {
-      selectedIndex = map.keys.last;
+    } else if (selectedIndex >= itemMap.keys.length) {
+      selectedIndex = itemMap.keys.last;
     }
-    stateKey.currentState?.updateState(map, selectedIndex);
+
+    if (useAmpm && type == DateType.hour) {
+      // set ampm
+      final hour = itemMap[selectedIndex];
+      ampm = DateTimeUtil.ampmContrastMap[hour]?.ampm;
+    }
+    stateKey.currentState?.updateState(itemMap, selectedIndex);
+
+    if (useAmpm && ampm != null) {
+      ampmStateKey.currentState?.updateState(ampm!);
+    }
+  }
+
+  void updateAmPm(AmPm ap) {
+    if (ampm == ap) return;
+
+    // AMとPMの値に合わせて24時間表記の時間を置き換える
+    final hour = itemMap[selectedIndex];
+
+    Map<int, AmpmCotrast> current;
+    Map<int, AmpmCotrast> next;
+    if (ampm == AmPm.am) {
+      current = DateTimeUtil.ampmContrastAmMap;
+      next = DateTimeUtil.ampmContrastPmMap;
+    } else {
+      current = DateTimeUtil.ampmContrastPmMap;
+      next = DateTimeUtil.ampmContrastAmMap;
+    }
+
+    // 現時点の対比情報を取得する
+    final entry = current[hour];
+    if (entry != null) {
+      // 切り替え先の時間が一致する値を取得する
+      final nextEntry = next.entries.firstWhereOrNull(
+        (e) => e.value.hour == entry.hour,
+      );
+      if (nextEntry != null) {
+        final index = _getIndexFromValue(nextEntry.key);
+
+        if (index != null) {
+          selectedIndex = index;
+        } else if (itemMap.values.first > nextEntry.key) {
+          selectedIndex = 0;
+        } else if (selectedIndex >= itemMap.keys.length) {
+          selectedIndex = itemMap.keys.last;
+        } else {
+          selectedIndex = itemMap.keys.last;
+        }
+      } else {
+        if (itemMap.values.first > entry.index) {
+          selectedIndex = 0;
+        } else if (selectedIndex >= itemMap.keys.length) {
+          selectedIndex = itemMap.keys.last;
+        } else {
+          selectedIndex = itemMap.keys.last;
+        }
+      }
+    }
+    ampm = ap;
   }
 
   static Map<int, int> minmaxList(
+    DateTimePickerType pickerType,
     DateType dt,
     DateTime date,
     DateTime minimum,
@@ -308,6 +408,21 @@ class BoardPickerItemOption {
         index++;
       }
       return map;
+    }
+
+    // timeのみの場合は日付が異なると正確な制御ができないため、
+    // 日付を合わせる
+    List<DateTime> dateForTime(DateTime d, DateTime mi, DateTime ma) {
+      if (pickerType == DateTimePickerType.time) {
+        final now = DateTime.now();
+        return [
+          DateTime(now.year, now.month, now.day, d.hour, d.minute, d.second),
+          DateTime(now.year, now.month, now.day, mi.hour, mi.minute, mi.second),
+          DateTime(now.year, now.month, now.day, ma.hour, ma.minute, ma.second),
+        ];
+      } else {
+        return [d, mi, ma];
+      }
     }
 
     switch (dt) {
@@ -351,31 +466,34 @@ class BoardPickerItemOption {
       case DateType.hour:
         int minHour = 0;
         int maxHour = 23;
-        if (date.isMinimum(minimum, DateType.day)) {
-          minHour = minimum.hour;
+        final dateList = dateForTime(date, minimum, maximum);
+        if (dateList[0].isMinimum(dateList[1], DateType.day)) {
+          minHour = dateList[1].hour;
         }
-        if (date.isMaximum(maximum, DateType.day)) {
-          maxHour = maximum.hour;
+        if (dateList[0].isMaximum(dateList[2], DateType.day)) {
+          maxHour = dateList[2].hour;
         }
         return createMap(minHour, maxHour);
       case DateType.minute:
         int minMinute = 0;
         int maxMinute = 59;
-        if (date.isMinimum(minimum, DateType.hour)) {
-          minMinute = minimum.minute;
+        final dateList = dateForTime(date, minimum, maximum);
+        if (dateList[0].isMinimum(dateList[1], DateType.hour)) {
+          minMinute = dateList[1].minute;
         }
-        if (date.isMaximum(maximum, DateType.hour)) {
-          maxMinute = maximum.minute;
+        if (dateList[0].isMaximum(dateList[2], DateType.hour)) {
+          maxMinute = dateList[2].minute;
         }
         return createMap(minMinute, maxMinute);
       case DateType.second:
         int minSecond = 0;
         int maxSecond = 59;
-        if (date.isMinimum(minimum, DateType.minute)) {
-          minSecond = minimum.second;
+        final dateList = dateForTime(date, minimum, maximum);
+        if (dateList[0].isMinimum(dateList[1], DateType.minute)) {
+          minSecond = dateList[1].second;
         }
-        if (date.isMaximum(maximum, DateType.minute)) {
-          maxSecond = maximum.second;
+        if (dateList[0].isMaximum(dateList[2], DateType.minute)) {
+          maxSecond = dateList[2].second;
         }
         return createMap(minSecond, maxSecond);
     }
@@ -385,7 +503,7 @@ class BoardPickerItemOption {
     switch (type) {
       case DateType.year:
         return DateTime(
-          map[selectedIndex]!,
+          itemMap[selectedIndex]!,
           date.month,
           newDay ?? date.day,
           date.hour,
@@ -395,7 +513,7 @@ class BoardPickerItemOption {
       case DateType.month:
         return DateTime(
           date.year,
-          map[selectedIndex]!,
+          itemMap[selectedIndex]!,
           newDay ?? date.day,
           date.hour,
           date.minute,
@@ -405,7 +523,7 @@ class BoardPickerItemOption {
         return DateTime(
           date.year,
           date.month,
-          newDay ?? map[selectedIndex]!,
+          newDay ?? itemMap[selectedIndex]!,
           date.hour,
           date.minute,
           withSecond ? date.second : 0,
@@ -415,7 +533,7 @@ class BoardPickerItemOption {
           date.year,
           date.month,
           date.day,
-          map[selectedIndex]!,
+          itemMap[selectedIndex]!,
           date.minute,
           withSecond ? date.second : 0,
         );
@@ -425,7 +543,7 @@ class BoardPickerItemOption {
           date.month,
           date.day,
           date.hour,
-          map[selectedIndex]!,
+          itemMap[selectedIndex]!,
           withSecond ? date.second : 0,
         );
       case DateType.second:
@@ -435,7 +553,7 @@ class BoardPickerItemOption {
           date.day,
           date.hour,
           date.minute,
-          map[selectedIndex]!,
+          itemMap[selectedIndex]!,
         );
     }
   }

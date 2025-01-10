@@ -356,12 +356,12 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       // never tapped on the textfield, but text selected or modified
       final pf = FocusManager.instance.primaryFocus;
       final focusList = pf?.children ?? [];
-      final existsBdtFocusNode =
-          focusList.any((x) => x is BoardDateTimeInputFocusNode);
-      if (pf is BoardDateTimeInputFocusNode || !scopeListenerRegistered) {
+      final existsBdtFocusNode = focusList.any((x) =>
+          x is BoardDateTimeInputFocusNode || x is PickerContentsFocusNode);
+      if (!scopeListenerRegistered) {
         closePicker();
         onFinished();
-      } else if (!existsBdtFocusNode) {
+      } else if (!existsBdtFocusNode && pf is! PickerContentsFocusNode) {
         closePicker();
         onFinished();
       }
@@ -1010,7 +1010,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       final hasFocus = pickerFocusNode.hasFocus;
       if (hasFocus) {
         checkFormat(textController.text, complete: true);
-        onFinished();
+        // onFinished();
       }
       closePicker();
       FocusManager.instance.primaryFocus?.unfocus();

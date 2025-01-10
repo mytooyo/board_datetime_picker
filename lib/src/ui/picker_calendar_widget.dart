@@ -20,7 +20,7 @@ class PickerCalendarArgs {
   final DateTime? minimumDate;
   final DateTime? maximumDate;
   final Widget Function(BuildContext) headerBuilder;
-  final void Function(DateTime) onChange;
+  final void Function(DateTime) onChangeByCalendar;
   final void Function(BoardPickerItemOption, int) onChangeByPicker;
   final double Function() keyboardHeightRatio;
   final bool multiple;
@@ -38,7 +38,7 @@ class PickerCalendarArgs {
     required this.minimumDate,
     required this.maximumDate,
     required this.headerBuilder,
-    required this.onChange,
+    required this.onChangeByCalendar,
     required this.onChangeByPicker,
     required this.keyboardHeightRatio,
     required this.multiple,
@@ -111,7 +111,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               ? args.options.backgroundDecoration!.color
               : background,
         ),
-        onChange: args.onChange,
+        onChange: args.onChangeByCalendar,
         wide: isWide,
         textColor: args.options.getTextColor(context),
         activeColor: args.options.getActiveColor(context),
@@ -148,6 +148,32 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         );
       },
     ).toList();
+
+    // AM/PM
+    if (DateTimePickerType.time == args.pickerType && args.options.useAmpm) {
+      final hourOption = args.listOptions.firstWhere(
+        (e) => e.type == DateType.hour,
+      );
+      items.insert(
+        0,
+        Expanded(
+          child: AmpmItemWidget(
+            key: hourOption.ampmStateKey,
+            initialValue: hourOption.ampm ?? AmPm.am,
+            onChange: (val) {
+              hourOption.updateAmPm(val);
+              args.onChangeByPicker(hourOption, hourOption.selectedIndex);
+            },
+            foregroundColor: args.options.getForegroundColor(context),
+            textColor: args.options.getTextColor(context),
+            wide: isWide,
+            showedKeyboard: () {
+              return args.keyboardHeightRatio() < 0.5;
+            },
+          ),
+        ),
+      );
+    }
 
     return SizedBox(
       child: Align(

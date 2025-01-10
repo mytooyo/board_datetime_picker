@@ -514,15 +514,34 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
 
   @override
   void initState() {
-    selection = BoardDateTimeMultiSelection(
-      start: widget.startDate ?? DateTime.now(),
-      end: widget.endDate ?? DateTime.now().add(const Duration(days: 1)),
-    );
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      selection = BoardDateTimeMultiSelection(
+        start:
+            widget.startDate ?? DateTime(now.year, now.month, now.day, 0, 0, 0),
+        end: widget.endDate ??
+            DateTime(now.year, now.month, now.day, 23, 59, 59),
+      );
+    } else {
+      selection = BoardDateTimeMultiSelection(
+        start: widget.startDate ?? DateTime.now(),
+        end: widget.endDate ?? DateTime.now().add(const Duration(days: 1)),
+      );
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    DateTime? minimumDate = widget.minimumDate;
+    DateTime? maximumDate = widget.maximumDate;
+
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      minimumDate ??= DateTime(now.year, now.month, now.day, 0, 0, 0);
+      maximumDate ??= DateTime(now.year, now.month, now.day, 23, 59, 59);
+    }
+
     return MultiBoardDateTimeContent(
       key: widget.controller?.boardKey,
       onChange: (start, end) {
@@ -536,8 +555,8 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
       breakpoint: widget.breakpoint,
       startDate: selection.start,
       endDate: selection.end,
-      minimumDate: widget.minimumDate,
-      maximumDate: widget.maximumDate,
+      minimumDate: minimumDate,
+      maximumDate: maximumDate,
       headerWidget: widget.headerWidget,
       modal: true,
       onCloseModal: () {

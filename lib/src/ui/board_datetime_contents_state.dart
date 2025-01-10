@@ -262,6 +262,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           final subTitle = widget.options.getSubTitle(DateType.year);
           ymdOptions.add(
             initItemOption(
+              widget.pickerType,
               DateType.year,
               d,
               minDate,
@@ -269,12 +270,14 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               null,
               subTitle,
               withSecond,
+              false,
             ),
           );
         } else if (pf == 'M') {
           final subTitle = widget.options.getSubTitle(DateType.month);
           ymdOptions.add(
             initItemOption(
+              widget.pickerType,
               DateType.month,
               d,
               minDate,
@@ -282,12 +285,14 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               null,
               subTitle,
               withSecond,
+              false,
             ),
           );
         } else if (pf == 'd') {
           final subTitle = widget.options.getSubTitle(DateType.day);
           ymdOptions.add(
             initItemOption(
+              widget.pickerType,
               DateType.day,
               d,
               minDate,
@@ -295,6 +300,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               null,
               subTitle,
               withSecond,
+              false,
             ),
           );
         }
@@ -307,6 +313,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
         initItemOption(
+          widget.pickerType,
           DateType.hour,
           d,
           minDate,
@@ -314,8 +321,10 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           opts?.hours,
           widget.options.getSubTitle(DateType.hour),
           withSecond,
+          widget.options.useAmpm && type == DateTimePickerType.time,
         ),
         initItemOption(
+          widget.pickerType,
           DateType.minute,
           d,
           minDate,
@@ -323,10 +332,12 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           opts?.minutes,
           widget.options.getSubTitle(DateType.minute),
           withSecond,
+          false,
         ),
       ],
       if (DateTimePickerType.time == type && widget.options.withSecond)
         initItemOption(
+          widget.pickerType,
           DateType.second,
           d,
           minDate,
@@ -334,6 +345,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           opts?.seconds,
           widget.options.getSubTitle(DateType.second),
           withSecond,
+          false,
         ),
     ];
 
@@ -360,7 +372,6 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   void onChangeByPicker(BoardPickerItemOption opt, int index) {
     // Update option class values to selected values
     opt.selectedIndex = index;
-
     // 年と月から選択中の日付が存在するか確認する
     // Check to see if the date you are selecting exists from the year and month
     DateTime newVal;
@@ -380,7 +391,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
       newVal = opt.calcDate(currentDate);
     }
 
-    final data = opt.map[index]!;
+    final data = opt.itemMap[index]!;
     final day = DateTimeUtil.getExistsMaxDate(itemOptions, opt, data);
     if (day != null) {
       final dayOpt = itemOptions.firstWhere((x) => x.type == DateType.day);

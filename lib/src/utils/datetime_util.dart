@@ -81,6 +81,45 @@ class DateTimeUtil {
     }
     return null;
   }
+
+  static Map<int, AmpmCotrast> ampmContrastMap = {
+    ...ampmContrastAmMap,
+    ...ampmContrastPmMap,
+  };
+
+  static Map<int, AmpmCotrast> ampmContrastAmMap = {
+    0: AmpmCotrast.am(12, 0),
+    for (var i = 1; i <= 11; i++) i: AmpmCotrast.am(i, i),
+  };
+
+  static Map<int, AmpmCotrast> ampmContrastPmMap = {
+    12: AmpmCotrast.pm(12, 0),
+    for (var i = 13; i <= 23; i++) i: AmpmCotrast.pm(i - 12, i - 12),
+  };
+}
+
+class AmpmCotrast {
+  final AmPm ampm;
+  final int hour;
+  final int index;
+
+  AmpmCotrast({required this.ampm, required this.hour, required this.index});
+
+  factory AmpmCotrast.am(int hour, int index) {
+    return AmpmCotrast(
+      ampm: AmPm.am,
+      hour: hour,
+      index: index,
+    );
+  }
+
+  factory AmpmCotrast.pm(int hour, int index) {
+    return AmpmCotrast(
+      ampm: AmPm.pm,
+      hour: hour,
+      index: index,
+    );
+  }
 }
 
 extension DateTimeExtension on DateTime {
