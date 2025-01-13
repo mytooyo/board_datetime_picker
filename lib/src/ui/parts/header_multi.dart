@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -35,6 +36,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.topMargin,
     required this.onTopActionBuilder,
     required this.onReset,
+    required this.useAmpm,
   });
 
   /// Wide mode display flag
@@ -116,6 +118,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
 
   /// reset button callback (if use reset)
   final void Function()? onReset;
+
+  /// Flag whether AM/PM mode is used
+  final bool useAmpm;
 
   @override
   State<BoardDateTimeMultiHeader> createState() =>
@@ -201,7 +206,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
           if (widget.pickerType != DateTimePickerType.time)
             _calendarButton()
           else
-            const SizedBox(width: 8),
+            SizedBox(width: onReset != null ? 8 : 40),
           if (topActionWidget == null) ...[
             Expanded(
               child: Align(
@@ -350,7 +355,11 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
         format += ' HH:mm';
       }
     } else {
-      format = 'HH:mm';
+      if (widget.useAmpm) {
+        format = 'hh:mm';
+      } else {
+        format = 'HH:mm';
+      }
     }
 
     return Material(
@@ -372,10 +381,16 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
           child: ValueListenableBuilder(
             valueListenable: date,
             builder: (context, val, child) {
+              String prefix = '';
+              if (widget.pickerType == DateTimePickerType.time &&
+                  widget.useAmpm) {
+                final ampmData = DateTimeUtil.ampmContrastMap[val.hour]!;
+                prefix = '${ampmData.ampm.display} ';
+              }
               return FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  DateFormat(format).format(val),
+                  '$prefix${DateFormat(format).format(val)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: selected
                             ? widget.activeTextColor

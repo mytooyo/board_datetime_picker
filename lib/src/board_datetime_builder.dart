@@ -369,7 +369,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       maximumDate: widget.maximumDate,
       multiple: false,
       headerBuilder: (ctx) => _header,
-      onChange: changeDate,
+      onChangeByCalendar: changeDate,
       onChangeByPicker: onChangeByPicker,
       onKeyboadClose: closeKeyboard,
       keyboardHeightRatio: () => keyboardHeightRatio,
