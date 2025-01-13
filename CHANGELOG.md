@@ -1,3 +1,8 @@
+## 2.3.0
+
+* Added AM/PM support.
+* Added feature to add custom validation to input fields.
+
 ## 2.2.1
 
 * Added feature to reset button.
