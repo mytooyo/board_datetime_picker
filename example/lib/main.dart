@@ -123,7 +123,7 @@ class _MySampleAppState extends State<MySampleApp> {
                             onPressed: onClose,
                             icon: const Icon(Icons.check_circle_outline),
                             iconAlignment: IconAlignment.end,
-                            label: const Text('Close'),
+                            label: const Text('Close😉'),
                           );
                         },
                       ),
