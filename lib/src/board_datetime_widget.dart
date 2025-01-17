@@ -3,14 +3,9 @@ import 'package:flutter/material.dart';
 import 'board_datetime_builder.dart';
 import 'board_datetime_multi_builder.dart';
 import 'board_datetime_options.dart';
+import 'ui/parts/header.dart';
 import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
-
-typedef CloseButtonBuilder = Widget Function(
-  BuildContext context,
-  bool isModal,
-  void Function() onClose,
-);
 
 /// Show a Modal Picker for DateTime bottom sheet.
 ///
