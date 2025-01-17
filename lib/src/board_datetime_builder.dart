@@ -151,11 +151,7 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
 
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder;
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();

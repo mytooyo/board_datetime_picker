@@ -8,6 +8,12 @@ import 'package:flutter/material.dart';
 
 import 'buttons.dart';
 
+typedef CloseButtonBuilder = Widget Function(
+  BuildContext context,
+  bool isModal,
+  void Function() onClose,
+);
+
 class BoardDateTimeHeader extends StatefulWidget {
   const BoardDateTimeHeader({
     super.key,
@@ -112,12 +118,8 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// List of buttons to select dates.
   final List<BoardDateButtonType> actionButtonTypes;
 
-  /// Custom Close Button
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder;
+  /// Custom Close Button Builder
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -413,12 +415,8 @@ class BoardDateTimeNoneButtonHeader extends StatefulWidget {
   /// Picker FocusNode
   final FocusNode? pickerFocusNode;
 
-  // Custom Close Button
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder;
+  // Custom Close Button Builder
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<BoardDateTimeNoneButtonHeader> createState() =>

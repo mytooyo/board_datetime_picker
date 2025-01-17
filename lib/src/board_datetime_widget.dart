@@ -6,6 +6,12 @@ import 'board_datetime_options.dart';
 import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
 
+typedef CloseButtonBuilder = Widget Function(
+  BuildContext context,
+  bool isModal,
+  void Function() onClose,
+);
+
 /// Show a Modal Picker for DateTime bottom sheet.
 ///
 /// The `context` argument is used to look up the [Navigator] and [Theme] for
@@ -47,11 +53,7 @@ Future<DateTime?> showBoardDateTimePickerForDateTime({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder,
+  final CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateTimeResult>(
     context: context,
@@ -121,11 +123,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder,
+  final CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateResult>(
       context: context,
@@ -197,11 +195,7 @@ Future<DateTime?> showBoardDateTimePickerForTime({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
-  Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardTimeResult>(
     context: context,
@@ -278,11 +272,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
-  Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -360,11 +350,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
   final void Function(DateTime)? onChanged;
   final void Function(BoardDateTimeCommonResult)? onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder;
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<_SingleBoardDateTimeWidget> createState() =>
@@ -528,11 +514,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
   final void Function(BoardDateTimeMultiSelection)? onChanged;
   final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
       onResult;
-  final Widget Function(
-    BuildContext context,
-    bool isModal,
-    void Function() onClose,
-  )? customCloseButtonBuilder;
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
