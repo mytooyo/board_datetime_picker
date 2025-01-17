@@ -7,12 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'ui/parts/header_multi.dart';
-import 'utils/board_enum.dart';
+
+class BoardMultiDateTimeController extends BoardDateTimeController {
+  // ignore: library_private_types_in_public_api
+  final GlobalKey<_MultiBoardDateTimeContentState> _key = GlobalKey();
+
+  @override
+  GlobalKey get boardKey => _key;
+
+  void changeValue(DateTime date, MultiCurrentDateType dateType) {
+    _key.currentState?.changeMultiDate(date, dateType);
+  }
+}
 
 class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     extends BoardDateTimeContent<T> {
   const MultiBoardDateTimeContent({
     super.key,
+    this.controller,
     required super.pickerType,
     required this.startDate,
     required this.endDate,
@@ -30,9 +42,11 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onChange,
     this.onResult,
     required super.headerWidget,
+    required super.onTopActionBuilder,
     super.customCloseButtonBuilder,
   });
 
+  final BoardMultiDateTimeController? controller;
   final DateTime startDate;
   final DateTime endDate;
 
@@ -62,18 +76,62 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
   @override
   DateTime? get minimumDate {
-    if (currentDateType.value == MultiCurrentDateType.end) {
-      return startDate.value;
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      if (currentDateType.value == MultiCurrentDateType.end) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          startDate.value.hour,
+          startDate.value.minute,
+          startDate.value.second,
+        );
+      }
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+        widget.minimumDate?.hour ?? 0,
+        widget.minimumDate?.minute ?? 0,
+        widget.minimumDate?.second ?? 0,
+      );
+    } else {
+      if (currentDateType.value == MultiCurrentDateType.end) {
+        return startDate.value;
+      }
+      return widget.minimumDate;
     }
-    return widget.minimumDate;
   }
 
   @override
   DateTime? get maximumDate {
-    if (currentDateType.value == MultiCurrentDateType.start) {
-      return endDate.value;
+    if (widget.pickerType == DateTimePickerType.time) {
+      final now = DateTime.now();
+      if (currentDateType.value == MultiCurrentDateType.start) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          endDate.value.hour,
+          endDate.value.minute,
+          endDate.value.second,
+        );
+      }
+      return DateTime(
+        now.year,
+        now.month,
+        now.day,
+        widget.maximumDate?.hour ?? 23,
+        widget.maximumDate?.minute ?? 59,
+        widget.maximumDate?.second ?? 59,
+      );
+    } else {
+      if (currentDateType.value == MultiCurrentDateType.start) {
+        return endDate.value;
+      }
+      return widget.maximumDate;
     }
-    return widget.maximumDate;
   }
 
   @override
@@ -106,16 +164,34 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
 
   @override
   void setNewValue(DateTime val, {bool byPicker = false}) {
-    if (currentDateType.value == MultiCurrentDateType.start) {
-      startDate.value = val;
-    } else {
-      endDate.value = val;
-    }
-    _setFocusNode(byPicker);
+    changeMultiDate(val, currentDateType.value, byPicker: byPicker);
   }
 
   @override
   void onChanged(DateTime date, T result) {}
+
+  void changeMultiDate(
+    DateTime val,
+    MultiCurrentDateType type, {
+    bool byPicker = false,
+  }) {
+    if (type == MultiCurrentDateType.start) {
+      // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
+      if (startDate.value == val) {
+        notify();
+      }
+
+      startDate.value = val;
+    } else {
+      // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
+      if (endDate.value == val) {
+        notify();
+      }
+
+      endDate.value = val;
+    }
+    _setFocusNode(byPicker);
+  }
 
   /// Notification of change to caller.
   void notify() {
@@ -130,6 +206,27 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       BoardDateTimeCommonResult.init(pickerType, endDate.value) as T,
     );
     changedDate = true;
+  }
+
+  /// Reset the start and end dates.
+  /// During this process, re-register the Listener to avoid sending unnecessary notifications.
+  void reset() {
+    startDate.removeListener(notify);
+    endDate.removeListener(notify);
+
+    startDate.value = widget.startDate;
+    endDate.value = widget.endDate;
+    changeDateTime(
+      currentDateType.value == MultiCurrentDateType.start
+          ? startDate.value
+          : endDate.value,
+    );
+
+    startDate.addListener(notify);
+    endDate.addListener(notify);
+
+    notify();
+    _setFocusNode(false);
   }
 
   /// Set initial value at close
@@ -177,7 +274,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       maximumDate: widget.maximumDate,
       multiple: true,
       headerBuilder: (ctx) => _header,
-      onChange: changeDate,
+      onChangeByCalendar: changeDate,
       onChangeByPicker: onChangeByPicker,
       onKeyboadClose: closeKeyboard,
       keyboardHeightRatio: () => keyboardHeightRatio,
@@ -273,6 +370,9 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       currentDateType: currentDateType,
       onChangeDateType: onChangeDateType,
       topMargin: widget.options.topMargin,
+      onTopActionBuilder: widget.onTopActionBuilder,
+      onReset: widget.options.useResetButton ? reset : null,
+      useAmpm: widget.options.useAmpm,
     );
   }
 }

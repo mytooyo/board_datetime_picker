@@ -10,20 +10,23 @@ import 'board_item_option.dart';
 /// Create at each date and time.
 class BoardPickerCustomItemOption extends BoardPickerItemOption {
   BoardPickerCustomItemOption({
+    required super.pickerType,
     required super.type,
     required this.customList,
     required super.focusNode,
-    required super.map,
+    required super.itemMap,
     required super.selectedIndex,
     required super.minimumDate,
     required super.maximumDate,
     required super.subTitle,
     required super.withSecond,
+    super.useAmpm = false,
   });
 
   final List<int> customList;
 
   factory BoardPickerCustomItemOption.init(
+    DateTimePickerType pickerType,
     DateType type,
     List<int> customList,
     DateTime date,
@@ -46,7 +49,13 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
         map[i] = list[i];
       }
     } else {
-      final m = BoardPickerItemOption.minmaxList(type, date, mi, ma);
+      final m = BoardPickerItemOption.minmaxList(
+        pickerType,
+        type,
+        date,
+        mi,
+        ma,
+      );
       final values = m.values.toList();
       int count = 0;
       for (var i = 0; i < values.length; i++) {
@@ -84,9 +93,10 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     }
 
     return BoardPickerCustomItemOption(
+      pickerType: pickerType,
       type: type,
       focusNode: PickerItemFocusNode(),
-      map: map,
+      itemMap: map,
       selectedIndex: selected,
       minimumDate: mi,
       maximumDate: ma,
@@ -102,6 +112,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     final tmp = value;
     // Generate new maps
     final m = BoardPickerItemOption.minmaxList(
+      pickerType,
       type,
       date,
       minimumDate,
@@ -119,7 +130,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
         count++;
       }
     }
-    map = newMap;
+    itemMap = newMap;
     updateState(tmp, date);
   }
 
@@ -156,7 +167,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
         index++;
       }
     }
-    map = newMap;
+    itemMap = newMap;
     updateState(tmp, newDate);
   }
 }

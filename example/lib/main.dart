@@ -350,6 +350,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
     DateTime.now().add(const Duration(days: 7)),
   );
 
+  final BoardMultiDateTimeController controller =
+      BoardMultiDateTimeController();
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -358,6 +361,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
         onTap: () async {
           final result = await showBoardDateTimeMultiPicker(
             context: context,
+            controller: controller,
             pickerType: pickerType,
             // minimumDate: DateTime.now().add(const Duration(days: 1)),
             startDate: start.value,
@@ -366,6 +370,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
               languages: BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
+              useAmpm: false,
               // topMargin: 0,
             ),
             // headerWidget: Container(
@@ -385,11 +390,15 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             //         ),
             //   ),
             // ),
+            // onTopActionBuilder: (context) {
+            //   return const SizedBox();
+            // },
           );
           if (result != null) {
             start.value = result.start;
             end.value = result.end;
           }
+          print('result: ${start.value} - ${end.value}');
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -553,9 +562,13 @@ class InputFieldWidget extends StatelessWidget {
                 print('on focus changed date: $val, $date, $text');
               },
               onResult: (p0) {},
+              validators: const BoardDateTimeInputFieldValidators(
+                showMessage: true,
+              ),
               decoration: InputDecoration(
-                fillColor:
-                    Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+                fillColor: Theme.of(context)
+                    .scaffoldBackgroundColor
+                    .withValues(alpha: 0.6),
                 filled: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),

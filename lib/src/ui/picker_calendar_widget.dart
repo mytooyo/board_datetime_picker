@@ -20,7 +20,7 @@ class PickerCalendarArgs {
   final DateTime? minimumDate;
   final DateTime? maximumDate;
   final Widget Function(BuildContext) headerBuilder;
-  final void Function(DateTime) onChange;
+  final void Function(DateTime) onChangeByCalendar;
   final void Function(BoardPickerItemOption, int) onChangeByPicker;
   final double Function() keyboardHeightRatio;
   final bool multiple;
@@ -38,7 +38,7 @@ class PickerCalendarArgs {
     required this.minimumDate,
     required this.maximumDate,
     required this.headerBuilder,
-    required this.onChange,
+    required this.onChangeByCalendar,
     required this.onChangeByPicker,
     required this.keyboardHeightRatio,
     required this.multiple,
@@ -111,7 +111,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               ? args.options.backgroundDecoration!.color
               : background,
         ),
-        onChange: args.onChange,
+        onChange: args.onChangeByCalendar,
         wide: isWide,
         textColor: args.options.getTextColor(context),
         activeColor: args.options.getActiveColor(context),
@@ -149,6 +149,32 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
       },
     ).toList();
 
+    // AM/PM
+    if (DateTimePickerType.time == args.pickerType && args.options.useAmpm) {
+      final hourOption = args.listOptions.firstWhere(
+        (e) => e.type == DateType.hour,
+      );
+      items.insert(
+        0,
+        Expanded(
+          child: AmpmItemWidget(
+            key: hourOption.ampmStateKey,
+            initialValue: hourOption.ampm ?? AmPm.am,
+            onChange: (val) {
+              hourOption.updateAmPm(val);
+              args.onChangeByPicker(hourOption, hourOption.selectedIndex);
+            },
+            foregroundColor: args.options.getForegroundColor(context),
+            textColor: args.options.getTextColor(context),
+            wide: isWide,
+            showedKeyboard: () {
+              return args.keyboardHeightRatio() < 0.5;
+            },
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
       child: Align(
         alignment: Alignment.topCenter,
@@ -184,7 +210,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
   Widget keyboardMenu({required bool isWide}) {
     return Container(
       decoration: BoxDecoration(
-        color: args.options.getForegroundColor(context).withOpacity(0.9),
+        color: args.options.getForegroundColor(context).withValues(alpha: 0.9),
       ),
       height: keyboardMenuHeight,
       child: SingleChildScrollView(
@@ -196,7 +222,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               CustomIconButton(
                 icon: Icons.arrow_back_rounded,
                 bgColor: args.options.getForegroundColor(context),
-                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                fgColor:
+                    args.options.getTextColor(context)?.withValues(alpha: 0.6),
                 onTap: () => moveFocus(false),
                 // buttonSize: buttonSize,
               ),
@@ -204,7 +231,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               CustomIconButton(
                 icon: Icons.arrow_forward_rounded,
                 bgColor: args.options.getForegroundColor(context),
-                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                fgColor:
+                    args.options.getTextColor(context)?.withValues(alpha: 0.6),
                 onTap: () => moveFocus(true),
                 // buttonSize: buttonSize,
               ),
@@ -212,7 +240,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               CustomIconButton(
                 icon: Icons.keyboard_hide_rounded,
                 bgColor: args.options.getForegroundColor(context),
-                fgColor: args.options.getTextColor(context)?.withOpacity(0.6),
+                fgColor:
+                    args.options.getTextColor(context)?.withValues(alpha: 0.6),
                 onTap: args.onKeyboadClose,
                 // buttonSize: buttonSize,
               ),

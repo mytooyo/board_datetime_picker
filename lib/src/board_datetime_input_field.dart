@@ -12,6 +12,8 @@ import 'utils/board_enum.dart';
 import 'utils/board_input_filed_utilities.dart';
 import 'utils/datetime_util.dart';
 
+typedef BoardDateTimeCustomValidator = String? Function(String);
+
 /// Class for handling validation on error.
 /// When an error occurs in checking when text is changed or when the focus is lost,
 /// a function is called depending on the type of error.
@@ -25,6 +27,11 @@ class BoardDateTimeInputFieldValidators {
   /// Message in case of a required error
   final String? Function()? onRequired;
 
+  /// This is specified when implementing custom validation.
+  /// The validations are evaluated sequentially in a list format from top to bottom.
+  /// If a validation error occurs, subsequent evaluations will not be performed.
+  final List<BoardDateTimeCustomValidator> customValidators;
+
   /// Specify whether messages are displayed below text fields by default
   /// If true, an error message is displayed at the bottom of the field as in a normal TextFormField.
   final bool showMessage;
@@ -34,6 +41,7 @@ class BoardDateTimeInputFieldValidators {
     this.onOutOfRange,
     this.onRequired,
     this.showMessage = false,
+    this.customValidators = const [],
   });
 
   String? _errorIllegal(String text) {
@@ -355,7 +363,13 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       // If the focus is out of focus, but the focus has moved to another InputField
       // never tapped on the textfield, but text selected or modified
       final pf = FocusManager.instance.primaryFocus;
-      if (pf is BoardDateTimeInputFocusNode || !scopeListenerRegistered) {
+      final focusList = pf?.children ?? [];
+      final existsBdtFocusNode = focusList.any((x) =>
+          x is BoardDateTimeInputFocusNode || x is PickerContentsFocusNode);
+      if (!scopeListenerRegistered) {
+        closePicker();
+        onFinished();
+      } else if (!existsBdtFocusNode && pf is! PickerContentsFocusNode) {
         closePicker();
         onFinished();
       }
@@ -602,14 +616,25 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
                       textOffset == format.length,
                 ).error;
 
-                if (error == null) return null;
-
-                switch (error) {
-                  case BoardDateTimeInputError.illegal:
-                    return widget.validators._errorIllegal(value);
-                  case BoardDateTimeInputError.outOfRange:
-                    return widget.validators._errorOutOfRange(value);
+                if (error != null) {
+                  switch (error) {
+                    case BoardDateTimeInputError.illegal:
+                      return widget.validators._errorIllegal(value);
+                    case BoardDateTimeInputError.outOfRange:
+                      return widget.validators._errorOutOfRange(value);
+                  }
                 }
+
+                final customValidators = widget.validators.customValidators;
+                if (customValidators.isNotEmpty) {
+                  for (final validator in customValidators) {
+                    final result = validator.call(value);
+                    if (result != null) {
+                      return result;
+                    }
+                  }
+                }
+                return null;
               }
             : null,
         inputFormatters: [
@@ -1004,7 +1029,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       final hasFocus = pickerFocusNode.hasFocus;
       if (hasFocus) {
         checkFormat(textController.text, complete: true);
-        onFinished();
+        // onFinished();
       }
       closePicker();
       FocusManager.instance.primaryFocus?.unfocus();

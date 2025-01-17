@@ -41,6 +41,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.topMargin,
     required this.onTopActionBuilder,
     required this.actionButtonTypes,
+    required this.onReset,
     required this.customCloseButtonBuilder,
   });
 
@@ -118,6 +119,9 @@ class BoardDateTimeHeader extends StatefulWidget {
   /// List of buttons to select dates.
   final List<BoardDateButtonType> actionButtonTypes;
 
+  /// reset button callback (if use reset)
+  final void Function()? onReset;
+
   /// Custom Close Button Builder
   final CloseButtonBuilder? customCloseButtonBuilder;
 
@@ -169,6 +173,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final onReset = widget.onReset;
     final topActionWidget = widget.onTopActionBuilder?.call(context);
 
     final child = Container(
@@ -176,7 +181,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.foregroundColor.withOpacity(0.99),
+        color: widget.foregroundColor.withValues(alpha: 0.99),
       ),
       clipBehavior: Clip.antiAlias,
       child: Row(
@@ -207,6 +212,21 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
           //     ),
           //   ),
           // ),
+          if (onReset != null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: () {
+                    widget.onReset?.call();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+              onTap: () {},
+            ),
           if (widget.customCloseButtonBuilder != null) ...[
             widget.customCloseButtonBuilder!(
                 context, widget.modal, widget.onClose),
@@ -342,7 +362,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
     return Material(
       color: selected
           ? widget.activeColor
-          : widget.backgroundColor.withOpacity(0.8),
+          : widget.backgroundColor.withValues(alpha: 0.8),
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.circular(4),
       child: InkWell(
@@ -356,7 +376,7 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: selected
                         ? widget.activeTextColor
-                        : widget.textColor?.withOpacity(0.9),
+                        : widget.textColor?.withValues(alpha: 0.9),
                   ),
             ),
           ),
@@ -438,7 +458,8 @@ class _BoardDateTimeNoneButtonHeaderState
             CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),
-              fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+              fgColor:
+                  widget.options.getTextColor(context)?.withValues(alpha: 0.8),
               onTap: widget.onCalendar,
               buttonSize: buttonSize,
               child: Transform.rotate(
@@ -525,7 +546,9 @@ class _BoardDateTimeNoneButtonHeaderState
             : CustomIconButton(
                 icon: Icons.close_rounded,
                 bgColor: widget.options.getForegroundColor(context),
-                fgColor: widget.options.getTextColor(context)?.withOpacity(0.8),
+                fgColor: widget.options
+                    .getTextColor(context)
+                    ?.withValues(alpha: 0.8),
                 onTap: widget.onClose,
                 buttonSize: buttonSize,
               ));

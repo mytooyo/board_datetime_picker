@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -33,6 +34,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.onChangeDateType,
     required this.pickerFormat,
     required this.topMargin,
+    required this.onTopActionBuilder,
+    required this.onReset,
+    required this.useAmpm,
   });
 
   /// Wide mode display flag
@@ -109,6 +113,15 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// Header Top margin
   final double topMargin;
 
+  /// Specify a Widget to be displayed in the action button area externally
+  final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// reset button callback (if use reset)
+  final void Function()? onReset;
+
+  /// Flag whether AM/PM mode is used
+  final bool useAmpm;
+
   @override
   State<BoardDateTimeMultiHeader> createState() =>
       _BoardDateTimeMultiHeaderState();
@@ -159,6 +172,9 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
 
   @override
   Widget build(BuildContext context) {
+    final onReset = widget.onReset;
+    final topActionWidget = widget.onTopActionBuilder?.call(context);
+
     final rightIcon = widget.modal
         ? IconButton(
             onPressed: () {
@@ -183,77 +199,85 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       margin: EdgeInsets.only(top: widget.topMargin, left: 8, right: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: widget.foregroundColor.withOpacity(0.99),
+        color: widget.foregroundColor.withValues(alpha: 0.99),
       ),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            alignment: Alignment.center,
-            child: widget.pickerType != DateTimePickerType.time && !widget.wide
-                ? Opacity(
-                    opacity: 0.6,
-                    child: IconButton(
-                      onPressed: widget.onCalendar,
-                      icon: Transform.rotate(
-                        angle: pi * 4 * widget.calendarAnimation.value,
-                        child: Icon(
-                          widget.calendarAnimation.value > 0.5
-                              ? Icons.view_day_rounded
-                              : Icons.calendar_month_rounded,
-                          size: 20,
-                        ),
-                      ),
-                      color: widget.textColor,
-                    ),
-                  )
-                : const SizedBox(),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.center,
-              child: AnimatedBuilder(
-                animation: animationController,
-                builder: (context, child) {
-                  return ValueListenableBuilder(
-                    valueListenable: widget.currentDateType,
-                    builder: (context, value, child) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: dateItemWidth * startScaleAnimation.value,
-                            height: 32 * startScaleAnimation.value,
-                            child: _datetimeItem(
-                              widget.startDate,
-                              MultiCurrentDateType.start,
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            height: 2,
-                            width: 12,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(1),
-                              color: widget.backgroundColor,
-                            ),
-                          ),
-                          SizedBox(
-                            width: dateItemWidth * endScaleAnimation.value,
-                            height: 32 * endScaleAnimation.value,
-                            child: _datetimeItem(
-                              widget.endDate,
-                              MultiCurrentDateType.end,
-                            ),
-                          ),
-                        ],
+          if (widget.pickerType != DateTimePickerType.time)
+            _calendarButton()
+          else
+            SizedBox(width: onReset != null ? 8 : 40),
+          if (topActionWidget == null) ...[
+            Expanded(
+              child: Align(
+                alignment: onReset != null && !widget.wide
+                    ? Alignment.centerLeft
+                    : Alignment.center,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: AnimatedBuilder(
+                    animation: animationController,
+                    builder: (context, child) {
+                      return ValueListenableBuilder(
+                        valueListenable: widget.currentDateType,
+                        builder: (context, value, child) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width:
+                                    dateItemWidth * startScaleAnimation.value,
+                                height: 32 * startScaleAnimation.value,
+                                child: _datetimeItem(
+                                  widget.startDate,
+                                  MultiCurrentDateType.start,
+                                ),
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                height: 2,
+                                width: 12,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(1),
+                                  color: widget.backgroundColor,
+                                ),
+                              ),
+                              SizedBox(
+                                width: dateItemWidth * endScaleAnimation.value,
+                                height: 32 * endScaleAnimation.value,
+                                child: _datetimeItem(
+                                  widget.endDate,
+                                  MultiCurrentDateType.end,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          ),
+          ] else ...[
+            Expanded(child: topActionWidget),
+          ],
+          if (onReset != null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: IconButton(
+                  onPressed: () {
+                    widget.onReset?.call();
+                  },
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+              onTap: () {},
+            ),
           GestureDetector(
             child: Container(
               width: 40,
@@ -275,6 +299,33 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
       );
     }
     return child;
+  }
+
+  Widget _calendarButton() {
+    if (widget.wide) {
+      if (widget.onReset == null) {
+        return const SizedBox(width: 40);
+      } else {
+        return const SizedBox(width: 80);
+      }
+    } else {
+      return Opacity(
+        opacity: 0.6,
+        child: IconButton(
+          onPressed: widget.onCalendar,
+          icon: Transform.rotate(
+            angle: pi * 4 * widget.calendarAnimation.value,
+            child: Icon(
+              widget.calendarAnimation.value > 0.5
+                  ? Icons.view_day_rounded
+                  : Icons.calendar_month_rounded,
+              size: 20,
+            ),
+          ),
+          color: widget.textColor,
+        ),
+      );
+    }
   }
 
   Widget _datetimeItem(
@@ -304,13 +355,17 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
         format += ' HH:mm';
       }
     } else {
-      format = 'HH:mm';
+      if (widget.useAmpm) {
+        format = 'hh:mm';
+      } else {
+        format = 'HH:mm';
+      }
     }
 
     return Material(
       color: selected
           ? widget.activeColor
-          : widget.backgroundColor.withOpacity(0.8),
+          : widget.backgroundColor.withValues(alpha: 0.8),
       clipBehavior: Clip.antiAlias,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
@@ -326,14 +381,20 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
           child: ValueListenableBuilder(
             valueListenable: date,
             builder: (context, val, child) {
+              String prefix = '';
+              if (widget.pickerType == DateTimePickerType.time &&
+                  widget.useAmpm) {
+                final ampmData = DateTimeUtil.ampmContrastMap[val.hour]!;
+                prefix = '${ampmData.ampm.display} ';
+              }
               return FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
-                  DateFormat(format).format(val),
+                  '$prefix${DateFormat(format).format(val)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: selected
                             ? widget.activeTextColor
-                            : widget.textColor?.withOpacity(0.9),
+                            : widget.textColor?.withValues(alpha: 0.9),
                       ),
                 ),
               );

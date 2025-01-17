@@ -30,6 +30,8 @@ class BoardDateTimeOptions {
       BoardDateButtonType.tomorrow
     ],
     this.calendarSelectionBuilder,
+    this.useResetButton = false,
+    this.useAmpm = false,
   });
 
   /// #### Picker Background Color
@@ -167,6 +169,14 @@ class BoardDateTimeOptions {
   /// Background radius for the date selected in the calendar.
   /// If not specified, display as a circle
   final double? calendarSelectionRadius;
+
+  /// If you want to use the reset button, please set it to true.
+  /// The reset button will be displayed on the right side of the header section.
+  final bool useResetButton;
+
+  /// Set if the time is to be displayed as AM/PM.
+  /// This value is valid only for `DateTimePickerType.time`
+  final bool useAmpm;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }

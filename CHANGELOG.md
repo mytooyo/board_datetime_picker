@@ -1,3 +1,17 @@
+## 2.3.0
+
+* Added AM/PM support.
+* Added feature to add custom validation to input fields.
+
+## 2.2.1
+
+* Added feature to reset button.
+* Fixed bugs.
+
+## 2.2.0
+
+* Deprecation fixes in Flutter 3.27
+
 ## 2.1.6
 
 * Added feature to customize selected items in the calendar.
