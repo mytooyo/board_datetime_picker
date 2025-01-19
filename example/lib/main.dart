@@ -225,6 +225,30 @@ class PickerItemWidget extends StatelessWidget {
                       seconds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
                     )
                   : null,
+              // separators: BoardDateTimePickerSeparators(
+              //   date: PickerSeparator.none,
+              //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {
+              //     return Container(
+              //       height: 4,
+              //       width: 8,
+              //       decoration: BoxDecoration(
+              //         color: Colors.red,
+              //         borderRadius: BorderRadius.circular(2),
+              //       ),
+              //     );
+              //   },
+              //   time: PickerSeparator.colon,
+              //   timeSeparatorBuilder: (context, defaultTextStyle) {
+              //     return Container(
+              //       height: 8,
+              //       width: 4,
+              //       decoration: BoxDecoration(
+              //         color: Colors.blue,
+              //         borderRadius: BorderRadius.circular(2),
+              //       ),
+              //     );
+              //   },
+              // ),
             ),
             // Specify if you want changes in the picker to take effect immediately.
             valueNotifier: date,

@@ -70,6 +70,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
 
   PickerCalendarArgs get args => widget.arguments;
 
+  BoardDateTimeOptions get options => args.options;
+
   Widget calendar({required Color? background, required bool isWide}) {
     if (args.multiple) {
       return SizedBox(
@@ -128,9 +130,12 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
   }
 
   Widget picker({required bool isWide}) {
-    final items = args.listOptions.map(
-      (x) {
-        return Expanded(
+    final separator = options.separators;
+
+    List<Widget> items = [];
+    for (final x in args.listOptions) {
+      items.add(
+        Expanded(
           flex: x.flex,
           child: ItemWidget(
             key: x.stateKey,
@@ -145,9 +150,44 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             subTitle: x.subTitle,
             inputable: args.options.inputable,
           ),
-        );
-      },
-    ).toList();
+        ),
+      );
+
+      if (separator != null) {
+        final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              color: args.options.getTextColor(context),
+            );
+        if (x.type == DateType.year || x.type == DateType.month) {
+          items.add(
+            separator.dateSeparatorBuilder?.call(context, textStyle) ??
+                Text(
+                  separator.date.display,
+                  style: textStyle,
+                ),
+          );
+        } else if (x.type == DateType.hour ||
+            (x.type == DateType.minute && args.options.withSecond)) {
+          items.add(
+            separator.timeSeparatorBuilder?.call(context, textStyle) ??
+                Text(
+                  separator.time.display,
+                  style: textStyle,
+                ),
+          );
+        } else if (x.type == DateType.day &&
+            args.pickerType == DateTimePickerType.datetime) {
+          items.add(
+            separator.dateTimeSeparatorBuilder?.call(context, textStyle) ??
+                Text(
+                  separator.dateTime.display,
+                  style: textStyle,
+                ),
+          );
+        }
+      }
+    }
 
     // AM/PM
     if (DateTimePickerType.time == args.pickerType && args.options.useAmpm) {
