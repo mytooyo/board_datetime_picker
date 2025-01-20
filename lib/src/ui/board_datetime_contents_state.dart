@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:board_datetime_picker/src/ui/parts/header.dart';
-import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -10,6 +8,13 @@ import '../options/board_item_option.dart';
 import '../utils/board_datetime_result.dart';
 import '../utils/board_enum.dart';
 import '../utils/datetime_util.dart';
+import '../utils/board_datetime_options_extension.dart';
+
+typedef CloseButtonBuilder = Widget Function(
+  BuildContext context,
+  bool isModal,
+  void Function() onClose,
+);
 
 abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     extends StatefulWidget {

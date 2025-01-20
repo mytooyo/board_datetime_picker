@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'board_datetime_builder.dart';
 import 'board_datetime_multi_builder.dart';
 import 'board_datetime_options.dart';
-import 'ui/parts/header.dart';
+import 'ui/board_datetime_contents_state.dart';
 import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
 
@@ -48,7 +48,7 @@ Future<DateTime?> showBoardDateTimePickerForDateTime({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
-  final CloseButtonBuilder? customCloseButtonBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateTimeResult>(
     context: context,
@@ -118,7 +118,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
-  final CloseButtonBuilder? customCloseButtonBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateResult>(
       context: context,
@@ -437,6 +437,7 @@ Future<BoardDateTimeMultiSelection?>
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -479,6 +480,7 @@ Future<BoardDateTimeMultiSelection?>
           onChanged: onChanged,
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
           onTopActionBuilder: onTopActionBuilder,
+          customCloseButtonBuilder: customCloseButtonBuilder,
         ),
       );
     },
