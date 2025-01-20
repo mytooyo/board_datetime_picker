@@ -7,12 +7,7 @@ import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
 import 'buttons.dart';
-
-typedef CloseButtonBuilder = Widget Function(
-  BuildContext context,
-  bool isModal,
-  void Function() onClose,
-);
+import '../board_datetime_contents_state.dart';
 
 class BoardDateTimeHeader extends StatefulWidget {
   const BoardDateTimeHeader({
@@ -171,10 +166,35 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
 
   double get height => widget.wide ? 64 : 52;
 
+  Widget _defaultCloseButtonBuilder(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  ) =>
+      isModal
+          ? IconButton(
+              onPressed: onClose,
+              icon: const Icon(Icons.check_circle_rounded),
+              color: widget.activeColor,
+            )
+          : Opacity(
+              opacity: 0.6,
+              child: IconButton(
+                onPressed: onClose,
+                icon: const Icon(Icons.close_rounded),
+                color: widget.textColor,
+              ),
+            );
+
   @override
   Widget build(BuildContext context) {
     final onReset = widget.onReset;
     final topActionWidget = widget.onTopActionBuilder?.call(context);
+
+    final closeButtonBuilder =
+        widget.customCloseButtonBuilder ?? _defaultCloseButtonBuilder;
+    final closeButton =
+        closeButtonBuilder(context, widget.modal, widget.onClose);
 
     final child = Container(
       height: height,
@@ -227,29 +247,8 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
               ),
               onTap: () {},
             ),
-          if (widget.customCloseButtonBuilder != null) ...[
-            widget.customCloseButtonBuilder!(
-                context, widget.modal, widget.onClose),
-          ] else ...[
-            widget.modal
-                ? IconButton(
-                    onPressed: () {
-                      widget.onClose();
-                    },
-                    icon: const Icon(Icons.check_circle_rounded),
-                    color: widget.activeColor,
-                  )
-                : Opacity(
-                    opacity: 0.6,
-                    child: IconButton(
-                      onPressed: () {
-                        widget.onClose();
-                      },
-                      icon: const Icon(Icons.close_rounded),
-                      color: widget.textColor,
-                    ),
-                  ),
-          ]
+
+          closeButton,
         ],
       ),
     );
