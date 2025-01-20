@@ -127,6 +127,17 @@ class _MySampleAppState extends State<MySampleApp> {
                           );
                         },
                       ),
+                      PickerMultiSelectionItemWidget(
+                        pickerType: DateTimePickerType.datetime,
+                        customCloseButtonBuilder: (context, isModal, onClose) {
+                          return TextButton.icon(
+                            onPressed: onClose,
+                            icon: const Icon(Icons.check_circle_outline),
+                            iconAlignment: IconAlignment.end,
+                            label: const Text('Close😉'),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -341,9 +352,16 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
   PickerMultiSelectionItemWidget({
     super.key,
     required this.pickerType,
+    this.customCloseButtonBuilder,
   });
 
   final DateTimePickerType pickerType;
+
+  final Widget Function(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  )? customCloseButtonBuilder;
 
   final ValueNotifier<DateTime> start = ValueNotifier(DateTime.now());
   final ValueNotifier<DateTime> end = ValueNotifier(
@@ -373,6 +391,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
               useAmpm: false,
               // topMargin: 0,
             ),
+            customCloseButtonBuilder: customCloseButtonBuilder,
             // headerWidget: Container(
             //   height: 60,
             //   margin: const EdgeInsets.all((8)),
