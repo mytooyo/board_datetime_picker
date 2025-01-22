@@ -35,6 +35,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.pickerFormat,
     required this.topMargin,
     required this.onTopActionBuilder,
+    required this.confirmButton,
     required this.onReset,
     required this.useAmpm,
   });
@@ -115,6 +116,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
 
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// you can see it to [BoardDateTimeHeader.confirmButton]
+  final Widget? confirmButton;
 
   /// reset button callback (if use reset)
   final void Function()? onReset;
@@ -278,14 +282,22 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
               ),
               onTap: () {},
             ),
-          GestureDetector(
-            child: Container(
-              width: 40,
-              alignment: Alignment.center,
-              child: rightIcon,
+          if (widget.confirmButton != null)
+            GestureDetector(
+              onTap: () {
+                widget.onClose();
+              },
+              child: widget.confirmButton,
             ),
-            onTap: () {},
-          ),
+          if (widget.confirmButton == null)
+            GestureDetector(
+              child: Container(
+                width: 40,
+                alignment: Alignment.center,
+                child: rightIcon,
+              ),
+              onTap: () {},
+            ),
         ],
       ),
     );

@@ -36,6 +36,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.onTopActionBuilder,
     required this.actionButtonTypes,
     required this.onReset,
+    required this.confirmButton,
   });
 
   /// Wide mode display flag
@@ -114,6 +115,15 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// reset button callback (if use reset)
   final void Function()? onReset;
+
+  /// Confirm button , Render result:
+  /// ```dart
+  /// GestureDetector(
+  ///   onTap: ()=> close()
+  ///   child: confirmButton
+  /// )
+  /// ```
+  final Widget? confirmButton;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -217,24 +227,32 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
               ),
               onTap: () {},
             ),
-          widget.modal
-              ? IconButton(
-                  onPressed: () {
-                    widget.onClose();
-                  },
-                  icon: const Icon(Icons.check_circle_rounded),
-                  color: widget.activeColor,
-                )
-              : Opacity(
-                  opacity: 0.6,
-                  child: IconButton(
+          if (widget.confirmButton != null)
+            GestureDetector(
+              onTap: () {
+                widget.onClose();
+              },
+              child: widget.confirmButton!,
+            ),
+          if (widget.confirmButton == null)
+            widget.modal
+                ? IconButton(
                     onPressed: () {
                       widget.onClose();
                     },
-                    icon: const Icon(Icons.close_rounded),
-                    color: widget.textColor,
+                    icon: const Icon(Icons.check_circle_rounded),
+                    color: widget.activeColor,
+                  )
+                : Opacity(
+                    opacity: 0.6,
+                    child: IconButton(
+                      onPressed: () {
+                        widget.onClose();
+                      },
+                      icon: const Icon(Icons.close_rounded),
+                      color: widget.textColor,
+                    ),
                   ),
-                ),
         ],
       ),
     );

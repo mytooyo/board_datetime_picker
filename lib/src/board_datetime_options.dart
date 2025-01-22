@@ -32,6 +32,7 @@ class BoardDateTimeOptions {
     this.calendarSelectionBuilder,
     this.useResetButton = false,
     this.useAmpm = false,
+    this.confirmButton,
   });
 
   /// #### Picker Background Color
@@ -177,6 +178,9 @@ class BoardDateTimeOptions {
   /// Set if the time is to be displayed as AM/PM.
   /// This value is valid only for `DateTimePickerType.time`
   final bool useAmpm;
+
+  /// you can see it to [BoardDateTimeHeader.confirmButton]
+  final Widget? confirmButton;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
