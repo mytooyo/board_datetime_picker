@@ -32,6 +32,7 @@ class BoardDateTimeOptions {
     this.calendarSelectionBuilder,
     this.useResetButton = false,
     this.useAmpm = false,
+    this.separators,
   });
 
   /// #### Picker Background Color
@@ -177,6 +178,11 @@ class BoardDateTimeOptions {
   /// Set if the time is to be displayed as AM/PM.
   /// This value is valid only for `DateTimePickerType.time`
   final bool useAmpm;
+
+  /// Specify the separator between items displayed in the Picker.
+  /// If not specified, no separator will be displayed.
+  /// By default, nothing is specified.
+  final BoardDateTimePickerSeparators? separators;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
@@ -336,4 +342,73 @@ class BoardDateTimeItemTitles {
         minute == null &&
         second == null;
   }
+}
+
+enum PickerSeparator {
+  /// '/'
+  slash('/'),
+
+  /// '-'
+  hyphen('-'),
+
+  /// '.'
+  period('.'),
+
+  /// ':'
+  colon(':'),
+
+  /// ''
+  none('');
+
+  final String display;
+  const PickerSeparator(this.display);
+}
+
+typedef PickerSeparatorBuilder = Widget Function(
+  BuildContext context,
+  TextStyle? defaultTextStyle,
+);
+
+/// [BoardDateTimePickerSeparators] is used to specify the separators for dates and times displayed in the Picker.
+///
+/// By default, there are no separators.
+/// `dateSeparatorBuilder` specifies the widget placed between the year and month,
+/// as well as between the month and day.
+/// If unspecified, `date` value is displayed (the default is /)
+///
+/// `timeSeparatorBuilder` specifies the widget placed between the hour and minute.
+/// If unspecified, `time` value is displayed (the default is :).
+///
+/// `dateTimeSeparatorBuilder` specifies the widget placed between the day and hour.
+/// If unspecified, `dateTime` value is displayed (the default is none)
+/// `dateTimeSeparatorBuilder` and `dateTime` parameter are only valid when the PickerType is set to `datetime`.
+///
+class BoardDateTimePickerSeparators {
+  /// `dateSeparatorBuilder` specifies the widget placed between the year and month,
+  /// and between the month
+  final PickerSeparatorBuilder? dateSeparatorBuilder;
+
+  /// If unspecified, the date value is displayed (the default is /)
+  final PickerSeparator date;
+
+  /// `timeSeparatorBuilder` specifies the widget placed between hours and minutes.
+  final PickerSeparatorBuilder? timeSeparatorBuilder;
+
+  /// If unspecified, the time value is displayed (the default is :).
+  final PickerSeparator time;
+
+  /// If unspecified, the dateTime value is displayed (the default is none)
+  final PickerSeparator dateTime;
+
+  /// `dateTimeSeparatorBuilder` specifies the widget placed between day and hour.
+  final PickerSeparatorBuilder? dateTimeSeparatorBuilder;
+
+  const BoardDateTimePickerSeparators({
+    this.dateSeparatorBuilder,
+    this.timeSeparatorBuilder,
+    this.dateTimeSeparatorBuilder,
+    this.date = PickerSeparator.slash,
+    this.time = PickerSeparator.colon,
+    this.dateTime = PickerSeparator.none,
+  });
 }

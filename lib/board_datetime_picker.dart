@@ -20,7 +20,10 @@ export 'src/board_datetime_options.dart'
         BoardPickerCustomOptions,
         PickerFormat,
         BoardDateTimeItemTitles,
-        BoardPickerWeekendOptions;
+        BoardPickerWeekendOptions,
+        BoardDateTimePickerSeparators,
+        PickerSeparator,
+        PickerSeparatorBuilder;
 export 'src/board_datetime_widget.dart'
     show
         showBoardDateTimePicker,
