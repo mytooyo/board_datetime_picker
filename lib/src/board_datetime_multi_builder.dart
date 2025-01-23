@@ -43,6 +43,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onResult,
     required super.headerWidget,
     required super.onTopActionBuilder,
+    required super.confirmButton,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -370,6 +371,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onChangeDateType: onChangeDateType,
       topMargin: widget.options.topMargin,
       onTopActionBuilder: widget.onTopActionBuilder,
+      confirmButton: widget.confirmButton ?? widget.options.confirmButton,
       onReset: widget.options.useResetButton ? reset : null,
       useAmpm: widget.options.useAmpm,
     );

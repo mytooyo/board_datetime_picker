@@ -115,6 +115,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  Widget? confirmButton,
 }) async {
   return await showBoardDateTimePicker<BoardDateResult>(
       context: context,
@@ -138,7 +139,8 @@ Future<DateTime?> showBoardDateTimePickerForDate({
       enableDrag: enableDrag,
       showDragHandle: showDragHandle,
       useSafeArea: useSafeArea,
-      onTopActionBuilder: onTopActionBuilder);
+      onTopActionBuilder: onTopActionBuilder,
+      confirmButton: confirmButton);
 }
 
 /// Show a Modal Picker for Time bottom sheet.
@@ -185,6 +187,7 @@ Future<DateTime?> showBoardDateTimePickerForTime({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  final Widget? confirmButton,
 }) async {
   return await showBoardDateTimePicker<BoardTimeResult>(
       context: context,
@@ -208,7 +211,8 @@ Future<DateTime?> showBoardDateTimePickerForTime({
       enableDrag: enableDrag,
       showDragHandle: showDragHandle,
       useSafeArea: useSafeArea,
-      onTopActionBuilder: onTopActionBuilder);
+      onTopActionBuilder: onTopActionBuilder,
+      confirmButton: confirmButton);
 }
 
 /// Show a BoardDateTimePicker modal bottom sheet.
@@ -259,6 +263,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  Widget? confirmButton,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -300,6 +305,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
           onChanged: onChanged,
           onResult: (val) => onResult?.call(val as T),
           onTopActionBuilder: onTopActionBuilder,
+          confirmButton: confirmButton,
         ),
       );
     },
@@ -320,6 +326,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
     this.onResult,
     required this.headerWidget,
     required this.onTopActionBuilder,
+    required this.confirmButton,
   });
 
   final BoardDateTimeController? controller;
@@ -334,6 +341,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
   final void Function(DateTime)? onChanged;
   final void Function(BoardDateTimeCommonResult)? onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
+  final Widget? confirmButton;
 
   @override
   State<_SingleBoardDateTimeWidget> createState() =>
@@ -376,6 +384,7 @@ class _SingleBoardDateTimeWidgetState
         widget.valueNotifier?.value = val;
       },
       onTopActionBuilder: widget.onTopActionBuilder,
+      confirmButton: widget.confirmButton,
     );
   }
 }
@@ -424,6 +433,7 @@ Future<BoardDateTimeMultiSelection?>
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  Widget? confirmButton,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -466,6 +476,7 @@ Future<BoardDateTimeMultiSelection?>
           onChanged: onChanged,
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
           onTopActionBuilder: onTopActionBuilder,
+          confirmButton: confirmButton,
         ),
       );
     },
@@ -487,6 +498,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
     this.onResult,
     this.headerWidget,
     this.onTopActionBuilder,
+    this.confirmButton,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -503,6 +515,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
   final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
       onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
+  final Widget? confirmButton;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
@@ -569,6 +582,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
         );
       },
       onTopActionBuilder: widget.onTopActionBuilder,
+      confirmButton: widget.confirmButton,
     );
   }
 }

@@ -172,6 +172,7 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
     this.readOnly = false,
     this.enabled,
     this.onTopActionBuilder,
+    this.confirmButton,
   });
 
   /// #### Date of initial selection state.
@@ -223,6 +224,9 @@ class BoardDateTimeInputField<T extends BoardDateTimeCommonResult>
 
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// you can see it to [BoardDateTimeHeader.confirmButton]
+  final Widget? confirmButton;
 
   final double breakpoint;
 
@@ -1061,6 +1065,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           onKeyboadClose: onClosePicker,
           headerWidget: null,
           onTopActionBuilder: widget.onTopActionBuilder,
+          confirmButton: widget.confirmButton,
         ),
       ),
     );

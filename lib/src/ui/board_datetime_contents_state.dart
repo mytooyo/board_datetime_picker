@@ -29,6 +29,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onUpdateByClose,
     required this.headerWidget,
     required this.onTopActionBuilder,
+    required this.confirmButton,
   });
 
   final double breakpoint;
@@ -63,6 +64,9 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// you can see it to [BoardDateTimeHeader.confirmButton]
+  final Widget? confirmButton;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,

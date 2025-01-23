@@ -107,6 +107,7 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
     this.resizeBottom = true,
     this.headerWidget,
     this.onTopActionBuilder,
+    this.confirmButton,
   });
 
   /// #### [DateTimeBuilder] Builder
@@ -149,6 +150,9 @@ class BoardDateTimeBuilder<T extends BoardDateTimeCommonResult>
 
   /// Specify a Widget to be displayed in the action button area externally
   final Widget Function(BuildContext context)? onTopActionBuilder;
+
+  /// you can see it to [BoardDateTimeHeader.confirmButton]
+  final Widget? confirmButton;
 
   @override
   State<BoardDateTimeBuilder> createState() => _BoardDateTimeBuilderState<T>();
@@ -200,6 +204,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
         keyboardHeightNotifier: keyboardHeightNotifier,
         headerWidget: widget.headerWidget,
         onTopActionBuilder: widget.onTopActionBuilder,
+        confirmButton: widget.confirmButton,
       );
     }
 
@@ -251,6 +256,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.onUpdateByClose,
     required super.headerWidget,
     required super.onTopActionBuilder,
+    required super.confirmButton,
   });
 
   final void Function(DateTime)? onChange;
@@ -460,6 +466,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onTopActionBuilder: widget.onTopActionBuilder,
       actionButtonTypes: widget.options.actionButtonTypes,
       onReset: widget.options.useResetButton ? reset : null,
+      confirmButton: widget.confirmButton ?? widget.options.confirmButton,
     );
   }
 }

@@ -112,6 +112,50 @@ class _MySampleAppState extends State<MySampleApp> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+                  SectionWidget(
+                    title: 'Custom Confirmation Button',
+                    items: [
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.date,
+                        confirmButtonOnly: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          margin: const EdgeInsets.only(right: 12),
+                          decoration: BoxDecoration(
+                              color: Colors.deepPurpleAccent,
+                              borderRadius: BorderRadius.circular(8)),
+                          child: const Text(
+                            "submit-Only",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      PickerItemWidget(
+                        pickerType: DateTimePickerType.time,
+                        confirmButtonOption: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          margin: const EdgeInsets.only(right: 12),
+                          decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(8)),
+                          child: const Text(
+                            "submit-Option",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -195,9 +239,14 @@ class PickerItemWidget extends StatelessWidget {
   PickerItemWidget({
     super.key,
     required this.pickerType,
+    this.confirmButtonOnly,
+    this.confirmButtonOption,
   });
 
   final DateTimePickerType pickerType;
+
+  final Widget? confirmButtonOnly;
+  final Widget? confirmButtonOption;
 
   final ValueNotifier<DateTime> date = ValueNotifier(DateTime.now());
 
@@ -211,12 +260,14 @@ class PickerItemWidget extends StatelessWidget {
           final result = await showBoardDateTimePicker(
             context: context,
             pickerType: pickerType,
+            confirmButton: confirmButtonOnly,
             // initialDate: DateTime.now(),
             // minimumDate: DateTime.now().add(const Duration(days: 1)),
             options: BoardDateTimeOptions(
               languages: const BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
+              confirmButton: confirmButtonOption,
               // boardTitle: 'Board Picker',
               // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
               withSecond: DateTimePickerType.time == pickerType,
