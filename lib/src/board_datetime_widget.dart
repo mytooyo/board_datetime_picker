@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'board_datetime_builder.dart';
 import 'board_datetime_multi_builder.dart';
 import 'board_datetime_options.dart';
+import 'ui/board_datetime_contents_state.dart';
 import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
 
@@ -47,6 +48,7 @@ Future<DateTime?> showBoardDateTimePickerForDateTime({
   bool enableDrag = true,
   bool? showDragHandle,
   bool useSafeArea = false,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateTimeResult>(
     context: context,
@@ -68,6 +70,7 @@ Future<DateTime?> showBoardDateTimePickerForDateTime({
     enableDrag: enableDrag,
     showDragHandle: showDragHandle,
     useSafeArea: useSafeArea,
+    customCloseButtonBuilder: customCloseButtonBuilder,
   );
 }
 
@@ -115,6 +118,7 @@ Future<DateTime?> showBoardDateTimePickerForDate({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardDateResult>(
       context: context,
@@ -138,7 +142,8 @@ Future<DateTime?> showBoardDateTimePickerForDate({
       enableDrag: enableDrag,
       showDragHandle: showDragHandle,
       useSafeArea: useSafeArea,
-      onTopActionBuilder: onTopActionBuilder);
+      onTopActionBuilder: onTopActionBuilder,
+      customCloseButtonBuilder: customCloseButtonBuilder);
 }
 
 /// Show a Modal Picker for Time bottom sheet.
@@ -185,30 +190,33 @@ Future<DateTime?> showBoardDateTimePickerForTime({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   return await showBoardDateTimePicker<BoardTimeResult>(
-      context: context,
-      controller: controller,
-      valueNotifier: valueNotifier,
-      pickerType: DateTimePickerType.time,
-      onChanged: onChanged,
-      onResult: onResult,
-      initialDate: initialDate,
-      minimumDate: minimumDate,
-      maximumDate: maximumDate,
-      options: options,
-      headerWidget: headerWidget,
-      breakpoint: breakpoint,
-      radius: radius,
-      barrierColor: barrierColor,
-      routeSettings: routeSettings,
-      transitionAnimationController: transitionAnimationController,
-      useRootNavigator: useRootNavigator,
-      isDismissible: isDismissible,
-      enableDrag: enableDrag,
-      showDragHandle: showDragHandle,
-      useSafeArea: useSafeArea,
-      onTopActionBuilder: onTopActionBuilder);
+    context: context,
+    controller: controller,
+    valueNotifier: valueNotifier,
+    pickerType: DateTimePickerType.time,
+    onChanged: onChanged,
+    onResult: onResult,
+    initialDate: initialDate,
+    minimumDate: minimumDate,
+    maximumDate: maximumDate,
+    options: options,
+    headerWidget: headerWidget,
+    breakpoint: breakpoint,
+    radius: radius,
+    barrierColor: barrierColor,
+    routeSettings: routeSettings,
+    transitionAnimationController: transitionAnimationController,
+    useRootNavigator: useRootNavigator,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    showDragHandle: showDragHandle,
+    useSafeArea: useSafeArea,
+    onTopActionBuilder: onTopActionBuilder,
+    customCloseButtonBuilder: customCloseButtonBuilder,
+  );
 }
 
 /// Show a BoardDateTimePicker modal bottom sheet.
@@ -259,6 +267,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -300,6 +309,7 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
           onChanged: onChanged,
           onResult: (val) => onResult?.call(val as T),
           onTopActionBuilder: onTopActionBuilder,
+          customCloseButtonBuilder: customCloseButtonBuilder,
         ),
       );
     },
@@ -320,6 +330,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
     this.onResult,
     required this.headerWidget,
     required this.onTopActionBuilder,
+    required this.customCloseButtonBuilder,
   });
 
   final BoardDateTimeController? controller;
@@ -334,6 +345,7 @@ class _SingleBoardDateTimeWidget extends StatefulWidget {
   final void Function(DateTime)? onChanged;
   final void Function(BoardDateTimeCommonResult)? onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<_SingleBoardDateTimeWidget> createState() =>
@@ -376,6 +388,7 @@ class _SingleBoardDateTimeWidgetState
         widget.valueNotifier?.value = val;
       },
       onTopActionBuilder: widget.onTopActionBuilder,
+      customCloseButtonBuilder: widget.customCloseButtonBuilder,
     );
   }
 }
@@ -424,6 +437,7 @@ Future<BoardDateTimeMultiSelection?>
   bool? showDragHandle,
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
+  CloseButtonBuilder? customCloseButtonBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -466,6 +480,7 @@ Future<BoardDateTimeMultiSelection?>
           onChanged: onChanged,
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
           onTopActionBuilder: onTopActionBuilder,
+          customCloseButtonBuilder: customCloseButtonBuilder,
         ),
       );
     },
@@ -487,6 +502,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
     this.onResult,
     this.headerWidget,
     this.onTopActionBuilder,
+    this.customCloseButtonBuilder,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -503,6 +519,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
   final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
       onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
+  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
@@ -569,6 +586,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
         );
       },
       onTopActionBuilder: widget.onTopActionBuilder,
+      customCloseButtonBuilder: widget.customCloseButtonBuilder,
     );
   }
 }

@@ -1,11 +1,12 @@
 import 'dart:math';
 
-import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../board_datetime_contents_state.dart';
 import '../../board_datetime_options.dart';
 import '../../utils/board_enum.dart';
+import '../../utils/datetime_util.dart';
 
 class BoardDateTimeMultiHeader extends StatefulWidget {
   const BoardDateTimeMultiHeader({
@@ -37,6 +38,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.onTopActionBuilder,
     required this.onReset,
     required this.useAmpm,
+    required this.customCloseButtonBuilder,
   });
 
   /// Wide mode display flag
@@ -122,6 +124,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// Flag whether AM/PM mode is used
   final bool useAmpm;
 
+  /// Custom Close Button Builder
+  final CloseButtonBuilder? customCloseButtonBuilder;
+
   @override
   State<BoardDateTimeMultiHeader> createState() =>
       _BoardDateTimeMultiHeaderState();
@@ -170,29 +175,38 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
     }
   }
 
+  Widget _defaultCloseButtonBuilder(
+    BuildContext context,
+    bool isModal,
+    void Function() onClose,
+  ) =>
+      Container(
+        width: 40,
+        alignment: Alignment.center,
+        child: isModal
+            ? IconButton(
+                onPressed: onClose,
+                icon: const Icon(Icons.check_circle_rounded),
+                color: widget.activeColor,
+              )
+            : Opacity(
+                opacity: 0.6,
+                child: IconButton(
+                  onPressed: onClose,
+                  icon: const Icon(Icons.close_rounded),
+                  color: widget.textColor,
+                ),
+              ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final onReset = widget.onReset;
     final topActionWidget = widget.onTopActionBuilder?.call(context);
 
-    final rightIcon = widget.modal
-        ? IconButton(
-            onPressed: () {
-              widget.onClose();
-            },
-            icon: const Icon(Icons.check_circle_rounded),
-            color: widget.activeColor,
-          )
-        : Opacity(
-            opacity: 0.6,
-            child: IconButton(
-              onPressed: () {
-                widget.onClose();
-              },
-              icon: const Icon(Icons.close_rounded),
-              color: widget.textColor,
-            ),
-          );
+    final closeButtonBuilder =
+        widget.customCloseButtonBuilder ?? _defaultCloseButtonBuilder;
+    final rightIcon = closeButtonBuilder(context, widget.modal, widget.onClose);
 
     final child = Container(
       height: widget.wide ? 64 : 52,
@@ -279,11 +293,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
               onTap: () {},
             ),
           GestureDetector(
-            child: Container(
-              width: 40,
-              alignment: Alignment.center,
-              child: rightIcon,
-            ),
+            child: rightIcon,
             onTap: () {},
           ),
         ],

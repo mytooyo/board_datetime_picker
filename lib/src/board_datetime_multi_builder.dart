@@ -43,6 +43,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     this.onResult,
     required super.headerWidget,
     required super.onTopActionBuilder,
+    super.customCloseButtonBuilder,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -372,6 +373,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onTopActionBuilder: widget.onTopActionBuilder,
       onReset: widget.options.useResetButton ? reset : null,
       useAmpm: widget.options.useAmpm,
+      customCloseButtonBuilder: widget.customCloseButtonBuilder,
     );
   }
 }
