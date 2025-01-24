@@ -34,7 +34,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 2.3.0
+    board_datetime_picker: 2.4.0
 ```
 
 ## Usage
@@ -143,6 +143,7 @@ Those without [required] are optional.
 |maximumDate |DateTime|Maximum date in the selectable range. default is `DateTime(2050, 12, 31, 23, 59)`.|
 |resizeBottom|bool|Flag whether to resize the bottom of the specified Builder. If true, the picker is displayed under the builder in `Column`. default is `true`.|
 |options     |BoardDateTimeOptions|Class for defining options related to the UI used by [BoardDateTimeBuilder].|
+|customCloseButtonBuilder|Function|A builder function for customizing the close button.|
 
 When using `showBoardDateTimeMultiPicker`, specify `startDate` and `endDate` instead of `initialDate`.  
 Please guarantee that the correct values are entered, as it will not work correctly if the start and end are reversed at the time of the function call.
@@ -171,6 +172,13 @@ The same parameter is used in `showBoardDateTimePicker`.
 |pickerSubTitles|BoardDateTimeItemTitles|Specify the title of each item to be displayed in the picker|
 |weekend|BoardPickerWeekendOptions|Specify the color of Saturday and Sunday to be displayed in the calendar|
 |inputable|bool|Flag whether the date to be selected should be text-enabled or not. Default is `true`|
+|withSecond|bool|Flag to allow seconds to be specified. This parameter is only valid if `DateTimePickerType` is `time`. Default is `false`|
+|calendarSelectionRadius|double|Background radius for the date selected in the calendar. Default is `null`|
+|calendarSelectionBuilder|Function|Callback to build a Widget that displays the selected item in the calendar. Default is `null`|
+|actionButtonTypes|`List<BoardDateButtonType>`|List of buttons to select dates. Set the enum you want to display with a choice of yesterday, today, or tomorrow. Default is `today` and `tomorrow`.|
+|useResetButton|bool|The reset button will be displayed on the right side of the header section. Default is `false`|
+|useAmpm|bool|Set if the time is to be displayed as AM/PM. Default is `false`|
+|separators|BoardDateTimePickerSeparators|Specify the separator between items displayed in the Picker. Default is `null`|
 
 Sample of gradient background:
 

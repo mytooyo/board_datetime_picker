@@ -1,3 +1,9 @@
+## 2.4.0
+
+* Add ability to change close button widget.
+* Add separator option.
+* Fixed the issue preventing debugging of the example on Android.
+
 ## 2.3.0
 
 * Added AM/PM support.
