@@ -159,7 +159,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
               fontSize: 17,
               color: args.options.getTextColor(context),
             );
-        if (x.type == DateType.year || x.type == DateType.month) {
+        if (separatorTypes.contains(x.type)) {
           items.add(
             separator.dateSeparatorBuilder?.call(context, textStyle) ??
                 Text(
@@ -176,7 +176,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
                   style: textStyle,
                 ),
           );
-        } else if (x.type == DateType.day &&
+        } else if (x.type == lastYmdDateType &&
             args.pickerType == DateTimePickerType.datetime) {
           items.add(
             separator.dateTimeSeparatorBuilder?.call(context, textStyle) ??
@@ -223,6 +223,33 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         ),
       ),
     );
+  }
+
+  /// Function to return a list of DateType to insert a separator from PickerFormat.
+  List<DateType> get separatorTypes {
+    switch (options.pickerFormat) {
+      case PickerFormat.ymd:
+        return [DateType.year, DateType.month];
+      case PickerFormat.mdy:
+        return [DateType.month, DateType.day];
+      case PickerFormat.dmy:
+        return [DateType.day, DateType.month];
+      default:
+        return [];
+    }
+  }
+
+  DateType get lastYmdDateType {
+    switch (options.pickerFormat) {
+      case PickerFormat.ymd:
+        return DateType.day;
+      case PickerFormat.mdy:
+        return DateType.year;
+      case PickerFormat.dmy:
+        return DateType.year;
+      default:
+        return DateType.day;
+    }
   }
 
   void moveFocus(bool next) {

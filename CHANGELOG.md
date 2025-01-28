@@ -1,3 +1,7 @@
+## 2.4.1
+
+* Bug fix on separator position when PickerFormat is specified.
+
 ## 2.4.0
 
 * Add ability to change close button widget.

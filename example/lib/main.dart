@@ -261,7 +261,7 @@ class PickerItemWidget extends StatelessWidget {
                     )
                   : null,
               // separators: BoardDateTimePickerSeparators(
-              //   date: PickerSeparator.none,
+              //   date: PickerSeparator.slash,
               //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {
               //     return Container(
               //       height: 4,
