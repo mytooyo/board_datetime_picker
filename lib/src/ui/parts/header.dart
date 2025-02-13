@@ -497,13 +497,12 @@ class _BoardDateTimeNoneButtonHeaderState
   }
 
   Widget _title() {
-    if (widget.options.boardTitle == null ||
-        widget.options.boardTitle!.isEmpty) {
+    if (widget.options.boardTitle == null) {
       return const SizedBox();
     }
     return FittedBox(
       child: Text(
-        widget.options.boardTitle ?? '',
+        widget.options.boardTitle!(widget.dateState.value),
         style: widget.options.boardTitleTextStyle ??
             Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: widget.options.getTextColor(context),
@@ -563,9 +562,18 @@ class _BoardDateTimeNoneButtonHeaderState
 }
 
 class TopTitleWidget extends StatelessWidget {
-  const TopTitleWidget({super.key, required this.options});
+  const TopTitleWidget(
+      {super.key, required this.options, required this.selectedDayNotifier});
 
   final BoardDateTimeOptions options;
+  final ValueNotifier<DateTime> selectedDayNotifier;
+
+  String _getTitle() {
+    if (options.boardTitle != null) {
+      return options.boardTitle!(selectedDayNotifier.value);
+    }
+    return "";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -573,7 +581,7 @@ class TopTitleWidget extends StatelessWidget {
       margin: const EdgeInsets.only(top: 20, left: 8, right: 8),
       alignment: Alignment.center,
       child: Text(
-        options.boardTitle ?? '',
+        _getTitle(),
         style: options.boardTitleTextStyle ??
             Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: options.getTextColor(context),

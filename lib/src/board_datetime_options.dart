@@ -106,7 +106,7 @@ class BoardDateTimeOptions {
   final bool showDateButton;
 
   /// Title to be displayed at the top of the picker
-  final String? boardTitle;
+  final String Function(DateTime currentDateTime)? boardTitle;
 
   /// BoardTitle text style
   final TextStyle? boardTitleTextStyle;
