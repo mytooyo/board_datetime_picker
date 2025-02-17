@@ -412,6 +412,11 @@ class _SingleBoardDateTimeWidgetState
 /// `barrierColor`, `routeSettings`, `transitionAnimationController`, etc. are
 /// the parameters that are specified in the normal modal bottom sheet,
 /// so please check there for a description of the parameters.
+///
+/// `multiSelectionMaxDateBuilder`: Builder specifying the date range rules to be used in the case of multiple selections.
+/// Called when a starting date is selected and
+/// specifies the range of dates that can then be selected.
+/// **[attention]** This parameter overrides the default `maximumDate` value specified.
 Future<BoardDateTimeMultiSelection?>
     showBoardDateTimeMultiPicker<T extends BoardDateTimeCommonResult>({
   required BuildContext context,
@@ -438,6 +443,7 @@ Future<BoardDateTimeMultiSelection?>
   bool useSafeArea = false,
   Widget Function(BuildContext context)? onTopActionBuilder,
   CloseButtonBuilder? customCloseButtonBuilder,
+  MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -481,6 +487,7 @@ Future<BoardDateTimeMultiSelection?>
           onResult: (val1, val2) => onResult?.call(val1 as T, val2 as T),
           onTopActionBuilder: onTopActionBuilder,
           customCloseButtonBuilder: customCloseButtonBuilder,
+          multiSelectionMaxDateBuilder: multiSelectionMaxDateBuilder,
         ),
       );
     },
@@ -503,6 +510,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
     this.headerWidget,
     this.onTopActionBuilder,
     this.customCloseButtonBuilder,
+    this.multiSelectionMaxDateBuilder,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -520,6 +528,7 @@ class _MultiBoardDateTimeWidget extends StatefulWidget {
       onResult;
   final Widget Function(BuildContext context)? onTopActionBuilder;
   final CloseButtonBuilder? customCloseButtonBuilder;
+  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
@@ -587,6 +596,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
       },
       onTopActionBuilder: widget.onTopActionBuilder,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
+      multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
     );
   }
 }

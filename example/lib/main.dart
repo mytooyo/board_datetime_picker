@@ -436,6 +436,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             // onTopActionBuilder: (context) {
             //   return const SizedBox();
             // },
+            // multiSelectionMaxDateBuilder: (selectedDate) {
+            //   return selectedDate.add(const Duration(days: 3));
+            // },
           );
           if (result != null) {
             start.value = result.start;
