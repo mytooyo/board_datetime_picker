@@ -252,6 +252,7 @@ class PickerItemWidget extends StatelessWidget {
               languages: const BoardPickerLanguages.en(),
               startDayOfWeek: DateTime.sunday,
               pickerFormat: PickerFormat.ymd,
+              // pickerMonthFormat: PickerMonthFormat.short,
               // boardTitle: 'Board Picker',
               // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
               withSecond: DateTimePickerType.time == pickerType,

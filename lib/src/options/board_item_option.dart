@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/ui/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../ui/parts/focus_node.dart';
 import 'board_custom_item_option.dart';
@@ -19,6 +21,7 @@ BoardPickerItemOption initItemOption(
   String? subTitle,
   bool withSecond,
   bool useAmpm,
+  PickerMonthFormat monthFormat,
 ) {
   if (customList != null && customList.isNotEmpty) {
     return BoardPickerCustomItemOption.init(
@@ -29,6 +32,7 @@ BoardPickerItemOption initItemOption(
       minimum,
       maximum,
       subTitle,
+      monthFormat,
       withSecond: withSecond,
     );
   } else {
@@ -39,6 +43,7 @@ BoardPickerItemOption initItemOption(
       minimum,
       maximum,
       subTitle,
+      monthFormat,
       withSecond: withSecond,
       useAmpm: useAmpm,
     );
@@ -57,10 +62,14 @@ class BoardPickerItemOption {
     required this.subTitle,
     required this.withSecond,
     required this.useAmpm,
+    required this.monthFormat,
     this.ampm,
   });
 
   final DateTimePickerType pickerType;
+
+  /// [PickerMonthFormat] month format
+  final PickerMonthFormat monthFormat;
 
   /// [DateType] year, month, day, hour, minute
   final DateType type;
@@ -103,7 +112,8 @@ class BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
-    String? subTitle, {
+    String? subTitle,
+    PickerMonthFormat monthFormat, {
     bool withSecond = false,
     required bool useAmpm,
   }) {
@@ -164,6 +174,7 @@ class BoardPickerItemOption {
       withSecond: withSecond,
       useAmpm: useAmpm,
       ampm: ampm,
+      monthFormat: monthFormat,
     );
   }
 
@@ -193,6 +204,7 @@ class BoardPickerItemOption {
       subTitle: subTitle,
       withSecond: false,
       useAmpm: false,
+      monthFormat: PickerMonthFormat.number,
     );
   }
 
@@ -200,7 +212,11 @@ class BoardPickerItemOption {
   int get maxLength {
     if (type == DateType.year) {
       return 4;
+    } else if (type == DateType.month &&
+        monthFormat == PickerMonthFormat.short) {
+      return 3;
     }
+
     return 2;
   }
 
@@ -556,5 +572,14 @@ class BoardPickerItemOption {
           itemMap[selectedIndex]!,
         );
     }
+  }
+
+  Map<int, String> monthMap(String locale) {
+    final now = DateTime.now();
+    final map = <int, String>{};
+    for (var i = 1; i <= 12; i++) {
+      map[i] = DateFormat.MMM(locale).format(DateTime(now.year, i, 1));
+    }
+    return map;
   }
 }

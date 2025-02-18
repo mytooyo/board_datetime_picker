@@ -5,10 +5,10 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import '../board_datetime_options.dart';
 import '../options/board_item_option.dart';
+import '../utils/board_datetime_options_extension.dart';
 import '../utils/board_datetime_result.dart';
 import '../utils/board_enum.dart';
 import '../utils/datetime_util.dart';
-import '../utils/board_datetime_options_extension.dart';
 
 typedef CloseButtonBuilder = Widget Function(
   BuildContext context,
@@ -280,6 +280,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               subTitle,
               withSecond,
               false,
+              widget.options.pickerMonthFormat,
             ),
           );
         } else if (pf == 'M') {
@@ -295,6 +296,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               subTitle,
               withSecond,
               false,
+              widget.options.pickerMonthFormat,
             ),
           );
         } else if (pf == 'd') {
@@ -310,6 +312,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               subTitle,
               withSecond,
               false,
+              widget.options.pickerMonthFormat,
             ),
           );
         }
@@ -331,6 +334,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           widget.options.getSubTitle(DateType.hour),
           withSecond,
           widget.options.useAmpm && type == DateTimePickerType.time,
+          widget.options.pickerMonthFormat,
         ),
         initItemOption(
           widget.pickerType,
@@ -342,6 +346,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           widget.options.getSubTitle(DateType.minute),
           withSecond,
           false,
+          widget.options.pickerMonthFormat,
         ),
       ],
       if (DateTimePickerType.time == type && widget.options.withSecond)
@@ -355,6 +360,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           widget.options.getSubTitle(DateType.second),
           withSecond,
           false,
+          widget.options.pickerMonthFormat,
         ),
     ];
 

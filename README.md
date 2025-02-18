@@ -166,6 +166,7 @@ The same parameter is used in `showBoardDateTimePicker`.
 |customOptions|BoardPickerCustomOptions|Option to specify items to be displayed in the picker by date and time. Only time can be specified. Default is `null`|
 |startDayOfWeek|int|First day of the week in the calendar. Defailt is `DateTime.sunday`|
 |pickerFormat|String|Date format for pickers. Specify if you want to change the display order of year, month, date. Default is `ymd`|
+|pickerMonthFormat|PickerMonthFormat|Month format to be displayed on the picker. number: `1, 2, 3, ...`, `short: Jan, Feb, Mar, ...`. Default is `PickerMonthFormat.number`|
 |showDateButton|bool|Flag whether the `today` or `tomorrow` button is displayed in the header of the picker. Default is `true`|
 |boardTitle|String|Title to be displayed in the header of the Picker|
 |boardTitleTextStyle|TextStyle|Style of title to be displayed in the header of the Picker|

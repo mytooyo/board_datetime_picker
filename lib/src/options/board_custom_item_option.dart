@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 
@@ -20,6 +21,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     required super.maximumDate,
     required super.subTitle,
     required super.withSecond,
+    required super.monthFormat,
     super.useAmpm = false,
   });
 
@@ -32,7 +34,8 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
-    String? subTitle, {
+    String? subTitle,
+    PickerMonthFormat monthFormat, {
     bool withSecond = false,
   }) {
     Map<int, int> map = {};
@@ -103,6 +106,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
       customList: customList,
       subTitle: subTitle,
       withSecond: withSecond,
+      monthFormat: monthFormat,
     );
   }
 
