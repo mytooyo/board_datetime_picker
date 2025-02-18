@@ -23,6 +23,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     required super.withSecond,
     required super.monthFormat,
     super.useAmpm = false,
+    required super.multiSelection,
   });
 
   final List<int> customList;
@@ -37,6 +38,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
     String? subTitle,
     PickerMonthFormat monthFormat, {
     bool withSecond = false,
+    required bool multiSelection,
   }) {
     Map<int, int> map = {};
     int selected;
@@ -107,6 +109,7 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
       subTitle: subTitle,
       withSecond: withSecond,
       monthFormat: monthFormat,
+      multiSelection: multiSelection,
     );
   }
 

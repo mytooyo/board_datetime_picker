@@ -281,6 +281,9 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   DateTime? get defaultDate => widget.initialDate;
 
   @override
+  bool get multiSelection => false;
+
+  @override
   void dispose() {
     dateState.removeListener(notify);
     super.dispose();

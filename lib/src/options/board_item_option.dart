@@ -21,8 +21,9 @@ BoardPickerItemOption initItemOption(
   String? subTitle,
   bool withSecond,
   bool useAmpm,
-  PickerMonthFormat monthFormat,
-) {
+  PickerMonthFormat monthFormat, {
+  required bool multiSelection,
+}) {
   if (customList != null && customList.isNotEmpty) {
     return BoardPickerCustomItemOption.init(
       pickerType,
@@ -34,6 +35,7 @@ BoardPickerItemOption initItemOption(
       subTitle,
       monthFormat,
       withSecond: withSecond,
+      multiSelection: multiSelection,
     );
   } else {
     return BoardPickerItemOption.init(
@@ -46,6 +48,7 @@ BoardPickerItemOption initItemOption(
       monthFormat,
       withSecond: withSecond,
       useAmpm: useAmpm,
+      multiSelection: multiSelection,
     );
   }
 }
@@ -64,6 +67,7 @@ class BoardPickerItemOption {
     required this.useAmpm,
     required this.monthFormat,
     this.ampm,
+    required this.multiSelection,
   });
 
   final DateTimePickerType pickerType;
@@ -105,6 +109,9 @@ class BoardPickerItemOption {
 
   AmPm? ampm;
 
+  /// Determine if multi-selection
+  final bool multiSelection;
+
   /// Constractor
   factory BoardPickerItemOption.init(
     DateTimePickerType pickerType,
@@ -116,6 +123,7 @@ class BoardPickerItemOption {
     PickerMonthFormat monthFormat, {
     bool withSecond = false,
     required bool useAmpm,
+    required bool multiSelection,
   }) {
     Map<int, int> map = {};
     int selected;
@@ -133,6 +141,7 @@ class BoardPickerItemOption {
           minimum,
           maximum,
           subTitle,
+          multiSelection: multiSelection,
         );
       case DateType.month:
         map = minmaxList(pickerType, DateType.month, date, mi, ma);
@@ -175,6 +184,7 @@ class BoardPickerItemOption {
       useAmpm: useAmpm,
       ampm: ampm,
       monthFormat: monthFormat,
+      multiSelection: multiSelection,
     );
   }
 
@@ -184,15 +194,22 @@ class BoardPickerItemOption {
     DateTime date,
     DateTime? minimum,
     DateTime? maximum,
-    String? subTitle,
-  ) {
+    String? subTitle, {
+    required bool multiSelection,
+  }) {
     final minY = minimum?.year ?? DateTimeUtil.minimumYear;
 
     // Define specified minimum and maximum dates
     final mi = minimum ?? DateTime(DateTimeUtil.minimumYear, 1, 1, 0, 0);
     final ma = maximum ?? DateTime(DateTimeUtil.maximumYear, 12, 31, 23, 59);
 
-    final map = minmaxList(pickerType, DateType.year, date, mi, ma);
+    final map = minmaxList(
+      pickerType,
+      DateType.year,
+      date,
+      mi,
+      ma,
+    );
     return BoardPickerItemOption(
       focusNode: PickerItemFocusNode(),
       itemMap: map,
@@ -205,6 +222,7 @@ class BoardPickerItemOption {
       withSecond: false,
       useAmpm: false,
       monthFormat: PickerMonthFormat.number,
+      multiSelection: multiSelection,
     );
   }
 
@@ -295,7 +313,15 @@ class BoardPickerItemOption {
     //  Retrieve existing values
     final tmp = value;
     // Generate new maps
-    itemMap = minmaxList(pickerType, type, date, minimumDate, maximumDate);
+    itemMap = minmaxList(
+      pickerType,
+      type,
+      date,
+      minimumDate,
+      maximumDate,
+      multiSelection: multiSelection,
+      currentMap: itemMap,
+    );
     updateState(tmp, date);
   }
 
@@ -414,8 +440,10 @@ class BoardPickerItemOption {
     DateType dt,
     DateTime date,
     DateTime minimum,
-    DateTime maximum,
-  ) {
+    DateTime maximum, {
+    bool multiSelection = false,
+    Map<int, int>? currentMap,
+  }) {
     Map<int, int> createMap(int start, int end) {
       Map<int, int> map = {};
       int index = 0;
@@ -443,7 +471,10 @@ class BoardPickerItemOption {
 
     switch (dt) {
       case DateType.year:
-        return createMap(minimum.year, maximum.year);
+        // If there is already a generated map instead of multi-selection, it is used as is.
+        return !multiSelection && currentMap != null
+            ? currentMap
+            : createMap(minimum.year, maximum.year);
       case DateType.month:
         int minMonth = 1;
         int maxMonth = 12;

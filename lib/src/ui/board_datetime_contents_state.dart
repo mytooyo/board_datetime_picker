@@ -124,6 +124,9 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   DateTime? get minimumDate => widget.minimumDate;
   DateTime? get maximumDate => widget.maximumDate;
 
+  /// Multiselection flag
+  bool get multiSelection;
+
   /// Set new value
   void setNewValue(DateTime val, {bool byPicker = false});
 
@@ -281,6 +284,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               withSecond,
               false,
               widget.options.pickerMonthFormat,
+              multiSelection: multiSelection,
             ),
           );
         } else if (pf == 'M') {
@@ -297,6 +301,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               withSecond,
               false,
               widget.options.pickerMonthFormat,
+              multiSelection: multiSelection,
             ),
           );
         } else if (pf == 'd') {
@@ -313,6 +318,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
               withSecond,
               false,
               widget.options.pickerMonthFormat,
+              multiSelection: multiSelection,
             ),
           );
         }
@@ -335,6 +341,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           withSecond,
           widget.options.useAmpm && type == DateTimePickerType.time,
           widget.options.pickerMonthFormat,
+          multiSelection: multiSelection,
         ),
         initItemOption(
           widget.pickerType,
@@ -347,6 +354,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           withSecond,
           false,
           widget.options.pickerMonthFormat,
+          multiSelection: multiSelection,
         ),
       ],
       if (DateTimePickerType.time == type && widget.options.withSecond)
@@ -361,6 +369,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           withSecond,
           false,
           widget.options.pickerMonthFormat,
+          multiSelection: multiSelection,
         ),
     ];
 
