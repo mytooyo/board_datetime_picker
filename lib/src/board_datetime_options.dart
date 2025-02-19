@@ -103,7 +103,10 @@ class BoardDateTimeOptions {
   ///
   /// - number: 1, 2, 3, ...
   /// - short: Jan, Feb, Mar, ...
+  /// - long: January, February, March, ...
   ///
+  /// long is available only for wide UI.
+  /// If long is specified below breakpoint, it is forced to short.
   /// Default is `PickerMonthFormat.number`
   final PickerMonthFormat pickerMonthFormat;
 
@@ -311,7 +314,7 @@ class BoardPickerCustomOptions {
 typedef BoardDateTimePickerFormat = String;
 
 /// Month format to be displayed on the picker
-enum PickerMonthFormat { number, short }
+enum PickerMonthFormat { number, short, long }
 
 /// Definition of possible values for the picker format
 class PickerFormat {

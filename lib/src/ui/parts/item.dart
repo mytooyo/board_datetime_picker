@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
@@ -21,7 +20,6 @@ class ItemWidget extends StatefulWidget {
     required this.wide,
     required this.subTitle,
     required this.inputable,
-    required this.locale,
   });
 
   final BoardPickerItemOption option;
@@ -32,7 +30,6 @@ class ItemWidget extends StatefulWidget {
   final bool wide;
   final String? subTitle;
   final bool inputable;
-  final String locale;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -164,7 +161,7 @@ class ItemWidgetState extends State<ItemWidget>
     });
 
     if (widget.option.type == DateType.month) {
-      monthMap = widget.option.monthMap(widget.locale);
+      monthMap = widget.option.monthMap();
     }
 
     super.initState();
@@ -194,7 +191,7 @@ class ItemWidgetState extends State<ItemWidget>
 
     void setText() {
       final day = map[selectedIndex]!;
-      final text = isShortMonth ? monthMap[day]! : day.toString();
+      final text = widget.option.isMonthText ? monthMap[day]! : day.toString();
       if (textController.text != text) {
         textController.text = text;
       }
@@ -424,16 +421,11 @@ class ItemWidgetState extends State<ItemWidget>
     );
   }
 
-  bool get isShortMonth {
-    return widget.option.type == DateType.month &&
-        widget.option.monthFormat == PickerMonthFormat.short;
-  }
-
   /// Converts input text to an index
   int? _convertTextToIndex(String text) {
     try {
       int data;
-      if (isShortMonth) {
+      if (widget.option.isMonthText) {
         // If the input value is a date, get the index of the month
         try {
           data = int.parse(text);
@@ -470,7 +462,8 @@ class ItemWidgetState extends State<ItemWidget>
     if (index == null) {
       index = selectedIndex;
       final day = map[index]!;
-      textController.text = isShortMonth ? monthMap[day]! : day.toString();
+      textController.text =
+          widget.option.isMonthText ? monthMap[day]! : day.toString();
     }
 
     if (toDefault) {
@@ -478,7 +471,8 @@ class ItemWidgetState extends State<ItemWidget>
       if (index < 0) {
         index = selectedIndex;
         final day = map[index]!;
-        textController.text = isShortMonth ? monthMap[day]! : day.toString();
+        textController.text =
+            widget.option.isMonthText ? monthMap[day]! : day.toString();
 
         // If corrected, animation is performed
         correctAnimationController.forward();
@@ -539,8 +533,7 @@ class ItemWidgetState extends State<ItemWidget>
     }
 
     String text = '${map[i]}';
-    if (widget.option.type == DateType.month &&
-        widget.option.monthFormat == PickerMonthFormat.short) {
+    if (widget.option.isMonthText) {
       text = monthMap[map[i]]!;
     }
 

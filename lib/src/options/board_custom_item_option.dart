@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 
@@ -11,51 +10,37 @@ import 'board_item_option.dart';
 /// Create at each date and time.
 class BoardPickerCustomItemOption extends BoardPickerItemOption {
   BoardPickerCustomItemOption({
-    required super.pickerType,
-    required super.type,
+    required super.args,
     required this.customList,
     required super.focusNode,
     required super.itemMap,
     required super.selectedIndex,
     required super.minimumDate,
     required super.maximumDate,
-    required super.subTitle,
-    required super.withSecond,
-    required super.monthFormat,
-    super.useAmpm = false,
+    required super.ampm,
   });
 
   final List<int> customList;
 
-  factory BoardPickerCustomItemOption.init(
-    DateTimePickerType pickerType,
-    DateType type,
-    List<int> customList,
-    DateTime date,
-    DateTime? minimum,
-    DateTime? maximum,
-    String? subTitle,
-    PickerMonthFormat monthFormat, {
-    bool withSecond = false,
-  }) {
+  factory BoardPickerCustomItemOption.init({required ItemOptionArgs args}) {
     Map<int, int> map = {};
     int selected;
 
     // Define specified minimum and maximum dates
-    final mi = minimum ?? DateTimeUtil.defaultMinDate;
-    final ma = maximum ?? DateTimeUtil.defaultMaxDate;
+    final mi = args.minimum ?? DateTimeUtil.defaultMinDate;
+    final ma = args.maximum ?? DateTimeUtil.defaultMaxDate;
 
-    if (type == DateType.year) {
+    if (args.type == DateType.year) {
       final list =
-          customList.where((x) => x >= mi.year && x <= ma.year).toList();
+          args.customList!.where((x) => x >= mi.year && x <= ma.year).toList();
       for (var i = 0; i < list.length; i++) {
         map[i] = list[i];
       }
     } else {
       final m = BoardPickerItemOption.minmaxList(
-        pickerType,
-        type,
-        date,
+        args.pickerType,
+        args.type,
+        args.date,
         mi,
         ma,
       );
@@ -63,50 +48,47 @@ class BoardPickerCustomItemOption extends BoardPickerItemOption {
       int count = 0;
       for (var i = 0; i < values.length; i++) {
         final val = values[i];
-        if (customList.contains(val)) {
+        if (args.customList!.contains(val)) {
           map[count] = val;
           count++;
         }
       }
     }
 
-    switch (type) {
+    switch (args.type) {
       case DateType.year:
-        final minY = minimum?.year ?? DateTimeUtil.minimumYear;
+        final minY = args.minimum?.year ?? DateTimeUtil.minimumYear;
         selected = BoardPickerItemOption.indexFromValue(
-          max(date.year, minY),
+          max(args.date.year, minY),
           map,
         );
         break;
       case DateType.month:
-        selected = BoardPickerItemOption.indexFromValue(date.month, map);
+        selected = BoardPickerItemOption.indexFromValue(args.date.month, map);
         break;
       case DateType.day:
-        selected = BoardPickerItemOption.indexFromValue(date.day, map);
+        selected = BoardPickerItemOption.indexFromValue(args.date.day, map);
         break;
       case DateType.hour:
-        selected = BoardPickerItemOption.indexFromValue(date.hour, map);
+        selected = BoardPickerItemOption.indexFromValue(args.date.hour, map);
         break;
       case DateType.minute:
-        selected = BoardPickerItemOption.indexFromValue(date.minute, map);
+        selected = BoardPickerItemOption.indexFromValue(args.date.minute, map);
         break;
       case DateType.second:
-        selected = BoardPickerItemOption.indexFromValue(date.second, map);
+        selected = BoardPickerItemOption.indexFromValue(args.date.second, map);
         break;
     }
 
     return BoardPickerCustomItemOption(
-      pickerType: pickerType,
-      type: type,
+      args: args,
       focusNode: PickerItemFocusNode(),
       itemMap: map,
       selectedIndex: selected,
       minimumDate: mi,
       maximumDate: ma,
-      customList: customList,
-      subTitle: subTitle,
-      withSecond: withSecond,
-      monthFormat: monthFormat,
+      ampm: null,
+      customList: args.customList!,
     );
   }
 

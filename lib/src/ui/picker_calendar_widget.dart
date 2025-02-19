@@ -149,7 +149,6 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             wide: isWide,
             subTitle: x.subTitle,
             inputable: args.options.inputable,
-            locale: args.options.languages.locale,
           ),
         ),
       );

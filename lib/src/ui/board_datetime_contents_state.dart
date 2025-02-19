@@ -269,52 +269,52 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
       for (final pf in pickerFormat.characters) {
         if (pf == 'y') {
           final subTitle = widget.options.getSubTitle(DateType.year);
-          ymdOptions.add(
-            initItemOption(
-              widget.pickerType,
-              DateType.year,
-              d,
-              minDate,
-              maxDate,
-              null,
-              subTitle,
-              withSecond,
-              false,
-              widget.options.pickerMonthFormat,
-            ),
+          final args = ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.year,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            subTitle: subTitle,
+            withSecond: withSecond,
+            useAmpm: false,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
           );
+          ymdOptions.add(initItemOption(args));
         } else if (pf == 'M') {
           final subTitle = widget.options.getSubTitle(DateType.month);
-          ymdOptions.add(
-            initItemOption(
-              widget.pickerType,
-              DateType.month,
-              d,
-              minDate,
-              maxDate,
-              null,
-              subTitle,
-              withSecond,
-              false,
-              widget.options.pickerMonthFormat,
-            ),
+          final args = ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.month,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            subTitle: subTitle,
+            withSecond: withSecond,
+            useAmpm: false,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
           );
+          ymdOptions.add(initItemOption(args));
         } else if (pf == 'd') {
           final subTitle = widget.options.getSubTitle(DateType.day);
-          ymdOptions.add(
-            initItemOption(
-              widget.pickerType,
-              DateType.day,
-              d,
-              minDate,
-              maxDate,
-              null,
-              subTitle,
-              withSecond,
-              false,
-              widget.options.pickerMonthFormat,
-            ),
+          final args = ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.day,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            subTitle: subTitle,
+            withSecond: withSecond,
+            useAmpm: false,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
           );
+          ymdOptions.add(initItemOption(args));
         }
       }
     }
@@ -325,42 +325,54 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
       if ([DateTimePickerType.time, DateTimePickerType.datetime]
           .contains(type)) ...[
         initItemOption(
-          widget.pickerType,
-          DateType.hour,
-          d,
-          minDate,
-          maxDate,
-          opts?.hours,
-          widget.options.getSubTitle(DateType.hour),
-          withSecond,
-          widget.options.useAmpm && type == DateTimePickerType.time,
-          widget.options.pickerMonthFormat,
+          ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.hour,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            customList: opts?.hours,
+            subTitle: widget.options.getSubTitle(DateType.hour),
+            withSecond: withSecond,
+            useAmpm: widget.options.useAmpm && type == DateTimePickerType.time,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
+          ),
         ),
         initItemOption(
-          widget.pickerType,
-          DateType.minute,
-          d,
-          minDate,
-          maxDate,
-          opts?.minutes,
-          widget.options.getSubTitle(DateType.minute),
-          withSecond,
-          false,
-          widget.options.pickerMonthFormat,
+          ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.minute,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            customList: opts?.minutes,
+            subTitle: widget.options.getSubTitle(DateType.minute),
+            withSecond: withSecond,
+            useAmpm: false,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
+          ),
         ),
       ],
       if (DateTimePickerType.time == type && widget.options.withSecond)
         initItemOption(
-          widget.pickerType,
-          DateType.second,
-          d,
-          minDate,
-          maxDate,
-          opts?.seconds,
-          widget.options.getSubTitle(DateType.second),
-          withSecond,
-          false,
-          widget.options.pickerMonthFormat,
+          ItemOptionArgs(
+            pickerType: widget.pickerType,
+            type: DateType.second,
+            date: d,
+            minimum: minDate,
+            maximum: maxDate,
+            customList: opts?.seconds,
+            subTitle: widget.options.getSubTitle(DateType.second),
+            withSecond: withSecond,
+            useAmpm: false,
+            monthFormat: widget.options.pickerMonthFormat,
+            locale: widget.options.languages.locale,
+            wide: () => isWide,
+          ),
         ),
     ];
 
