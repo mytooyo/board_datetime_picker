@@ -362,7 +362,10 @@ class _PickerCalendarWideWidgetState
       height += 40;
       wrap = Column(
         children: [
-          TopTitleWidget(options: args.options),
+          TopTitleWidget(
+            options: args.options,
+            selectedDayNotifier: args.dateState,
+          ),
           Expanded(child: child),
         ],
       );
@@ -471,9 +474,14 @@ class _PickerCalendarStandardWidgetState
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      //top title
                       if (args.options.isTopTitleHeader)
-                        TopTitleWidget(options: args.options),
+                        TopTitleWidget(
+                          options: args.options,
+                          selectedDayNotifier: args.dateState,
+                        ),
                       args.headerBuilder(context),
+                      //calendar + picker
                       Expanded(child: contents()),
                     ],
                   ),
