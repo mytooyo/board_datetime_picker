@@ -34,7 +34,7 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 2.4.1
+    board_datetime_picker: 2.5.0
 ```
 
 ## Usage
@@ -169,6 +169,7 @@ The same parameter is used in `showBoardDateTimePicker`.
 |pickerMonthFormat|PickerMonthFormat|Month format to be displayed on the picker. number: `1, 2, 3, ...`, `short: Jan, Feb, Mar, ...`. Default is `PickerMonthFormat.number`|
 |showDateButton|bool|Flag whether the `today` or `tomorrow` button is displayed in the header of the picker. Default is `true`|
 |boardTitle|String|Title to be displayed in the header of the Picker|
+|boardTitleBuilder|Function|Title to be displayed at the top of the picker. textStyle parameter is boardTitleTextStyle if declared, defaults if not specified.|
 |boardTitleTextStyle|TextStyle|Style of title to be displayed in the header of the Picker|
 |pickerSubTitles|BoardDateTimeItemTitles|Specify the title of each item to be displayed in the picker|
 |weekend|BoardPickerWeekendOptions|Specify the color of Saturday and Sunday to be displayed in the calendar|
@@ -180,6 +181,7 @@ The same parameter is used in `showBoardDateTimePicker`.
 |useResetButton|bool|The reset button will be displayed on the right side of the header section. Default is `false`|
 |useAmpm|bool|Set if the time is to be displayed as AM/PM. Default is `false`|
 |separators|BoardDateTimePickerSeparators|Specify the separator between items displayed in the Picker. Default is `null`|
+|allowRetroactiveTime|bool|Flag to allow retroactive time. If true, allows `DateTimePickerType.time` to reverse start and end times in multi-selection|
 
 Sample of gradient background:
 

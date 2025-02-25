@@ -1,3 +1,10 @@
+## 2.5.0
+
+* Add support for month names.
+* Add a function that can override the maximum date when a start date and time is selected.
+* Add title builder with selectedDate.
+* Performance and functionality improvements.
+
 ## 2.4.1
 
 * Bug fix on separator position when PickerFormat is specified.
