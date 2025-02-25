@@ -431,6 +431,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
               pickerFormat: PickerFormat.ymd,
               useAmpm: false,
               // topMargin: 0,
+              // allowRetroactiveTime: true,
             ),
             customCloseButtonBuilder: customCloseButtonBuilder,
             // headerWidget: Container(
