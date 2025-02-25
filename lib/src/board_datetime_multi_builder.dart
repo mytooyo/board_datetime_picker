@@ -84,6 +84,19 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   DateTime? get minimumDate {
     if (widget.pickerType == DateTimePickerType.time) {
       final now = DateTime.now();
+
+      // If start and end reversals are allowed
+      if (widget.options.allowRetroactiveTime) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          widget.minimumDate?.hour ?? 0,
+          widget.minimumDate?.minute ?? 0,
+          widget.minimumDate?.second ?? 0,
+        );
+      }
+
       if (currentDateType.value == MultiCurrentDateType.end) {
         return DateTime(
           now.year,
@@ -114,6 +127,19 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   DateTime? get maximumDate {
     if (widget.pickerType == DateTimePickerType.time) {
       final now = DateTime.now();
+
+      // If start and end reversals are allowed
+      if (widget.options.allowRetroactiveTime) {
+        return DateTime(
+          now.year,
+          now.month,
+          now.day,
+          widget.maximumDate?.hour ?? 0,
+          widget.maximumDate?.minute ?? 0,
+          widget.maximumDate?.second ?? 0,
+        );
+      }
+
       if (currentDateType.value == MultiCurrentDateType.start) {
         return DateTime(
           now.year,

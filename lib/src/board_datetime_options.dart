@@ -41,6 +41,7 @@ class BoardDateTimeOptions {
     this.useResetButton = false,
     this.useAmpm = false,
     this.separators,
+    this.allowRetroactiveTime = false,
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -209,6 +210,10 @@ class BoardDateTimeOptions {
   /// If not specified, no separator will be displayed.
   /// By default, nothing is specified.
   final BoardDateTimePickerSeparators? separators;
+
+  /// Flag to allow retroactive time.
+  /// If true, `allows DateTimePickerType.time` to reverse start and end times in multi-selection
+  final bool allowRetroactiveTime;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
