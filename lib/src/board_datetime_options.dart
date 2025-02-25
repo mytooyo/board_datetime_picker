@@ -16,6 +16,7 @@ class BoardDateTimeOptions {
     this.customOptions,
     this.startDayOfWeek = DateTime.sunday,
     this.pickerFormat = PickerFormat.ymd,
+    this.pickerMonthFormat = PickerMonthFormat.number,
     this.showDateButton = true,
     this.boardTitle,
     this.boardTitleBuilder,
@@ -98,6 +99,17 @@ class BoardDateTimeOptions {
   /// Default is `PickerFormat.ymd`
   ///
   final BoardDateTimePickerFormat pickerFormat;
+
+  /// Month format to be displayed on the picker.
+  ///
+  /// - number: 1, 2, 3, ...
+  /// - short: Jan, Feb, Mar, ...
+  /// - long: January, February, March, ...
+  ///
+  /// long is available only for wide UI.
+  /// If long is specified below breakpoint, it is forced to short.
+  /// Default is `PickerMonthFormat.number`
+  final PickerMonthFormat pickerMonthFormat;
 
   /// Flag whether or not the button to set the date should be displayed.
   /// If false, do not display buttons such as "today", "tomorrow", etc.
@@ -308,6 +320,9 @@ class BoardPickerCustomOptions {
 }
 
 typedef BoardDateTimePickerFormat = String;
+
+/// Month format to be displayed on the picker
+enum PickerMonthFormat { number, short, long }
 
 /// Definition of possible values for the picker format
 class PickerFormat {

@@ -64,6 +64,9 @@ class ItemWidgetState extends State<ItemWidget>
   /// Number of items to display in the list
   int get wheelCount => widget.wide ? 7 : 5;
 
+  /// Short name of items to display in the list
+  Map<int, String> monthMap = {};
+
   final pickerFocusNode = PickerWheelItemFocusNode();
 
   bool get useAmpmMode {
@@ -135,7 +138,10 @@ class ItemWidgetState extends State<ItemWidget>
     scrollController = FixedExtentScrollController(
       initialItem: selectedIndex,
     );
-    textController = TextEditingController(text: '${map[selectedIndex]}');
+    final day = map[selectedIndex];
+    textController = TextEditingController(
+      text: widget.option.isMonthText ? monthMap[day] : '$day',
+    );
     textController.selection = TextSelection.fromPosition(
       TextPosition(offset: textController.text.length),
     );
@@ -156,6 +162,10 @@ class ItemWidgetState extends State<ItemWidget>
         correctAnimationController.reverse();
       }
     });
+
+    if (widget.option.type == DateType.month) {
+      monthMap = widget.option.monthMap();
+    }
 
     super.initState();
   }
@@ -183,7 +193,8 @@ class ItemWidgetState extends State<ItemWidget>
     });
 
     void setText() {
-      final text = '${map[selectedIndex]}';
+      final day = map[selectedIndex]!;
+      final text = widget.option.isMonthText ? monthMap[day]! : day.toString();
       if (textController.text != text) {
         textController.text = text;
       }
@@ -382,7 +393,9 @@ class ItemWidgetState extends State<ItemWidget>
                       key: ValueKey(widget.option.type.name),
                       controller: textController,
                       focusNode: widget.option.focusNode,
-                      keyboardType: TextInputType.number,
+                      keyboardType: widget.option.isMonthText
+                          ? TextInputType.text
+                          : TextInputType.number,
                       textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -397,7 +410,8 @@ class ItemWidgetState extends State<ItemWidget>
                       textAlign: TextAlign.center,
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
-                            widget.option.maxLength),
+                          widget.option.maxLength,
+                        ),
                         // AllowTextInputFormatter(map.values.toList()),
                       ],
                       onChanged: onChangeText,
@@ -415,7 +429,21 @@ class ItemWidgetState extends State<ItemWidget>
   /// Converts input text to an index
   int? _convertTextToIndex(String text) {
     try {
-      final data = int.parse(text);
+      int data;
+      if (widget.option.isMonthText) {
+        // If the input value is a date, get the index of the month
+        try {
+          data = int.parse(text);
+        } catch (_) {
+          data = monthMap.entries
+              .firstWhereOrNull(
+                (e) => e.value.toLowerCase() == text.toLowerCase(),
+              )!
+              .key;
+        }
+      } else {
+        data = int.parse(text);
+      }
 
       // Get index from input value
       int index = -1;
@@ -433,19 +461,23 @@ class ItemWidgetState extends State<ItemWidget>
 
   /// Converts input text into an index and performs change notifications
   void changeText(String text, {bool toDefault = false}) {
-    var index = _convertTextToIndex(text);
+    int? index = _convertTextToIndex(text);
 
     // If non-numeric or empty, set to the first value
     if (index == null) {
       index = selectedIndex;
-      textController.text = map[index]!.toString();
+      final day = map[index]!;
+      textController.text =
+          widget.option.isMonthText ? monthMap[day]! : day.toString();
     }
 
     if (toDefault) {
       if (index == selectedIndex) return;
       if (index < 0) {
         index = selectedIndex;
-        textController.text = map[index]!.toString();
+        final day = map[index]!;
+        textController.text =
+            widget.option.isMonthText ? monthMap[day]! : day.toString();
 
         // If corrected, animation is performed
         correctAnimationController.forward();
@@ -505,9 +537,14 @@ class ItemWidgetState extends State<ItemWidget>
       );
     }
 
+    String text = '${map[i]}';
+    if (widget.option.isMonthText) {
+      text = monthMap[map[i]]!;
+    }
+
     return Center(
       child: Text(
-        '${map[i]}',
+        text,
         style: textStyle,
       ),
     );

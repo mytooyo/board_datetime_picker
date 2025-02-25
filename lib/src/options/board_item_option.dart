@@ -1,69 +1,92 @@
 import 'dart:math';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/ui/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../ui/parts/focus_node.dart';
 import 'board_custom_item_option.dart';
 
-BoardPickerItemOption initItemOption(
-  DateTimePickerType pickerType,
-  DateType type,
-  DateTime date,
-  DateTime? minimum,
-  DateTime? maximum,
-  List<int>? customList,
-  String? subTitle,
-  bool withSecond,
-  bool useAmpm,
-) {
-  if (customList != null && customList.isNotEmpty) {
-    return BoardPickerCustomItemOption.init(
-      pickerType,
-      type,
-      customList,
-      date,
-      minimum,
-      maximum,
-      subTitle,
-      withSecond: withSecond,
-    );
+class ItemOptionArgs {
+  ItemOptionArgs({
+    required this.pickerType,
+    required this.type,
+    required this.date,
+    required this.minimum,
+    required this.maximum,
+    this.customList,
+    required this.subTitle,
+    this.withSecond = false,
+    required this.useAmpm,
+    required this.monthFormat,
+    required this.locale,
+    required this.wide,
+  });
+
+  final DateTimePickerType pickerType;
+  final DateType type;
+  final DateTime date;
+  final DateTime? minimum;
+  final DateTime? maximum;
+  final List<int>? customList;
+  final String? subTitle;
+  final bool withSecond;
+  final bool useAmpm;
+  final PickerMonthFormat monthFormat;
+  final String locale;
+  final bool Function() wide;
+}
+
+BoardPickerItemOption initItemOption(ItemOptionArgs args) {
+  if (args.customList != null && args.customList!.isNotEmpty) {
+    return BoardPickerCustomItemOption.init(args: args);
   } else {
-    return BoardPickerItemOption.init(
-      pickerType,
-      type,
-      date,
-      minimum,
-      maximum,
-      subTitle,
-      withSecond: withSecond,
-      useAmpm: useAmpm,
-    );
+    return BoardPickerItemOption.init(args: args);
   }
 }
 
 class BoardPickerItemOption {
   BoardPickerItemOption({
-    required this.pickerType,
-    required this.type,
+    required this.args,
+    required this.minimumDate,
+    required this.maximumDate,
     required this.focusNode,
     required this.itemMap,
     required this.selectedIndex,
-    required this.minimumDate,
-    required this.maximumDate,
-    required this.subTitle,
-    required this.withSecond,
-    required this.useAmpm,
-    this.ampm,
+    required this.ampm,
   });
 
-  final DateTimePickerType pickerType;
+  final ItemOptionArgs args;
+
+  DateTimePickerType get pickerType => args.pickerType;
+
+  /// [PickerMonthFormat] month format
+  PickerMonthFormat get monthFormat => args.monthFormat;
 
   /// [DateType] year, month, day, hour, minute
-  final DateType type;
+  DateType get type => args.type;
+
+  /// Title to be displayed on item
+  String? get subTitle => args.subTitle;
+
+  /// Flag indicating whether to specify seconds
+  /// Specified by 0 if not specified
+  bool get withSecond => args.withSecond;
+
+  /// Locale
+  String get locale => args.locale;
+
+  bool get useAmpm => args.useAmpm;
+
+  /// Minimum year that can be specified
+  final DateTime minimumDate;
+
+  /// Maximum year that can be specified
+  final DateTime maximumDate;
 
   /// TextField [FocusNode].
   final PickerItemFocusNode focusNode;
@@ -74,68 +97,37 @@ class BoardPickerItemOption {
   /// Selected item for list.
   int selectedIndex;
 
+  AmPm? ampm;
+
   /// Keys for date item widget
   final stateKey = GlobalKey<ItemWidgetState>();
   final ampmStateKey = GlobalKey<AmpmItemWidgetState>();
 
-  /// Minimum year that can be specified
-  final DateTime minimumDate;
-
-  /// Maximum year that can be specified
-  final DateTime maximumDate;
-
-  /// Title to be displayed on item
-  final String? subTitle;
-
-  /// Flag indicating whether to specify seconds
-  /// Specified by 0 if not specified
-  final bool withSecond;
-
-  /// Flag whether the time should be displayed as AM/PM or not
-  final bool useAmpm;
-
-  AmPm? ampm;
-
   /// Constractor
-  factory BoardPickerItemOption.init(
-    DateTimePickerType pickerType,
-    DateType type,
-    DateTime date,
-    DateTime? minimum,
-    DateTime? maximum,
-    String? subTitle, {
-    bool withSecond = false,
-    required bool useAmpm,
-  }) {
+  factory BoardPickerItemOption.init({required ItemOptionArgs args}) {
     Map<int, int> map = {};
     int selected;
     AmPm? ampm;
 
     // Define specified minimum and maximum dates
-    final mi = minimum ?? DateTimeUtil.defaultMinDate;
-    final ma = maximum ?? DateTimeUtil.defaultMaxDate;
+    final mi = args.minimum ?? DateTimeUtil.defaultMinDate;
+    final ma = args.maximum ?? DateTimeUtil.defaultMaxDate;
 
-    switch (type) {
+    switch (args.type) {
       case DateType.year:
-        return BoardPickerItemOption.year(
-          pickerType,
-          date,
-          minimum,
-          maximum,
-          subTitle,
-        );
+        return BoardPickerItemOption.year(args: args);
       case DateType.month:
-        map = minmaxList(pickerType, DateType.month, date, mi, ma);
-        selected = indexFromValue(date.month, map);
+        map = minmaxList(args.pickerType, DateType.month, args.date, mi, ma);
+        selected = indexFromValue(args.date.month, map);
 
         break;
       case DateType.day:
-        map = minmaxList(pickerType, DateType.day, date, mi, ma);
-        selected = indexFromValue(date.day, map);
+        map = minmaxList(args.pickerType, DateType.day, args.date, mi, ma);
+        selected = indexFromValue(args.date.day, map);
         break;
       case DateType.hour:
-        map = minmaxList(pickerType, DateType.hour, date, mi, ma);
-        selected = indexFromValue(date.hour, map);
+        map = minmaxList(args.pickerType, DateType.hour, args.date, mi, ma);
+        selected = indexFromValue(args.date.hour, map);
 
         // set ampm
         final hour = map[selected];
@@ -143,56 +135,44 @@ class BoardPickerItemOption {
 
         break;
       case DateType.minute:
-        map = minmaxList(pickerType, DateType.minute, date, mi, ma);
-        selected = indexFromValue(date.minute, map);
+        map = minmaxList(args.pickerType, DateType.minute, args.date, mi, ma);
+        selected = indexFromValue(args.date.minute, map);
         break;
       case DateType.second:
-        map = minmaxList(pickerType, DateType.second, date, mi, ma);
-        selected = indexFromValue(date.second, map);
+        map = minmaxList(args.pickerType, DateType.second, args.date, mi, ma);
+        selected = indexFromValue(args.date.second, map);
         break;
     }
 
     return BoardPickerItemOption(
+      args: args,
       focusNode: PickerItemFocusNode(),
       itemMap: map,
-      pickerType: pickerType,
-      type: type,
       selectedIndex: selected,
       minimumDate: mi,
       maximumDate: ma,
-      subTitle: subTitle,
-      withSecond: withSecond,
-      useAmpm: useAmpm,
       ampm: ampm,
     );
   }
 
   /// Constractor for year item
-  factory BoardPickerItemOption.year(
-    DateTimePickerType pickerType,
-    DateTime date,
-    DateTime? minimum,
-    DateTime? maximum,
-    String? subTitle,
-  ) {
-    final minY = minimum?.year ?? DateTimeUtil.minimumYear;
+  factory BoardPickerItemOption.year({required ItemOptionArgs args}) {
+    final minY = args.minimum?.year ?? DateTimeUtil.minimumYear;
 
     // Define specified minimum and maximum dates
-    final mi = minimum ?? DateTime(DateTimeUtil.minimumYear, 1, 1, 0, 0);
-    final ma = maximum ?? DateTime(DateTimeUtil.maximumYear, 12, 31, 23, 59);
+    final mi = args.minimum ?? DateTime(DateTimeUtil.minimumYear, 1, 1, 0, 0);
+    final ma =
+        args.maximum ?? DateTime(DateTimeUtil.maximumYear, 12, 31, 23, 59);
 
-    final map = minmaxList(pickerType, DateType.year, date, mi, ma);
+    final map = minmaxList(args.pickerType, DateType.year, args.date, mi, ma);
     return BoardPickerItemOption(
+      args: args,
       focusNode: PickerItemFocusNode(),
       itemMap: map,
-      pickerType: pickerType,
-      type: DateType.year,
-      selectedIndex: indexFromValue(max(date.year, minY), map),
+      selectedIndex: indexFromValue(max(args.date.year, minY), map),
       minimumDate: mi,
       maximumDate: ma,
-      subTitle: subTitle,
-      withSecond: false,
-      useAmpm: false,
+      ampm: null,
     );
   }
 
@@ -200,13 +180,30 @@ class BoardPickerItemOption {
   int get maxLength {
     if (type == DateType.year) {
       return 4;
+    } else if (type == DateType.month) {
+      if (monthFormat == PickerMonthFormat.number) {
+        return 2;
+      } else if (monthFormat == PickerMonthFormat.long && args.wide()) {
+        final maxLength = monthMap()
+            .values
+            .reduce((a, b) => a.length > b.length ? a : b)
+            .length;
+        return maxLength;
+      } else {
+        return 3;
+      }
     }
+
     return 2;
   }
 
   /// Flex for Row children
   int get flex {
     if (type == DateType.year) {
+      return 2;
+    } else if (type == DateType.month &&
+        monthFormat == PickerMonthFormat.long &&
+        args.wide()) {
       return 2;
     }
     return 1;
@@ -556,5 +553,23 @@ class BoardPickerItemOption {
           itemMap[selectedIndex]!,
         );
     }
+  }
+
+  bool get isMonthText {
+    return type == DateType.month && monthFormat != PickerMonthFormat.number;
+  }
+
+  Map<int, String> monthMap() {
+    // DateFormat
+    final dateFormat = monthFormat == PickerMonthFormat.long && args.wide()
+        ? DateFormat.MMMM(locale)
+        : DateFormat.MMM(locale);
+
+    final now = DateTime.now();
+    final map = <int, String>{};
+    for (var i = 1; i <= 12; i++) {
+      map[i] = dateFormat.format(DateTime(now.year, i, 1));
+    }
+    return map;
   }
 }
