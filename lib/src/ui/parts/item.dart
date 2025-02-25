@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
@@ -21,7 +20,6 @@ class ItemWidget extends StatefulWidget {
     required this.wide,
     required this.subTitle,
     required this.inputable,
-    required this.locale,
   });
 
   final BoardPickerItemOption option;
@@ -32,7 +30,6 @@ class ItemWidget extends StatefulWidget {
   final bool wide;
   final String? subTitle;
   final bool inputable;
-  final String locale;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -427,11 +424,6 @@ class ItemWidgetState extends State<ItemWidget>
         ],
       ),
     );
-  }
-
-  bool get isShortMonth {
-    return widget.option.type == DateType.month &&
-        widget.option.monthFormat == PickerMonthFormat.short;
   }
 
   /// Converts input text to an index
