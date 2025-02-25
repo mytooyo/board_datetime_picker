@@ -54,9 +54,11 @@ abstract class PickerCalendarWidget extends StatefulWidget {
   const PickerCalendarWidget({
     super.key,
     required this.arguments,
+    this.multiSelectionMaxDateBuilder,
   });
 
   final PickerCalendarArgs arguments;
+  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 }
 
 abstract class PickerCalendarState<T extends PickerCalendarWidget>
@@ -100,6 +102,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
           onChangeDateType: args.onChangeDateType!,
           calendarSelectionBuilder: args.options.calendarSelectionBuilder,
           calendarSelectionRadius: args.options.calendarSelectionRadius,
+          multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
         ),
       );
     }
@@ -325,6 +328,7 @@ class PickerCalendarWideWidget extends PickerCalendarWidget {
     super.key,
     required super.arguments,
     required this.closeKeyboard,
+    super.multiSelectionMaxDateBuilder,
   });
 
   final void Function() closeKeyboard;
@@ -426,6 +430,7 @@ class PickerCalendarStandardWidget extends PickerCalendarWidget {
     required this.calendarAnimationController,
     required this.calendarAnimation,
     required this.pickerFormAnimation,
+    super.multiSelectionMaxDateBuilder,
   });
 
   final AnimationController calendarAnimationController;

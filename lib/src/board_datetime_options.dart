@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 typedef CalendarSelectionBuilder = Widget Function(
     BuildContext context, String day, TextStyle? textStyle);
 
+/// A builder that specifies the date range rules
+/// to be used in the case of multiple selections.
+typedef MultiSelectionMaxDateBuilder = DateTime? Function(
+  DateTime selectedDate,
+);
+
 /// Class for defining options related to the UI used by [BoardDateTimeBuilder]
 class BoardDateTimeOptions {
   const BoardDateTimeOptions({
