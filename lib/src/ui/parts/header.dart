@@ -497,22 +497,38 @@ class _BoardDateTimeNoneButtonHeaderState
   }
 
   Widget _title() {
-    if (widget.options.boardTitleBuilder == null) {
-      return const SizedBox();
+    if (widget.options.boardTitleBuilder != null) {
+      //title builder
+      Widget titleWidget = widget.options.boardTitleBuilder!(
+          context,
+          widget.options.boardTitleTextStyle ??
+              Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: widget.options.getTextColor(context),
+                    fontWeight: FontWeight.bold,
+                  ),
+          widget.dateState.value);
+
+      return FittedBox(
+        child: titleWidget,
+      );
     }
 
-    Widget titleWidget = widget.options.boardTitleBuilder!(
-        context,
-        widget.options.boardTitleTextStyle ??
-            Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: widget.options.getTextColor(context),
-                  fontWeight: FontWeight.bold,
-                ),
-        widget.dateState.value);
+    if (widget.options.boardTitle != null) {
+      //title string
+      return FittedBox(
+        child: Text(
+          widget.options.boardTitle.toString(),
+          style: widget.options.boardTitleTextStyle ??
+              Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: widget.options.getTextColor(context),
+                    fontWeight: FontWeight.bold,
+                  ),
+          maxLines: 1,
+        ),
+      );
+    }
 
-    return FittedBox(
-      child: titleWidget,
-    );
+    return const SizedBox();
   }
 
   List<Widget> _rightButton() {
@@ -576,6 +592,15 @@ class TopTitleWidget extends StatelessWidget {
       return options.boardTitleBuilder!(
           context, textStyle, selectedDayNotifier.value);
     }
+
+    if (options.boardTitle != null) {
+      return Text(
+        options.boardTitle.toString(),
+        style: textStyle,
+        maxLines: 1,
+      );
+    }
+
     return const SizedBox();
   }
 
