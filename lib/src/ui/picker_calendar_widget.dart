@@ -54,9 +54,11 @@ abstract class PickerCalendarWidget extends StatefulWidget {
   const PickerCalendarWidget({
     super.key,
     required this.arguments,
+    this.multiSelectionMaxDateBuilder,
   });
 
   final PickerCalendarArgs arguments;
+  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 }
 
 abstract class PickerCalendarState<T extends PickerCalendarWidget>
@@ -100,6 +102,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
           onChangeDateType: args.onChangeDateType!,
           calendarSelectionBuilder: args.options.calendarSelectionBuilder,
           calendarSelectionRadius: args.options.calendarSelectionRadius,
+          multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
         ),
       );
     }
@@ -326,6 +329,7 @@ class PickerCalendarWideWidget extends PickerCalendarWidget {
     super.key,
     required super.arguments,
     required this.closeKeyboard,
+    super.multiSelectionMaxDateBuilder,
   });
 
   final void Function() closeKeyboard;
@@ -363,7 +367,10 @@ class _PickerCalendarWideWidgetState
       height += 40;
       wrap = Column(
         children: [
-          TopTitleWidget(options: args.options),
+          TopTitleWidget(
+            options: args.options,
+            selectedDayNotifier: args.dateState,
+          ),
           Expanded(child: child),
         ],
       );
@@ -424,6 +431,7 @@ class PickerCalendarStandardWidget extends PickerCalendarWidget {
     required this.calendarAnimationController,
     required this.calendarAnimation,
     required this.pickerFormAnimation,
+    super.multiSelectionMaxDateBuilder,
   });
 
   final AnimationController calendarAnimationController;
@@ -472,9 +480,14 @@ class _PickerCalendarStandardWidgetState
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      //top title
                       if (args.options.isTopTitleHeader)
-                        TopTitleWidget(options: args.options),
+                        TopTitleWidget(
+                          options: args.options,
+                          selectedDayNotifier: args.dateState,
+                        ),
                       args.headerBuilder(context),
+                      //calendar + picker
                       Expanded(child: contents()),
                     ],
                   ),

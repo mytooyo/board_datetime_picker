@@ -141,7 +141,10 @@ class ItemWidgetState extends State<ItemWidget>
     scrollController = FixedExtentScrollController(
       initialItem: selectedIndex,
     );
-    textController = TextEditingController(text: '${map[selectedIndex]}');
+    final day = map[selectedIndex];
+    textController = TextEditingController(
+      text: widget.option.isMonthText ? monthMap[day] : '$day',
+    );
     textController.selection = TextSelection.fromPosition(
       TextPosition(offset: textController.text.length),
     );
@@ -164,7 +167,7 @@ class ItemWidgetState extends State<ItemWidget>
     });
 
     if (widget.option.type == DateType.month) {
-      monthMap = widget.option.monthMap(widget.locale);
+      monthMap = widget.option.monthMap();
     }
 
     super.initState();
@@ -194,7 +197,7 @@ class ItemWidgetState extends State<ItemWidget>
 
     void setText() {
       final day = map[selectedIndex]!;
-      final text = isShortMonth ? monthMap[day]! : day.toString();
+      final text = widget.option.isMonthText ? monthMap[day]! : day.toString();
       if (textController.text != text) {
         textController.text = text;
       }
@@ -393,7 +396,9 @@ class ItemWidgetState extends State<ItemWidget>
                       key: ValueKey(widget.option.type.name),
                       controller: textController,
                       focusNode: widget.option.focusNode,
-                      keyboardType: TextInputType.number,
+                      keyboardType: widget.option.isMonthText
+                          ? TextInputType.text
+                          : TextInputType.number,
                       textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -433,14 +438,14 @@ class ItemWidgetState extends State<ItemWidget>
   int? _convertTextToIndex(String text) {
     try {
       int data;
-      if (isShortMonth) {
+      if (widget.option.isMonthText) {
         // If the input value is a date, get the index of the month
         try {
           data = int.parse(text);
         } catch (_) {
           data = monthMap.entries
               .firstWhereOrNull(
-                (e) => e.value == text,
+                (e) => e.value.toLowerCase() == text.toLowerCase(),
               )!
               .key;
         }
@@ -470,7 +475,8 @@ class ItemWidgetState extends State<ItemWidget>
     if (index == null) {
       index = selectedIndex;
       final day = map[index]!;
-      textController.text = isShortMonth ? monthMap[day]! : day.toString();
+      textController.text =
+          widget.option.isMonthText ? monthMap[day]! : day.toString();
     }
 
     if (toDefault) {
@@ -478,7 +484,8 @@ class ItemWidgetState extends State<ItemWidget>
       if (index < 0) {
         index = selectedIndex;
         final day = map[index]!;
-        textController.text = isShortMonth ? monthMap[day]! : day.toString();
+        textController.text =
+            widget.option.isMonthText ? monthMap[day]! : day.toString();
 
         // If corrected, animation is performed
         correctAnimationController.forward();
@@ -539,8 +546,7 @@ class ItemWidgetState extends State<ItemWidget>
     }
 
     String text = '${map[i]}';
-    if (widget.option.type == DateType.month &&
-        widget.option.monthFormat == PickerMonthFormat.short) {
+    if (widget.option.isMonthText) {
       text = monthMap[map[i]]!;
     }
 

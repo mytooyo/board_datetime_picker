@@ -180,18 +180,30 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
           final date = initialDate.calcMonth(diff);
 
           return Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               _displayed(date),
-              _weekdays(),
               Expanded(
-                child: GridView(
-                  padding: const EdgeInsets.all(0),
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 7,
-                    childAspectRatio: 1,
+                child: AspectRatio(
+                  aspectRatio: 1.2,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _weekdays(),
+                      Expanded(
+                        child: GridView(
+                          padding: const EdgeInsets.all(0),
+                          //physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 7,
+                            childAspectRatio: 1,
+                          ),
+                          children: _generateCalendarOfMonth(date),
+                        ),
+                      ),
+                    ],
                   ),
-                  children: _generateCalendarOfMonth(date),
                 ),
               ),
             ],

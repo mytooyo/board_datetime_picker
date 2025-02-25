@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 typedef CalendarSelectionBuilder = Widget Function(
     BuildContext context, String day, TextStyle? textStyle);
 
+/// A builder that specifies the date range rules
+/// to be used in the case of multiple selections.
+typedef MultiSelectionMaxDateBuilder = DateTime? Function(
+  DateTime selectedDate,
+);
+
 /// Class for defining options related to the UI used by [BoardDateTimeBuilder]
 class BoardDateTimeOptions {
   const BoardDateTimeOptions({
@@ -19,6 +25,7 @@ class BoardDateTimeOptions {
     this.pickerMonthFormat = PickerMonthFormat.number,
     this.showDateButton = true,
     this.boardTitle,
+    this.boardTitleBuilder,
     this.boardTitleTextStyle,
     this.pickerSubTitles,
     this.weekend,
@@ -34,7 +41,7 @@ class BoardDateTimeOptions {
     this.useResetButton = false,
     this.useAmpm = false,
     this.separators,
-  });
+  }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
   /// default is `Theme.of(context).scaffoldBackgroundColor`
@@ -103,7 +110,10 @@ class BoardDateTimeOptions {
   ///
   /// - number: 1, 2, 3, ...
   /// - short: Jan, Feb, Mar, ...
+  /// - long: January, February, March, ...
   ///
+  /// long is available only for wide UI.
+  /// If long is specified below breakpoint, it is forced to short.
   /// Default is `PickerMonthFormat.number`
   final PickerMonthFormat pickerMonthFormat;
 
@@ -116,6 +126,13 @@ class BoardDateTimeOptions {
 
   /// Title to be displayed at the top of the picker
   final String? boardTitle;
+
+  /// Title to be displayed at the top of the picker
+  /// textStyle parameter is boardTitleTextStyle if declared, defaults if not specified.
+  /// currentDateTime is the current selected DateTime of the picker.
+  final Widget Function(
+          BuildContext context, TextStyle? textStyle, DateTime currentDateTime)?
+      boardTitleBuilder;
 
   /// BoardTitle text style
   final TextStyle? boardTitleTextStyle;
@@ -311,7 +328,7 @@ class BoardPickerCustomOptions {
 typedef BoardDateTimePickerFormat = String;
 
 /// Month format to be displayed on the picker
-enum PickerMonthFormat { number, short }
+enum PickerMonthFormat { number, short, long }
 
 /// Definition of possible values for the picker format
 class PickerFormat {

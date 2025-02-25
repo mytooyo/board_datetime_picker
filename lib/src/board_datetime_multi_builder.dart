@@ -6,6 +6,7 @@ import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import 'board_datetime_options.dart';
 import 'ui/parts/header_multi.dart';
 
 class BoardMultiDateTimeController extends BoardDateTimeController {
@@ -44,6 +45,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required super.headerWidget,
     required super.onTopActionBuilder,
     super.customCloseButtonBuilder,
+    required this.multiSelectionMaxDateBuilder,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -52,6 +54,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
 
   final void Function(DateTime start, DateTime end)? onChange;
   final void Function(T, T)? onResult;
+  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 
   @override
   State<MultiBoardDateTimeContent> createState() =>
@@ -133,7 +136,10 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       if (currentDateType.value == MultiCurrentDateType.start) {
         return endDate.value;
       }
-      return widget.maximumDate;
+      final builtMaxDate = widget.multiSelectionMaxDateBuilder?.call(
+        startDate.value,
+      );
+      return builtMaxDate ?? widget.maximumDate;
     }
   }
 
@@ -306,12 +312,16 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                 ? PickerCalendarWideWidget(
                     arguments: args,
                     closeKeyboard: closeKeyboard,
+                    multiSelectionMaxDateBuilder:
+                        widget.multiSelectionMaxDateBuilder,
                   )
                 : PickerCalendarStandardWidget(
                     arguments: args,
                     calendarAnimationController: calendarAnimationController,
                     calendarAnimation: calendarAnimation,
                     pickerFormAnimation: pickerFormAnimation,
+                    multiSelectionMaxDateBuilder:
+                        widget.multiSelectionMaxDateBuilder,
                   ),
           ],
         ),

@@ -36,6 +36,13 @@ class _MySampleAppState extends State<MySampleApp> {
 
   final ValueNotifier<DateTime> builderDate = ValueNotifier(DateTime.now());
 
+  final List<ValueNotifier<DateTime>> singleDates = [
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+    ValueNotifier(DateTime.now()),
+  ];
+
   @override
   Widget build(BuildContext context) {
     Widget scaffold() {
@@ -65,12 +72,15 @@ class _MySampleAppState extends State<MySampleApp> {
                     items: [
                       PickerItemWidget(
                         pickerType: DateTimePickerType.datetime,
+                        date: singleDates[0],
                       ),
                       PickerItemWidget(
                         pickerType: DateTimePickerType.date,
+                        date: singleDates[1],
                       ),
                       PickerItemWidget(
                         pickerType: DateTimePickerType.time,
+                        date: singleDates[2],
                       ),
                     ],
                   ),
@@ -118,6 +128,7 @@ class _MySampleAppState extends State<MySampleApp> {
                     items: [
                       PickerItemWidget(
                         pickerType: DateTimePickerType.datetime,
+                        date: singleDates[3],
                         customCloseButtonBuilder: (context, isModal, onClose) {
                           return TextButton.icon(
                             onPressed: onClose,
@@ -220,21 +231,21 @@ class SectionWidget extends StatelessWidget {
 }
 
 class PickerItemWidget extends StatelessWidget {
-  PickerItemWidget({
+  const PickerItemWidget({
     super.key,
     required this.pickerType,
     this.customCloseButtonBuilder,
+    required this.date,
   });
 
   final DateTimePickerType pickerType;
+  final ValueNotifier<DateTime> date;
 
   final Widget Function(
     BuildContext context,
     bool isModal,
     void Function() onClose,
   )? customCloseButtonBuilder;
-
-  final ValueNotifier<DateTime> date = ValueNotifier(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +265,11 @@ class PickerItemWidget extends StatelessWidget {
               pickerFormat: PickerFormat.ymd,
               // pickerMonthFormat: PickerMonthFormat.short,
               // boardTitle: 'Board Picker',
+              // boardTitleBuilder: (context, textStyle, selectedDay) => Text(
+              //   selectedDay.toString(),
+              //   style: textStyle,
+              //   maxLines: 1,
+              // ),
               // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
               withSecond: DateTimePickerType.time == pickerType,
               customOptions: DateTimePickerType.time == pickerType
@@ -436,6 +452,9 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             // ),
             // onTopActionBuilder: (context) {
             //   return const SizedBox();
+            // },
+            // multiSelectionMaxDateBuilder: (selectedDate) {
+            //   return selectedDate.add(const Duration(days: 3));
             // },
           );
           if (result != null) {

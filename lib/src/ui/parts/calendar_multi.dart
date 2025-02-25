@@ -1,3 +1,4 @@
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,7 @@ class MultipleCalendarWidget extends CalendarWidget {
     required this.onChangeDateType,
     required super.calendarSelectionBuilder,
     required super.calendarSelectionRadius,
+    required this.multiSelectionMaxDateBuilder,
   });
 
   final ValueNotifier<DateTime> startDate;
@@ -31,6 +33,7 @@ class MultipleCalendarWidget extends CalendarWidget {
 
   /// Callback when date type is changed during editing
   final void Function(MultiCurrentDateType) onChangeDateType;
+  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 
   @override
   CalendarWidgetState<MultipleCalendarWidget> createState() =>
@@ -51,6 +54,15 @@ class _MultipleCalendarWidgetState
       return selectedDate.first;
     }
     return widget.minimumDate;
+  }
+
+  @override
+  DateTime get maximumDate {
+    if (firstTouched) {
+      return widget.multiSelectionMaxDateBuilder?.call(selectedDate.first) ??
+          widget.maximumDate;
+    }
+    return widget.maximumDate;
   }
 
   @override

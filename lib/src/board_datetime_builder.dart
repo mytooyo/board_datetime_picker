@@ -329,7 +329,9 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
     widget.onResult?.call(
       BoardDateTimeCommonResult.init(pickerType, dateState.value) as T,
     );
-    changedDate = true;
+    setState(() {
+      changedDate = true;
+    });
   }
 
   /// Reset date.
