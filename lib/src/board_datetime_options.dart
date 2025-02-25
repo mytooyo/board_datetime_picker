@@ -17,7 +17,7 @@ class BoardDateTimeOptions {
     this.startDayOfWeek = DateTime.sunday,
     this.pickerFormat = PickerFormat.ymd,
     this.showDateButton = true,
-    this.boardTitle,
+    this.boardTitleBuilder,
     this.boardTitleTextStyle,
     this.pickerSubTitles,
     this.weekend,
@@ -106,7 +106,11 @@ class BoardDateTimeOptions {
   final bool showDateButton;
 
   /// Title to be displayed at the top of the picker
-  final String Function(DateTime currentDateTime)? boardTitle;
+  /// textStyle parameter is boardTitleTextStyle if declared, defaults if not specified.
+  /// currentDateTime is the current selected DateTime of the picker.
+  final Widget Function(
+          BuildContext context, TextStyle? textStyle, DateTime currentDateTime)?
+      boardTitleBuilder;
 
   /// BoardTitle text style
   final TextStyle? boardTitleTextStyle;
