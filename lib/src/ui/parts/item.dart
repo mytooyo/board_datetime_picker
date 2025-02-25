@@ -138,7 +138,10 @@ class ItemWidgetState extends State<ItemWidget>
     scrollController = FixedExtentScrollController(
       initialItem: selectedIndex,
     );
-    textController = TextEditingController(text: '${map[selectedIndex]}');
+    final day = map[selectedIndex];
+    textController = TextEditingController(
+      text: widget.option.isMonthText ? monthMap[day] : '$day',
+    );
     textController.selection = TextSelection.fromPosition(
       TextPosition(offset: textController.text.length),
     );
@@ -390,7 +393,9 @@ class ItemWidgetState extends State<ItemWidget>
                       key: ValueKey(widget.option.type.name),
                       controller: textController,
                       focusNode: widget.option.focusNode,
-                      keyboardType: TextInputType.number,
+                      keyboardType: widget.option.isMonthText
+                          ? TextInputType.text
+                          : TextInputType.number,
                       textInputAction: TextInputAction.done,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -432,7 +437,7 @@ class ItemWidgetState extends State<ItemWidget>
         } catch (_) {
           data = monthMap.entries
               .firstWhereOrNull(
-                (e) => e.value == text,
+                (e) => e.value.toLowerCase() == text.toLowerCase(),
               )!
               .key;
         }

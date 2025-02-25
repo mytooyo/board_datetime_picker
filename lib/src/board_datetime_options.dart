@@ -19,6 +19,7 @@ class BoardDateTimeOptions {
     this.pickerMonthFormat = PickerMonthFormat.number,
     this.showDateButton = true,
     this.boardTitle,
+    this.boardTitleBuilder,
     this.boardTitleTextStyle,
     this.pickerSubTitles,
     this.weekend,
@@ -34,7 +35,7 @@ class BoardDateTimeOptions {
     this.useResetButton = false,
     this.useAmpm = false,
     this.separators,
-  });
+  }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
   /// default is `Theme.of(context).scaffoldBackgroundColor`
@@ -119,6 +120,13 @@ class BoardDateTimeOptions {
 
   /// Title to be displayed at the top of the picker
   final String? boardTitle;
+
+  /// Title to be displayed at the top of the picker
+  /// textStyle parameter is boardTitleTextStyle if declared, defaults if not specified.
+  /// currentDateTime is the current selected DateTime of the picker.
+  final Widget Function(
+          BuildContext context, TextStyle? textStyle, DateTime currentDateTime)?
+      boardTitleBuilder;
 
   /// BoardTitle text style
   final TextStyle? boardTitleTextStyle;
