@@ -124,6 +124,9 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   DateTime? get minimumDate => widget.minimumDate;
   DateTime? get maximumDate => widget.maximumDate;
 
+  /// Multiselection flag
+  bool get multiSelection;
+
   /// Set new value
   void setNewValue(DateTime val, {bool byPicker = false});
 
@@ -281,6 +284,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           );
           ymdOptions.add(initItemOption(args));
         } else if (pf == 'M') {
@@ -297,6 +301,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           );
           ymdOptions.add(initItemOption(args));
         } else if (pf == 'd') {
@@ -313,6 +318,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           );
           ymdOptions.add(initItemOption(args));
         }
@@ -338,6 +344,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           ),
         ),
         initItemOption(
@@ -354,6 +361,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           ),
         ),
       ],
@@ -372,6 +380,7 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
             monthFormat: widget.options.pickerMonthFormat,
             locale: widget.options.languages.locale,
             wide: () => isWide,
+            multiSelection: multiSelection,
           ),
         ),
     ];

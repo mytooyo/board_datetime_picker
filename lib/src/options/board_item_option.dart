@@ -25,6 +25,7 @@ class ItemOptionArgs {
     required this.monthFormat,
     required this.locale,
     required this.wide,
+    required this.multiSelection,
   });
 
   final DateTimePickerType pickerType;
@@ -39,6 +40,7 @@ class ItemOptionArgs {
   final PickerMonthFormat monthFormat;
   final String locale;
   final bool Function() wide;
+  final bool multiSelection;
 }
 
 BoardPickerItemOption initItemOption(ItemOptionArgs args) {
@@ -117,7 +119,14 @@ class BoardPickerItemOption {
       case DateType.year:
         return BoardPickerItemOption.year(args: args);
       case DateType.month:
-        map = minmaxList(args.pickerType, DateType.month, args.date, mi, ma);
+        map = minmaxList(
+          args.pickerType,
+          DateType.month,
+          args.date,
+          mi,
+          ma,
+          multiSelection: args.multiSelection,
+        );
         selected = indexFromValue(args.date.month, map);
 
         break;
@@ -212,33 +221,33 @@ class BoardPickerItemOption {
   void changeDate(DateTime date) {
     switch (type) {
       case DateType.year:
-        selectedIndex = _getIndexFromValue(date.year) ?? 0;
+        selectedIndex = getIndexFromValue(date.year) ?? 0;
         break;
       case DateType.month:
-        selectedIndex = _getIndexFromValue(date.month) ?? 0;
+        selectedIndex = getIndexFromValue(date.month) ?? 0;
         break;
       case DateType.day:
-        selectedIndex = _getIndexFromValue(date.day) ?? 0;
+        selectedIndex = getIndexFromValue(date.day) ?? 0;
         break;
       case DateType.hour:
-        selectedIndex = _getIndexFromValue(date.hour) ?? 0;
+        selectedIndex = getIndexFromValue(date.hour) ?? 0;
 
         // set ampm
         final hour = itemMap[selectedIndex];
         ampm = DateTimeUtil.ampmContrastMap[hour]?.ampm;
         break;
       case DateType.minute:
-        selectedIndex = _getIndexFromValue(date.minute) ?? 0;
+        selectedIndex = getIndexFromValue(date.minute) ?? 0;
         break;
       case DateType.second:
-        selectedIndex = _getIndexFromValue(date.second) ?? 0;
+        selectedIndex = getIndexFromValue(date.second) ?? 0;
         break;
     }
     stateKey.currentState?.toAnimateChange(selectedIndex, button: true);
   }
 
   /// Get the map index from the value and return it
-  int? _getIndexFromValue(int val) {
+  int? getIndexFromValue(int val) {
     for (final index in itemMap.keys) {
       if (itemMap[index] == val) return index;
     }
@@ -276,7 +285,15 @@ class BoardPickerItemOption {
     //  Retrieve existing values
     final tmp = value;
     // Generate new maps
-    itemMap = minmaxList(pickerType, type, date, minimumDate, maximumDate);
+    itemMap = minmaxList(
+      pickerType,
+      type,
+      date,
+      minimumDate,
+      maximumDate,
+      multiSelection: args.multiSelection,
+      currentMap: itemMap,
+    );
     updateState(tmp, date);
   }
 
@@ -321,7 +338,7 @@ class BoardPickerItemOption {
   void updateState(int tmpValue, DateTime date) {
     // Get the index of the value that was selected
     // before the update and update it to that value
-    final index = _getIndexFromValue(tmpValue);
+    final index = getIndexFromValue(tmpValue);
     if (index != null) {
       selectedIndex = index;
     } else if (itemMap.values.first > tmpValue) {
@@ -366,7 +383,7 @@ class BoardPickerItemOption {
         (e) => e.value.hour == entry.hour,
       );
       if (nextEntry != null) {
-        final index = _getIndexFromValue(nextEntry.key);
+        final index = getIndexFromValue(nextEntry.key);
 
         if (index != null) {
           selectedIndex = index;
@@ -395,8 +412,10 @@ class BoardPickerItemOption {
     DateType dt,
     DateTime date,
     DateTime minimum,
-    DateTime maximum,
-  ) {
+    DateTime maximum, {
+    bool multiSelection = false,
+    Map<int, int>? currentMap,
+  }) {
     Map<int, int> createMap(int start, int end) {
       Map<int, int> map = {};
       int index = 0;
@@ -424,7 +443,10 @@ class BoardPickerItemOption {
 
     switch (dt) {
       case DateType.year:
-        return createMap(minimum.year, maximum.year);
+        // If there is already a generated map instead of multi-selection, it is used as is.
+        return !multiSelection && currentMap != null
+            ? currentMap
+            : createMap(minimum.year, maximum.year);
       case DateType.month:
         int minMonth = 1;
         int maxMonth = 12;

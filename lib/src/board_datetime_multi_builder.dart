@@ -69,6 +69,9 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
   late ValueNotifier<DateTime> endDate;
 
   @override
+  bool get multiSelection => true;
+
+  @override
   DateTime get currentDate =>
       currentDateType.value == MultiCurrentDateType.start
           ? startDate.value
