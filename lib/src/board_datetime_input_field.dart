@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1061,6 +1062,7 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           onKeyboadClose: onClosePicker,
           headerWidget: null,
           onTopActionBuilder: widget.onTopActionBuilder,
+          embeddedOptions: const EmbeddedOptions(),
         ),
       ),
     );

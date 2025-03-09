@@ -203,6 +203,7 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
         keyboardHeightNotifier: keyboardHeightNotifier,
         headerWidget: widget.headerWidget,
         onTopActionBuilder: widget.onTopActionBuilder,
+        embeddedOptions: const EmbeddedOptions(),
       );
     }
 
@@ -255,6 +256,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required super.headerWidget,
     required super.onTopActionBuilder,
     super.customCloseButtonBuilder,
+    required super.embeddedOptions,
   });
 
   final void Function(DateTime)? onChange;
@@ -399,12 +401,14 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                 ? PickerCalendarWideWidget(
                     arguments: args,
                     closeKeyboard: closeKeyboard,
+                    embeddedOptions: widget.embeddedOptions,
                   )
                 : PickerCalendarStandardWidget(
                     arguments: args,
                     calendarAnimationController: calendarAnimationController,
                     calendarAnimation: calendarAnimation,
                     pickerFormAnimation: pickerFormAnimation,
+                    embeddedOptions: widget.embeddedOptions,
                   ),
           ],
         ),

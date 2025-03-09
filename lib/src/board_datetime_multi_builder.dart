@@ -46,6 +46,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required super.onTopActionBuilder,
     super.customCloseButtonBuilder,
     required this.multiSelectionMaxDateBuilder,
+    required super.embeddedOptions,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -340,6 +341,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                     closeKeyboard: closeKeyboard,
                     multiSelectionMaxDateBuilder:
                         widget.multiSelectionMaxDateBuilder,
+                    embeddedOptions: widget.embeddedOptions,
                   )
                 : PickerCalendarStandardWidget(
                     arguments: args,
@@ -348,6 +350,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                     pickerFormAnimation: pickerFormAnimation,
                     multiSelectionMaxDateBuilder:
                         widget.multiSelectionMaxDateBuilder,
+                    embeddedOptions: widget.embeddedOptions,
                   ),
           ],
         ),

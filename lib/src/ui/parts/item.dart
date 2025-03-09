@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
@@ -20,6 +21,7 @@ class ItemWidget extends StatefulWidget {
     required this.wide,
     required this.subTitle,
     required this.inputable,
+    required this.embeddedOptions,
   });
 
   final BoardPickerItemOption option;
@@ -30,6 +32,7 @@ class ItemWidget extends StatefulWidget {
   final bool wide;
   final String? subTitle;
   final bool inputable;
+  final EmbeddedOptions embeddedOptions;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -62,7 +65,7 @@ class ItemWidgetState extends State<ItemWidget>
   Timer? wheelDebouceTimer;
 
   /// Number of items to display in the list
-  int get wheelCount => widget.wide ? 7 : 5;
+  int get wheelCount => widget.wide || widget.embeddedOptions.fixed ? 7 : 5;
 
   /// Short name of items to display in the list
   Map<int, String> monthMap = {};

@@ -55,10 +55,12 @@ abstract class PickerCalendarWidget extends StatefulWidget {
     super.key,
     required this.arguments,
     this.multiSelectionMaxDateBuilder,
+    required this.embeddedOptions,
   });
 
   final PickerCalendarArgs arguments;
   final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
+  final EmbeddedOptions embeddedOptions;
 }
 
 abstract class PickerCalendarState<T extends PickerCalendarWidget>
@@ -152,6 +154,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             wide: isWide,
             subTitle: x.subTitle,
             inputable: args.options.inputable,
+            embeddedOptions: widget.embeddedOptions,
           ),
         ),
       );
@@ -329,6 +332,7 @@ class PickerCalendarWideWidget extends PickerCalendarWidget {
     required super.arguments,
     required this.closeKeyboard,
     super.multiSelectionMaxDateBuilder,
+    required super.embeddedOptions,
   });
 
   final void Function() closeKeyboard;
@@ -431,6 +435,7 @@ class PickerCalendarStandardWidget extends PickerCalendarWidget {
     required this.calendarAnimation,
     required this.pickerFormAnimation,
     super.multiSelectionMaxDateBuilder,
+    required super.embeddedOptions,
   });
 
   final AnimationController calendarAnimationController;
@@ -453,7 +458,16 @@ class _PickerCalendarStandardWidgetState
   }
 
   Widget builder(BuildContext context, Widget? child) {
-    double height = 200 + (220 * widget.calendarAnimation.value);
+    double height = 200;
+    if (widget.embeddedOptions.embedded) {
+      if (widget.embeddedOptions.fixedHeight) {
+        height += 176;
+      } else {
+        height += 176 * widget.calendarAnimation.value;
+      }
+    } else {
+      height += 220 * widget.calendarAnimation.value;
+    }
 
     if (args.options.isTopTitleHeader) {
       height += 40;
@@ -461,7 +475,9 @@ class _PickerCalendarStandardWidgetState
     height += keyboardMenuHeight;
 
     return Container(
-      height: height + (args.keyboardHeightRatio() * 172),
+      height: widget.embeddedOptions.embedded
+          ? height + 108
+          : height + (args.keyboardHeightRatio() * 172),
       decoration: args.options.backgroundDecoration ??
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
@@ -469,6 +485,7 @@ class _PickerCalendarStandardWidgetState
       // padding: const EdgeInsets.symmetric(horizontal: 8),
       child: SafeArea(
         top: false,
+        bottom: !widget.embeddedOptions.embedded,
         child: Align(
           alignment: Alignment.topCenter,
           child: Column(

@@ -446,3 +446,18 @@ class BoardDateTimePickerSeparators {
     this.dateTime = PickerSeparator.none,
   });
 }
+
+/// Options used for embedding.
+///
+class EmbeddedOptions {
+  const EmbeddedOptions({
+    this.embedded = false,
+    this.fixedHeight = false,
+  });
+
+  final bool embedded;
+
+  final bool fixedHeight;
+
+  bool get fixed => embedded && fixedHeight;
+}

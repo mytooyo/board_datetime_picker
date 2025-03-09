@@ -151,6 +151,43 @@ class _MySampleAppState extends State<MySampleApp> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 40),
+                  SectionWidget(
+                    title: 'Embedded Widget',
+                    items: [
+                      InkWell(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EmbeddedWidget()),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
+                            children: [
+                              Material(
+                                color: Colors.grey[700],
+                                borderRadius: BorderRadius.circular(8),
+                                child: const SizedBox(
+                                  height: 32,
+                                  width: 32,
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.open_in_new_rounded,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text('Embedded Widget'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
@@ -702,5 +739,57 @@ extension DateTimePickerTypeExtension on DateTimePickerType {
       case DateTimePickerType.time:
         return withSecond ? 'HH:mm:ss' : 'HH:mm';
     }
+  }
+}
+
+class EmbeddedWidget extends StatelessWidget {
+  EmbeddedWidget({super.key});
+
+  final ValueNotifier<DateTime> date = ValueNotifier(DateTime.now());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Board DateTime Picker Example'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const SizedBox(height: 24),
+            Card(
+              margin: const EdgeInsets.all(0),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: BoardDateTimePickerWidget(
+                  pickerType: DateTimePickerType.datetime,
+                  options: BoardDateTimeOptions(
+                    backgroundColor: Theme.of(context).cardColor,
+                    foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  ),
+                  valueNotifier: date,
+                  // fixedHeight: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            ValueListenableBuilder(
+              valueListenable: date,
+              builder: (context, val, child) {
+                return Text(
+                  'Selected Date: ${BoardDateFormat("yyyy/MM/dd HH:mm").format(val)}',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

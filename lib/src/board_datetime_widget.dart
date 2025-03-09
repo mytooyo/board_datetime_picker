@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'board_datetime_builder.dart';
 import 'board_datetime_multi_builder.dart';
 import 'board_datetime_options.dart';
+import 'ui/abstract_datetime_widget.dart';
 import 'ui/board_datetime_contents_state.dart';
 import 'utils/board_datetime_result.dart';
 import 'utils/board_enum.dart';
@@ -316,44 +317,30 @@ Future<DateTime?> showBoardDateTimePicker<T extends BoardDateTimeCommonResult>({
   );
 }
 
-class _SingleBoardDateTimeWidget extends StatefulWidget {
+class _SingleBoardDateTimeWidget extends AbstractBoardDatetimeWidget {
   const _SingleBoardDateTimeWidget({
-    this.controller,
-    this.breakpoint = 800,
-    this.initialDate,
-    this.minimumDate,
-    this.maximumDate,
-    required this.pickerType,
-    this.options = const BoardDateTimeOptions(),
-    this.valueNotifier,
-    this.onChanged,
-    this.onResult,
-    required this.headerWidget,
-    required this.onTopActionBuilder,
-    required this.customCloseButtonBuilder,
+    super.controller,
+    super.breakpoint = 800,
+    super.initialDate,
+    super.minimumDate,
+    super.maximumDate,
+    required super.pickerType,
+    super.options = const BoardDateTimeOptions(),
+    super.valueNotifier,
+    super.onChanged,
+    super.onResult,
+    required super.headerWidget,
+    required super.onTopActionBuilder,
+    required super.customCloseButtonBuilder,
   });
-
-  final BoardDateTimeController? controller;
-  final double breakpoint;
-  final DateTime? initialDate;
-  final DateTime? minimumDate;
-  final DateTime? maximumDate;
-  final DateTimePickerType pickerType;
-  final BoardDateTimeOptions options;
-  final ValueNotifier<DateTime>? valueNotifier;
-  final Widget? headerWidget;
-  final void Function(DateTime)? onChanged;
-  final void Function(BoardDateTimeCommonResult)? onResult;
-  final Widget Function(BuildContext context)? onTopActionBuilder;
-  final CloseButtonBuilder? customCloseButtonBuilder;
 
   @override
   State<_SingleBoardDateTimeWidget> createState() =>
       _SingleBoardDateTimeWidgetState();
 }
 
-class _SingleBoardDateTimeWidgetState
-    extends State<_SingleBoardDateTimeWidget> {
+class _SingleBoardDateTimeWidgetState<T extends AbstractBoardDatetimeWidget>
+    extends State<T> {
   late DateTime date;
 
   @override
@@ -389,6 +376,7 @@ class _SingleBoardDateTimeWidgetState
       },
       onTopActionBuilder: widget.onTopActionBuilder,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
+      embeddedOptions: widget.embeddedOptions,
     );
   }
 }
@@ -494,48 +482,32 @@ Future<BoardDateTimeMultiSelection?>
   );
 }
 
-class _MultiBoardDateTimeWidget extends StatefulWidget {
+class _MultiBoardDateTimeWidget extends AbstractMultiBoardDatetimeWidget {
   const _MultiBoardDateTimeWidget({
-    this.controller,
-    this.breakpoint = 800,
-    this.startDate,
-    this.endDate,
-    this.minimumDate,
-    this.maximumDate,
-    required this.pickerType,
-    this.options = const BoardDateTimeOptions(),
+    super.controller,
+    super.breakpoint = 800,
+    super.startDate,
+    super.endDate,
+    super.minimumDate,
+    super.maximumDate,
+    required super.pickerType,
+    super.options = const BoardDateTimeOptions(),
     // this.valueNotifier,
-    this.onChanged,
-    this.onResult,
-    this.headerWidget,
-    this.onTopActionBuilder,
-    this.customCloseButtonBuilder,
-    this.multiSelectionMaxDateBuilder,
+    super.onChanged,
+    super.onResult,
+    super.headerWidget,
+    super.onTopActionBuilder,
+    super.customCloseButtonBuilder,
+    super.multiSelectionMaxDateBuilder,
   });
-
-  final BoardMultiDateTimeController? controller;
-  final double breakpoint;
-  final DateTime? startDate;
-  final DateTime? endDate;
-  final DateTime? minimumDate;
-  final DateTime? maximumDate;
-  final DateTimePickerType pickerType;
-  final BoardDateTimeOptions options;
-  final Widget? headerWidget;
-  // final ValueNotifier<DateTime>? valueNotifier;
-  final void Function(BoardDateTimeMultiSelection)? onChanged;
-  final void Function(BoardDateTimeCommonResult, BoardDateTimeCommonResult)?
-      onResult;
-  final Widget Function(BuildContext context)? onTopActionBuilder;
-  final CloseButtonBuilder? customCloseButtonBuilder;
-  final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
 
   @override
   State<_MultiBoardDateTimeWidget> createState() =>
       _MultiBoardDateTimeWidgetState();
 }
 
-class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
+class _MultiBoardDateTimeWidgetState<T extends AbstractMultiBoardDatetimeWidget>
+    extends State<T> {
   late BoardDateTimeMultiSelection selection;
 
   @override
@@ -597,6 +569,7 @@ class _MultiBoardDateTimeWidgetState extends State<_MultiBoardDateTimeWidget> {
       onTopActionBuilder: widget.onTopActionBuilder,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
+      embeddedOptions: widget.embeddedOptions,
     );
   }
 }
@@ -614,4 +587,85 @@ class BoardDateTimeMultiSelection {
   String toString() {
     return 'BoardDateTimeMultiSelection {start: $start, end: $end}';
   }
+}
+
+/// ### BoardDateTimePickerWidget
+///
+/// A widget that displays a date and time picker.
+///
+/// This is used to embed the Picker functionality into a custom widget.
+///
+/// Currently, there is a possibility of layout errors due to size constraints,
+/// so specifying the parent widget’s size is not recommended.
+///
+/// It is preferable to have a minimum width of 300 for proper display.
+class BoardDateTimePickerWidget extends AbstractBoardDatetimeWidget {
+  BoardDateTimePickerWidget({
+    super.key,
+    super.controller,
+    super.breakpoint = 800,
+    super.initialDate,
+    super.minimumDate,
+    super.maximumDate,
+    required super.pickerType,
+    super.options = const BoardDateTimeOptions(),
+    super.valueNotifier,
+    super.onChanged,
+    super.onResult,
+    super.headerWidget,
+    super.onTopActionBuilder,
+    super.customCloseButtonBuilder,
+    bool fixedHeight = false,
+  }) : super(
+          embeddedOptions: EmbeddedOptions(
+            embedded: true,
+            fixedHeight: fixedHeight,
+          ),
+        );
+
+  @override
+  State<BoardDateTimePickerWidget> createState() =>
+      _SingleBoardDateTimeWidgetState();
+}
+
+/// ### BoardDateTimePickerWidget
+///
+/// A widget that displays a date and time picker.
+///
+/// This is used to embed the Picker functionality into a custom widget.
+///
+/// Currently, there is a possibility of layout errors due to size constraints,
+/// so specifying the parent widget’s size is not recommended.
+///
+/// It is preferable to have a minimum width of 300 for proper display.
+
+class BoardDateTimePickerMultiWidget extends AbstractMultiBoardDatetimeWidget {
+  BoardDateTimePickerMultiWidget({
+    super.key,
+    super.controller,
+    super.breakpoint = 800,
+    super.startDate,
+    super.endDate,
+    super.minimumDate,
+    super.maximumDate,
+    required super.pickerType,
+    super.options = const BoardDateTimeOptions(),
+    // this.valueNotifier,
+    super.onChanged,
+    super.onResult,
+    super.headerWidget,
+    super.onTopActionBuilder,
+    super.customCloseButtonBuilder,
+    super.multiSelectionMaxDateBuilder,
+    bool fixedHeight = false,
+  }) : super(
+          embeddedOptions: EmbeddedOptions(
+            embedded: true,
+            fixedHeight: fixedHeight,
+          ),
+        );
+
+  @override
+  State<BoardDateTimePickerMultiWidget> createState() =>
+      _MultiBoardDateTimeWidgetState();
 }
