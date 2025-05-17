@@ -103,7 +103,9 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
           weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
           onChangeDateType: args.onChangeDateType!,
           calendarSelectionBuilder: args.options.calendarSelectionBuilder,
+          calendarItemBuilder: args.options.calendarItemBuilder,
           calendarSelectionRadius: args.options.calendarSelectionRadius,
+          calendarItemDecoration: args.options.calendarItemDecoration,
           multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
         ),
       );
@@ -129,7 +131,9 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         startDayOfWeek: args.options.startDayOfWeek,
         weekend: args.options.weekend ?? const BoardPickerWeekendOptions(),
         calendarSelectionBuilder: args.options.calendarSelectionBuilder,
+        calendarItemBuilder: args.options.calendarItemBuilder,
         calendarSelectionRadius: args.options.calendarSelectionRadius,
+        calendarItemDecoration: args.options.calendarItemDecoration,
       ),
     );
   }

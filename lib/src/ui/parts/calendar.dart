@@ -21,6 +21,8 @@ class SingleCalendarWidget extends CalendarWidget {
     required super.weekend,
     required super.calendarSelectionBuilder,
     required super.calendarSelectionRadius,
+    required super.calendarItemBuilder,
+    required super.calendarItemDecoration,
   });
 
   final ValueNotifier<DateTime> dateState;
@@ -84,6 +86,8 @@ abstract class CalendarWidget extends StatefulWidget {
     required this.weekend,
     required this.calendarSelectionBuilder,
     required this.calendarSelectionRadius,
+    required this.calendarItemBuilder,
+    required this.calendarItemDecoration,
   });
 
   final bool wide;
@@ -97,8 +101,12 @@ abstract class CalendarWidget extends StatefulWidget {
   final DateTime maximumDate;
   final int startDayOfWeek;
   final BoardPickerWeekendOptions weekend;
+
+  @Deprecated('Use calendarItemBuilder instead')
   final CalendarSelectionBuilder? calendarSelectionBuilder;
   final double? calendarSelectionRadius;
+  final CalendarItemBuilder? calendarItemBuilder;
+  final CalendarItemDecorationBuilder? calendarItemDecoration;
 }
 
 abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
@@ -409,7 +417,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
 
   CalendarSelectedProps getProps(DateTime date) {
     return CalendarSelectedProps(
-      margin: const EdgeInsets.all(4),
+      margin: const EdgeInsets.all(2),
       borderRadius: BorderRadius.circular(widget.calendarSelectionRadius ?? 50),
     );
   }
@@ -427,7 +435,16 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
               : textColor(z.weekday, disabled),
         );
     Widget child = Text('$i', style: textStyle);
-    if (selected) {
+
+    if (widget.calendarItemBuilder != null) {
+      child = widget.calendarItemBuilder!.call(
+        context,
+        '$i',
+        textStyle,
+        z,
+        selected,
+      );
+    } else if (selected) {
       final built = widget.calendarSelectionBuilder?.call(
         context,
         '$i',
@@ -438,10 +455,23 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
       }
     }
 
+    BoxDecoration decoration = BoxDecoration(
+      borderRadius: props.borderRadius,
+      color: selected ? widget.activeColor : Colors.transparent,
+    );
+    if (widget.calendarItemDecoration != null) {
+      decoration = widget.calendarItemDecoration!.call(
+        context,
+        '$i',
+        z,
+        selected,
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       clipBehavior: Clip.antiAlias,
-      borderRadius: props.borderRadius,
+      borderRadius: decoration.borderRadius,
       child: InkWell(
         onTap: disabled ? null : () => onTap(z),
         child: Center(
@@ -449,11 +479,7 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
             width: double.infinity,
             height: double.infinity,
             margin: props.margin,
-            decoration: BoxDecoration(
-              // shape: BoxShape.circle,
-              borderRadius: props.borderRadius,
-              color: selected ? widget.activeColor : Colors.transparent,
-            ),
+            decoration: decoration,
             child: Center(
               child: child,
             ),

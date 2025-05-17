@@ -1,7 +1,28 @@
 import 'package:flutter/material.dart';
 
+@Deprecated('Use calendarItemBuilder instead')
 typedef CalendarSelectionBuilder = Widget Function(
-    BuildContext context, String day, TextStyle? textStyle);
+  BuildContext context,
+  String day,
+  TextStyle? textStyle,
+);
+
+/// A builder that specifies the date range rules
+typedef CalendarItemBuilder = Widget Function(
+  BuildContext context,
+  String day,
+  TextStyle? textStyle,
+  DateTime date,
+  bool isSelected,
+);
+
+/// A builder that specifies the date range rules
+typedef CalendarItemDecorationBuilder = BoxDecoration Function(
+  BuildContext context,
+  String day,
+  DateTime date,
+  bool isSelected,
+);
 
 /// A builder that specifies the date range rules
 /// to be used in the case of multiple selections.
@@ -38,6 +59,8 @@ class BoardDateTimeOptions {
       BoardDateButtonType.tomorrow
     ],
     this.calendarSelectionBuilder,
+    this.calendarItemBuilder,
+    this.calendarItemDecoration,
     this.useResetButton = false,
     this.useAmpm = false,
     this.separators,
@@ -192,11 +215,29 @@ class BoardDateTimeOptions {
   ///   );
   /// },
   /// ```
+  @Deprecated('Use calendarItemBuilder instead')
   final CalendarSelectionBuilder? calendarSelectionBuilder;
+
+  /// Callback to build a Widget that displays the selected item in the calendar.
+  /// The date and text style to be displayed as parameters.
+  ///
+  /// ### example
+  /// ```dart
+  /// calendarItemBuilder: (context, day, textStyle, isSelected) {
+  ///   return Text(day, style: textStyle);
+  /// },
+  final CalendarItemBuilder? calendarItemBuilder;
 
   /// Background radius for the date selected in the calendar.
   /// If not specified, display as a circle
   final double? calendarSelectionRadius;
+
+  /// BoxDecoration for the date selected in the calendar.
+  /// If not specified, it will be a standard BoxDecoration with
+  /// the color specified in the normal activeColor (default).
+  ///
+  /// If both [activeColor] and calendarItemDecoration are specified, this one takes precedence.
+  final CalendarItemDecorationBuilder? calendarItemDecoration;
 
   /// If you want to use the reset button, please set it to true.
   /// The reset button will be displayed on the right side of the header section.

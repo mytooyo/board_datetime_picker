@@ -25,6 +25,8 @@ class MultipleCalendarWidget extends CalendarWidget {
     required super.calendarSelectionBuilder,
     required super.calendarSelectionRadius,
     required this.multiSelectionMaxDateBuilder,
+    required super.calendarItemBuilder,
+    required super.calendarItemDecoration,
   });
 
   final ValueNotifier<DateTime> startDate;
