@@ -1,3 +1,8 @@
+## 2.6.0
+
+* Add `calendarItemBuilder` and `calendarItemDecoration`
+* Add embedded picker widget (`BoardDateTimePickerWidget`).
+
 ## 2.5.0
 
 * Add support for month names.
