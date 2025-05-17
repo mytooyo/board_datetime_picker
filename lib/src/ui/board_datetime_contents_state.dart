@@ -36,6 +36,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required this.headerWidget,
     required this.onTopActionBuilder,
     required this.customCloseButtonBuilder,
+    required this.embeddedOptions,
   });
 
   final double breakpoint;
@@ -72,6 +73,8 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
   final Widget Function(BuildContext context)? onTopActionBuilder;
 
   final CloseButtonBuilder? customCloseButtonBuilder;
+
+  final EmbeddedOptions embeddedOptions;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
