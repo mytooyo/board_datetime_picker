@@ -432,6 +432,7 @@ Future<BoardDateTimeMultiSelection?>
   Widget Function(BuildContext context)? onTopActionBuilder,
   CloseButtonBuilder? customCloseButtonBuilder,
   MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder,
+  MultiPickerDateRangeMode dateRangeMode = MultiPickerDateRangeMode.constrained,
 }) async {
   final opt = options ?? const BoardDateTimeOptions();
 
@@ -476,6 +477,7 @@ Future<BoardDateTimeMultiSelection?>
           onTopActionBuilder: onTopActionBuilder,
           customCloseButtonBuilder: customCloseButtonBuilder,
           multiSelectionMaxDateBuilder: multiSelectionMaxDateBuilder,
+          dateRangeMode: dateRangeMode,
         ),
       );
     },
@@ -499,6 +501,7 @@ class _MultiBoardDateTimeWidget extends AbstractMultiBoardDatetimeWidget {
     super.onTopActionBuilder,
     super.customCloseButtonBuilder,
     super.multiSelectionMaxDateBuilder,
+    super.dateRangeMode,
   });
 
   @override
@@ -570,6 +573,7 @@ class _MultiBoardDateTimeWidgetState<T extends AbstractMultiBoardDatetimeWidget>
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
       embeddedOptions: widget.embeddedOptions,
+      dateRangeMode: widget.dateRangeMode,
     );
   }
 }

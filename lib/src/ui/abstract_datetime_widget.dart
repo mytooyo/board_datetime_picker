@@ -58,6 +58,7 @@ abstract class AbstractMultiBoardDatetimeWidget extends StatefulWidget {
     this.customCloseButtonBuilder,
     this.multiSelectionMaxDateBuilder,
     this.embeddedOptions = const EmbeddedOptions(),
+    this.dateRangeMode = MultiPickerDateRangeMode.constrained,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -77,4 +78,5 @@ abstract class AbstractMultiBoardDatetimeWidget extends StatefulWidget {
   final CloseButtonBuilder? customCloseButtonBuilder;
   final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
   final EmbeddedOptions embeddedOptions;
+  final MultiPickerDateRangeMode dateRangeMode;
 }
