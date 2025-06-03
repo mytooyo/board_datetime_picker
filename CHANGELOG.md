@@ -1,3 +1,7 @@
+## 2.7.0
+
+* Add date range mode (`dateRangeMode`) for multi selection picker.
+
 ## 2.6.0
 
 * Add `calendarItemBuilder` and `calendarItemDecoration`
