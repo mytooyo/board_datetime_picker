@@ -47,6 +47,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     super.customCloseButtonBuilder,
     required this.multiSelectionMaxDateBuilder,
     required super.embeddedOptions,
+    required this.dateRangeMode,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -56,6 +57,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
   final void Function(DateTime start, DateTime end)? onChange;
   final void Function(T, T)? onResult;
   final MultiSelectionMaxDateBuilder? multiSelectionMaxDateBuilder;
+  final MultiPickerDateRangeMode dateRangeMode;
 
   @override
   State<MultiBoardDateTimeContent> createState() =>
@@ -117,7 +119,8 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         widget.minimumDate?.second ?? 0,
       );
     } else {
-      if (currentDateType.value == MultiCurrentDateType.end) {
+      if (widget.dateRangeMode == MultiPickerDateRangeMode.constrained &&
+          currentDateType.value == MultiCurrentDateType.end) {
         return startDate.value;
       }
       return widget.minimumDate;
@@ -160,7 +163,8 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         widget.maximumDate?.second ?? 59,
       );
     } else {
-      if (currentDateType.value == MultiCurrentDateType.start) {
+      if (widget.dateRangeMode == MultiPickerDateRangeMode.constrained &&
+          currentDateType.value == MultiCurrentDateType.start) {
         return endDate.value;
       }
       final builtMaxDate = widget.multiSelectionMaxDateBuilder?.call(
@@ -215,16 +219,24 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
       if (startDate.value == val) {
         notify();
+      } else {
+        startDate.value = val;
+        // 開始と終了の日付が反転している場合は終了日を開始日に設定する
+        if (startDate.value.isAfter(endDate.value)) {
+          endDate.value = startDate.value;
+        }
       }
-
-      startDate.value = val;
     } else {
       // 同一の値の場合はステート更新のみ実施する(notifyが動かないため)
       if (endDate.value == val) {
         notify();
+      } else {
+        endDate.value = val;
+        // 開始と終了の日付が反転している場合は開始日を終了日に設定する
+        if (startDate.value.isAfter(endDate.value)) {
+          startDate.value = endDate.value;
+        }
       }
-
-      endDate.value = val;
     }
     _setFocusNode(byPicker);
   }

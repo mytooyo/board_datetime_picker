@@ -494,6 +494,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             // multiSelectionMaxDateBuilder: (selectedDate) {
             //   return selectedDate.add(const Duration(days: 3));
             // },
+            // dateRangeMode: MultiPickerDateRangeMode.flexible,
           );
           if (result != null) {
             start.value = result.start;

@@ -502,3 +502,19 @@ class EmbeddedOptions {
 
   bool get fixed => embedded && fixedHeight;
 }
+
+/// Enum for specifying the date range mode for MultSelectionPicker
+///
+/// This enum is used only in MultiPicker to determine how the selectable
+/// range of minimum and maximum date/time should be controlled.
+enum MultiPickerDateRangeMode {
+  /// Flexible mode
+  /// The range is dynamically adjusted based on the selected date/time.
+  /// Allows for more flexible date/time selection.
+  flexible,
+
+  /// Constrained mode (Default)
+  /// Selection is only allowed within the currently selected minimum and maximum dates.
+  /// Traditional behavior where selection is constrained between the selected range.
+  constrained,
+}
