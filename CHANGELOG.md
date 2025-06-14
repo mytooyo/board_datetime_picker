@@ -1,3 +1,8 @@
+## 2.8.0
+
+* Added `BoardDateTimeViewMode` to control the display mode of the picker and calendar.
+  * This setting has no effect when the picker is in wide mode.
+
 ## 2.7.0
 
 * Add date range mode (`dateRangeMode`) for multi selection picker.

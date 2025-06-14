@@ -428,6 +428,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onReset: widget.options.useResetButton ? reset : null,
       useAmpm: widget.options.useAmpm,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
+      viewMode: widget.options.viewMode,
     );
   }
 }

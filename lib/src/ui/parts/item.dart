@@ -227,28 +227,30 @@ class ItemWidgetState extends State<ItemWidget>
     );
   }
 
+  Timer? _updateTimer;
+
   void updateState(Map<int, int> newMap, int newIndex) {
     if (!mounted) return;
 
-    bool needAnimation = false;
-    setState(() {
-      // 表示する数字が同じ場合はアニメーションしない
-      final oldValue = map[selectedIndex];
+    final oldValue = map[selectedIndex];
+    final newWheelIndex = getWheelIndex(newIndex);
+    final needAnimation =
+        selectedIndex != newWheelIndex && oldValue != newMap[newWheelIndex];
 
+    setState(() {
       setMap(newMap: newMap);
-      final newWheelIndex = getWheelIndex(newIndex);
       if (selectedIndex != newWheelIndex) {
         selectedIndex = newWheelIndex;
-
-        final newValue = map[newWheelIndex];
-
-        if (oldValue != newValue) {
-          needAnimation = true;
-        }
       }
     });
 
-    Future.delayed(const Duration(milliseconds: 10)).then((_) {
+    // 既存のタイマーをキャンセル
+    _updateTimer?.cancel();
+
+    // 新しいタイマーを設定
+    _updateTimer = Timer(const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+
       if (needAnimation) {
         scrollController.animateToItem(
           selectedIndex,
