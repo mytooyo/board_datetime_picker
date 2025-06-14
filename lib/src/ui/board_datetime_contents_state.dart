@@ -204,6 +204,12 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
     calendarAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
+      value: [
+        BoardDateTimeViewMode.calendarOnly,
+        BoardDateTimeViewMode.calendarToPicker
+      ].contains(widget.options.viewMode)
+          ? 1.0
+          : 0.0,
     );
 
     calendarAnimation = calendarAnimationController.drive(curve).drive(

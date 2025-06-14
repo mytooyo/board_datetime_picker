@@ -6,8 +6,8 @@ import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:flutter/material.dart';
 
-import 'buttons.dart';
 import '../board_datetime_contents_state.dart';
+import 'buttons.dart';
 
 class BoardDateTimeHeader extends StatefulWidget {
   const BoardDateTimeHeader({
@@ -38,6 +38,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.actionButtonTypes,
     required this.onReset,
     required this.customCloseButtonBuilder,
+    required this.viewMode,
   });
 
   /// Wide mode display flag
@@ -119,6 +120,9 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// Custom Close Button Builder
   final CloseButtonBuilder? customCloseButtonBuilder;
+
+  /// View mode
+  final BoardDateTimeViewMode viewMode;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -265,6 +269,11 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
   }
 
   Widget _calendarButton() {
+    if (widget.viewMode == BoardDateTimeViewMode.calendarOnly ||
+        widget.viewMode == BoardDateTimeViewMode.pickerOnly) {
+      return const SizedBox(width: 16);
+    }
+
     if (widget.wide) {
       return const SizedBox(width: 24);
     } else {

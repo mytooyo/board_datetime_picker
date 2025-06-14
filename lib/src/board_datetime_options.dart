@@ -65,6 +65,7 @@ class BoardDateTimeOptions {
     this.useAmpm = false,
     this.separators,
     this.allowRetroactiveTime = false,
+    this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -255,6 +256,11 @@ class BoardDateTimeOptions {
   /// Flag to allow retroactive time.
   /// If true, `allows DateTimePickerType.time` to reverse start and end times in multi-selection
   final bool allowRetroactiveTime;
+
+  /// Specify the view mode for the BoardDateTimePicker.
+  /// The default value is [BoardDateTimeViewMode.pickerToCalendar].
+  /// Note: This setting has no effect when the picker is in wide mode.
+  final BoardDateTimeViewMode viewMode;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
@@ -517,4 +523,26 @@ enum MultiPickerDateRangeMode {
   /// Selection is only allowed within the currently selected minimum and maximum dates.
   /// Traditional behavior where selection is constrained between the selected range.
   constrained,
+}
+
+/// Enum for specifying the view mode for BoardDateTimePicker
+///
+/// This enum is used to determine the view mode of the BoardDateTimePicker.
+/// The default value is [BoardDateTimeViewMode.pickerToCalendar].
+enum BoardDateTimeViewMode {
+  /// Picker to Calendar mode
+  /// Switches from Picker view to Calendar view
+  pickerToCalendar,
+
+  /// Calendar to Picker mode
+  /// Switches from Calendar view to Picker view
+  calendarToPicker,
+
+  /// Picker only mode
+  /// Shows only the Picker view without Calendar
+  pickerOnly,
+
+  /// Calendar only mode
+  /// Shows only the Calendar view without Picker
+  calendarOnly,
 }

@@ -474,6 +474,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       actionButtonTypes: widget.options.actionButtonTypes,
       onReset: widget.options.useResetButton ? reset : null,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
+      viewMode: widget.options.viewMode,
     );
   }
 }

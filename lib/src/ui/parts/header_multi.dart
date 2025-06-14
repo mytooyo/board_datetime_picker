@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../board_datetime_contents_state.dart';
 import '../../board_datetime_options.dart';
 import '../../utils/board_enum.dart';
 import '../../utils/datetime_util.dart';
+import '../board_datetime_contents_state.dart';
 
 class BoardDateTimeMultiHeader extends StatefulWidget {
   const BoardDateTimeMultiHeader({
@@ -39,6 +39,7 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     required this.onReset,
     required this.useAmpm,
     required this.customCloseButtonBuilder,
+    required this.viewMode,
   });
 
   /// Wide mode display flag
@@ -126,6 +127,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
 
   /// Custom Close Button Builder
   final CloseButtonBuilder? customCloseButtonBuilder;
+
+  /// View mode
+  final BoardDateTimeViewMode viewMode;
 
   @override
   State<BoardDateTimeMultiHeader> createState() =>
@@ -312,6 +316,11 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
   }
 
   Widget _calendarButton() {
+    if (widget.viewMode == BoardDateTimeViewMode.calendarOnly ||
+        widget.viewMode == BoardDateTimeViewMode.pickerOnly) {
+      return const SizedBox(width: 24);
+    }
+
     if (widget.wide) {
       if (widget.onReset == null) {
         return const SizedBox(width: 40);

@@ -308,6 +308,7 @@ class PickerItemWidget extends StatelessWidget {
               //   maxLines: 1,
               // ),
               // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
+              // viewMode: BoardDatetimeViewMode.calendarOnly,
               withSecond: DateTimePickerType.time == pickerType,
               customOptions: DateTimePickerType.time == pickerType
                   ? BoardPickerCustomOptions(
@@ -469,6 +470,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
               useAmpm: false,
               // topMargin: 0,
               // allowRetroactiveTime: true,
+              // viewMode: BoardDatetimeViewMode.pickerOnly,
             ),
             customCloseButtonBuilder: customCloseButtonBuilder,
             // headerWidget: Container(
