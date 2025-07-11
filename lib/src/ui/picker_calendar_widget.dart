@@ -597,10 +597,12 @@ class _PickerCalendarStandardVerticalWidgetState
       children: [
         args.headerBuilder(context),
         Expanded(
-          child: _left(),
+          flex: 3,
+          child: _top(),
         ),
         const SizedBox(width: 16),
         Expanded(
+          flex: 2,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -630,7 +632,7 @@ class _PickerCalendarStandardVerticalWidgetState
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
           ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: SafeArea(
         top: false,
         child: wrap,
@@ -638,10 +640,9 @@ class _PickerCalendarStandardVerticalWidgetState
     );
   }
 
-  /// Items to be displayed on the left side in wide
-  Widget _left() {
+  /// Items to be displayed on the top side in standard mode (not wide)
+  Widget _top() {
     return Container(
-      width: 400,
       decoration: BoxDecoration(
         color: args.options.getForegroundColor(context),
         borderRadius: BorderRadius.circular(12),
