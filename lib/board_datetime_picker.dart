@@ -26,7 +26,8 @@ export 'src/board_datetime_options.dart'
         PickerSeparator,
         PickerSeparatorBuilder,
         MultiPickerDateRangeMode,
-        BoardDateTimeViewMode;
+        BoardDateTimeViewMode,
+        BoardDateTimeOrientation;
 export 'src/board_datetime_widget.dart'
     show
         showBoardDateTimePicker,

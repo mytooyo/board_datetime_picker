@@ -569,3 +569,105 @@ class _PickerCalendarStandardWidgetState
     );
   }
 }
+
+class PickerCalendarStandardVerticalWidget extends PickerCalendarWidget {
+  const PickerCalendarStandardVerticalWidget({
+    super.key,
+    required super.arguments,
+    required this.closeKeyboard,
+    super.multiSelectionMaxDateBuilder,
+    required super.embeddedOptions,
+  });
+
+  final void Function() closeKeyboard;
+
+  @override
+  PickerCalendarState<PickerCalendarStandardVerticalWidget> createState() =>
+      _PickerCalendarStandardVerticalWidgetState();
+}
+
+class _PickerCalendarStandardVerticalWidgetState
+    extends PickerCalendarState<PickerCalendarStandardVerticalWidget> {
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height - kToolbarHeight;
+
+    Widget child = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        args.headerBuilder(context),
+        Expanded(
+          child: _left(),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(child: picker(isWide: true)),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    Widget wrap = child;
+    if (args.options.isTopTitleHeader) {
+      wrap = Column(
+        children: [
+          TopTitleWidget(
+            options: args.options,
+            selectedDayNotifier: args.dateState,
+          ),
+          Expanded(child: child),
+        ],
+      );
+    }
+
+    return Container(
+      height: height,
+      decoration: args.options.backgroundDecoration ??
+          BoxDecoration(
+            color: args.options.getBackgroundColor(context),
+          ),
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+      child: SafeArea(
+        top: false,
+        child: wrap,
+      ),
+    );
+  }
+
+  /// Items to be displayed on the left side in wide
+  Widget _left() {
+    return Container(
+      width: 400,
+      decoration: BoxDecoration(
+        color: args.options.getForegroundColor(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: calendar(
+              background: args.options.getForegroundColor(context),
+              isWide: true,
+            ),
+          ),
+          Positioned.fill(
+            child: Visibility(
+              visible: args.keyboardHeightRatio() < 0.5,
+              child: DuringCalendarWidget(
+                closeKeyboard: widget.closeKeyboard,
+                backgroundColor: args.options.getForegroundColor(context),
+                textColor: args.options.getTextColor(context),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -67,6 +67,7 @@ class BoardDateTimeOptions {
     this.separators,
     this.allowRetroactiveTime = false,
     this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
+    this.widgetOrientation = BoardDateTimeOrientation.horizontal,
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -262,6 +263,11 @@ class BoardDateTimeOptions {
   /// The default value is [BoardDateTimeViewMode.pickerToCalendar].
   /// Note: This setting has no effect when the picker is in wide mode.
   final BoardDateTimeViewMode viewMode;
+
+  /// Specify the view mode orientation for the BoardDateTimePicker.
+  /// The default value is [BoardDateTimeOrientation.horizontal].
+  /// Note: This setting has no effect when the picker is in wide mode.
+  final BoardDateTimeOrientation widgetOrientation;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
@@ -554,4 +560,16 @@ enum BoardDateTimeViewMode {
   /// Calendar only mode
   /// Shows only the Calendar view without Picker
   calendarOnly,
+}
+
+/// Enum for specifying the view mode orientation for BoardDateTimePicker
+///
+/// This enum is used to determine the view mode of the BoardDateTimePicker.
+/// The default value is [BoardDateTimeOrientation.horizontal].
+enum BoardDateTimeOrientation {
+  /// Calendar on left side, picker on right side
+  horizontal,
+
+  /// Calendar on top, picker on bottom
+  vertical
 }

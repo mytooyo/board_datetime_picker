@@ -355,15 +355,26 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                         widget.multiSelectionMaxDateBuilder,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : PickerCalendarStandardWidget(
-                    arguments: args,
-                    calendarAnimationController: calendarAnimationController,
-                    calendarAnimation: calendarAnimation,
-                    pickerFormAnimation: pickerFormAnimation,
-                    multiSelectionMaxDateBuilder:
-                        widget.multiSelectionMaxDateBuilder,
-                    embeddedOptions: widget.embeddedOptions,
-                  ),
+                : widget.options.widgetOrientation ==
+                            BoardDateTimeOrientation.vertical &&
+                        widget.pickerType == DateTimePickerType.datetime
+                    ? PickerCalendarStandardVerticalWidget(
+                        arguments: args,
+                        closeKeyboard: closeKeyboard,
+                        multiSelectionMaxDateBuilder:
+                            widget.multiSelectionMaxDateBuilder,
+                        embeddedOptions: widget.embeddedOptions,
+                      )
+                    : PickerCalendarStandardWidget(
+                        arguments: args,
+                        calendarAnimationController:
+                            calendarAnimationController,
+                        calendarAnimation: calendarAnimation,
+                        pickerFormAnimation: pickerFormAnimation,
+                        multiSelectionMaxDateBuilder:
+                            widget.multiSelectionMaxDateBuilder,
+                        embeddedOptions: widget.embeddedOptions,
+                      ),
           ],
         ),
       ),

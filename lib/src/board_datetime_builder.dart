@@ -403,13 +403,22 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                     closeKeyboard: closeKeyboard,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : PickerCalendarStandardWidget(
-                    arguments: args,
-                    calendarAnimationController: calendarAnimationController,
-                    calendarAnimation: calendarAnimation,
-                    pickerFormAnimation: pickerFormAnimation,
-                    embeddedOptions: widget.embeddedOptions,
-                  ),
+                : widget.options.widgetOrientation ==
+                            BoardDateTimeOrientation.vertical &&
+                        widget.pickerType == DateTimePickerType.datetime
+                    ? PickerCalendarStandardVerticalWidget(
+                        arguments: args,
+                        closeKeyboard: closeKeyboard,
+                        embeddedOptions: widget.embeddedOptions,
+                      )
+                    : PickerCalendarStandardWidget(
+                        arguments: args,
+                        calendarAnimationController:
+                            calendarAnimationController,
+                        calendarAnimation: calendarAnimation,
+                        pickerFormAnimation: pickerFormAnimation,
+                        embeddedOptions: widget.embeddedOptions,
+                      ),
           ],
         ),
       ),
