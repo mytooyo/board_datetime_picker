@@ -467,7 +467,10 @@ class _BoardDateTimeNoneButtonHeaderState
       margin: const EdgeInsets.only(top: 12, left: 8, right: 8),
       child: Row(
         children: [
-          if (widget.pickerType != DateTimePickerType.time && !widget.wide) ...[
+          if (widget.pickerType != DateTimePickerType.time &&
+              !widget.wide &&
+              widget.options.viewModeOrientation ==
+                  BoardDateTimeOrientation.horizontal) ...[
             CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),

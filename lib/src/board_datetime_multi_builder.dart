@@ -440,6 +440,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       useAmpm: widget.options.useAmpm,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       viewMode: widget.options.viewMode,
+      viewModeOrientation: widget.options.viewModeOrientation,
     );
   }
 }
