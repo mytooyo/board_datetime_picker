@@ -355,7 +355,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                         widget.multiSelectionMaxDateBuilder,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : widget.options.widgetOrientation ==
+                : widget.options.viewModeOrientation ==
                             BoardDateTimeOrientation.vertical &&
                         widget.pickerType == DateTimePickerType.datetime
                     ? PickerCalendarStandardVerticalWidget(

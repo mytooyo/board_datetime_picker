@@ -315,7 +315,7 @@ class PickerItemWidget extends StatelessWidget {
                         seconds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
                       )
                     : null,
-                widgetOrientation: BoardDateTimeOrientation.vertical
+                viewModeOrientation: BoardDateTimeOrientation.vertical
                 // separators: BoardDateTimePickerSeparators(
                 //   date: PickerSeparator.slash,
                 //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {

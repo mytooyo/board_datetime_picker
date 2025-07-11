@@ -39,6 +39,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.onReset,
     required this.customCloseButtonBuilder,
     required this.viewMode,
+    required this.viewModeOrientation,
   });
 
   /// Wide mode display flag
@@ -123,6 +124,9 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// View mode
   final BoardDateTimeViewMode viewMode;
+
+  /// View mode Orientation
+  final BoardDateTimeOrientation viewModeOrientation;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -274,7 +278,8 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       return const SizedBox(width: 16);
     }
 
-    if (widget.wide) {
+    if (widget.wide ||
+        widget.viewModeOrientation == BoardDateTimeOrientation.vertical) {
       return const SizedBox(width: 24);
     } else {
       return Opacity(

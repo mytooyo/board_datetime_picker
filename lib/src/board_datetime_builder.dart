@@ -403,7 +403,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                     closeKeyboard: closeKeyboard,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : widget.options.widgetOrientation ==
+                : widget.options.viewModeOrientation ==
                             BoardDateTimeOrientation.vertical &&
                         widget.pickerType == DateTimePickerType.datetime
                     ? PickerCalendarStandardVerticalWidget(
@@ -484,6 +484,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onReset: widget.options.useResetButton ? reset : null,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       viewMode: widget.options.viewMode,
+      viewModeOrientation: widget.options.viewModeOrientation,
     );
   }
 }
