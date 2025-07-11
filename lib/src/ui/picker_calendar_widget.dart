@@ -643,6 +643,7 @@ class _PickerCalendarStandardVerticalWidgetState
   /// Items to be displayed on the top side in standard mode (not wide)
   Widget _top() {
     return Container(
+      constraints: const BoxConstraints(maxWidth: 500),
       decoration: BoxDecoration(
         color: args.options.getForegroundColor(context),
         borderRadius: BorderRadius.circular(12),
