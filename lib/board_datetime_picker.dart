@@ -39,7 +39,7 @@ export 'src/board_datetime_widget.dart'
 export 'src/ui/parts/focus_node.dart' show BoardDateTimeInputFocusNode;
 export 'src/utils/board_datetime_result.dart';
 export 'src/utils/board_enum.dart'
-    show DateTimePickerType, MultiCurrentDateType;
+    show DateTimePickerType, MultiCurrentDateType, DateType;
 
 class BoardDateFormat {
   BoardDateFormat(this.f);

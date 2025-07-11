@@ -143,6 +143,11 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
 
     List<Widget> items = [];
     for (final x in args.listOptions) {
+      if (showPickerItem(x.type, options.customOptions, isWide) == false) {
+        // skip this picker item
+        continue;
+      }
+
       items.add(
         Expanded(
           flex: x.flex,
@@ -327,6 +332,24 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         ),
       ),
     );
+  }
+
+  bool showPickerItem(
+      DateType pickerType, BoardPickerCustomOptions? opts, bool isWide) {
+    if (opts == null ||
+        (!isWide && opts.stdModeHiddenPickers.isEmpty) ||
+        (isWide && opts.wideModeHiddenPickers.isEmpty)) {
+      // if not specified show all the pickers
+      return true;
+    }
+
+    if (isWide) {
+      // wide mode
+      return opts.wideModeHiddenPickers.contains(pickerType) == false;
+    } else {
+      // std mode
+      return opts.stdModeHiddenPickers.contains(pickerType) == false;
+    }
   }
 }
 

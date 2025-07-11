@@ -1,3 +1,4 @@
+import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:flutter/material.dart';
 
 @Deprecated('Use calendarItemBuilder instead')
@@ -369,12 +370,20 @@ class BoardPickerCustomOptions {
     this.hours = const [],
     this.minutes = const [],
     this.seconds = const [],
+    this.wideModeHiddenPickers = const [],
+    this.stdModeHiddenPickers = const [],
   });
 
   /// Picker display every 15 minutes
   factory BoardPickerCustomOptions.every15minutes() => BoardPickerCustomOptions(
         minutes: [0, 15, 30, 45],
       );
+
+  /// List of picker items hidden in Wide mode
+  List<DateType> wideModeHiddenPickers;
+
+  /// List of picker items hidden in standard mode
+  List<DateType> stdModeHiddenPickers;
 }
 
 typedef BoardDateTimePickerFormat = String;
