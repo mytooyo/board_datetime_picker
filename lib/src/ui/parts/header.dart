@@ -470,7 +470,7 @@ class _BoardDateTimeNoneButtonHeaderState
           if (widget.pickerType != DateTimePickerType.time &&
               !widget.wide &&
               widget.options.viewModeOrientation ==
-                  BoardDateTimeOrientation.horizontal) ...[
+                  BoardDateTimeOrientation.normal) ...[
             CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),

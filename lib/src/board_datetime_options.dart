@@ -67,7 +67,7 @@ class BoardDateTimeOptions {
     this.separators,
     this.allowRetroactiveTime = false,
     this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
-    this.viewModeOrientation = BoardDateTimeOrientation.horizontal,
+    this.viewModeOrientation = BoardDateTimeOrientation.normal,
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -265,7 +265,7 @@ class BoardDateTimeOptions {
   final BoardDateTimeViewMode viewMode;
 
   /// Specify the view mode orientation for the BoardDateTimePicker.
-  /// The default value is [BoardDateTimeOrientation.horizontal].
+  /// The default value is [BoardDateTimeOrientation.normal].
   /// Note: This setting has no effect when the picker is in wide mode.
   final BoardDateTimeOrientation viewModeOrientation;
 }
@@ -565,10 +565,10 @@ enum BoardDateTimeViewMode {
 /// Enum for specifying the view mode orientation for BoardDateTimePicker
 ///
 /// This enum is used to determine the view mode of the BoardDateTimePicker.
-/// The default value is [BoardDateTimeOrientation.horizontal].
+/// The default value is [BoardDateTimeOrientation.normal].
 enum BoardDateTimeOrientation {
   /// Calendar on left side, picker on right side
-  horizontal,
+  normal,
 
   /// Calendar on top, picker on bottom
   vertical
