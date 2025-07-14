@@ -68,6 +68,11 @@ class BoardDateTimeOptions {
     this.allowRetroactiveTime = false,
     this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
     this.viewModeOrientation = BoardDateTimeOrientation.normal,
+    this.calWideWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+    this.calStdWidgetPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.calStdVerticalWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -268,6 +273,15 @@ class BoardDateTimeOptions {
   /// The default value is [BoardDateTimeOrientation.normal].
   /// Note: This setting has no effect when the picker is in wide mode.
   final BoardDateTimeOrientation viewModeOrientation;
+
+  /// Specify the padding for calendar wide widget
+  final EdgeInsets calWideWidgetPadding;
+
+  /// Specify the padding for calendar standard widget
+  final EdgeInsets calStdWidgetPadding;
+
+  /// Specify the padding for calendar standard vertical widget
+  final EdgeInsets calStdVerticalWidgetPadding;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
