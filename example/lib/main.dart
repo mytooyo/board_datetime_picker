@@ -316,8 +316,7 @@ class PickerItemWidget extends StatelessWidget {
                     )
                   : null,
               // viewModeOrientation: BoardDateTimeOrientation.vertical,
-              // calStdVerticalWidgetPadding:
-              //    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              // paddingSettings: const BoardDateTimePaddingSettings(),
               // separators: BoardDateTimePickerSeparators(
               //   date: PickerSeparator.slash,
               //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {
