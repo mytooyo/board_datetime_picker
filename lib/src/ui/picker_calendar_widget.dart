@@ -412,7 +412,7 @@ class _PickerCalendarWideWidgetState
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
           ),
-      padding: args.options.calWideWidgetPadding,
+      padding: args.options.paddingSettings.calWideWidgetPadding,
       child: SafeArea(
         top: false,
         child: wrap,
@@ -519,7 +519,7 @@ class _PickerCalendarStandardWidgetState
             children: [
               Expanded(
                 child: Padding(
-                  padding: args.options.calStdWidgetPadding,
+                  padding: args.options.paddingSettings.calStdWidgetPadding,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -632,7 +632,7 @@ class _PickerCalendarStandardVerticalWidgetState
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
           ),
-      padding: args.options.calStdVerticalWidgetPadding,
+      padding: args.options.paddingSettings.calStdVerticalWidgetPadding,
       child: SafeArea(
         top: false,
         child: wrap,
@@ -648,7 +648,7 @@ class _PickerCalendarStandardVerticalWidgetState
         color: args.options.getForegroundColor(context),
         borderRadius: BorderRadius.circular(12),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
       child: Stack(
         children: [

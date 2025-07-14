@@ -68,11 +68,7 @@ class BoardDateTimeOptions {
     this.allowRetroactiveTime = false,
     this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
     this.viewModeOrientation = BoardDateTimeOrientation.normal,
-    this.calWideWidgetPadding =
-        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-    this.calStdWidgetPadding = const EdgeInsets.symmetric(horizontal: 8),
-    this.calStdVerticalWidgetPadding =
-        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+    this.paddingSettings = const BoardDateTimePaddingSettings(),
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -274,14 +270,8 @@ class BoardDateTimeOptions {
   /// Note: This setting has no effect when the picker is in wide mode.
   final BoardDateTimeOrientation viewModeOrientation;
 
-  /// Specify the padding for calendar wide widget
-  final EdgeInsets calWideWidgetPadding;
-
-  /// Specify the padding for calendar standard widget
-  final EdgeInsets calStdWidgetPadding;
-
-  /// Specify the padding for calendar standard vertical widget
-  final EdgeInsets calStdVerticalWidgetPadding;
+  /// Option to configure settings related to widgets padding
+  final BoardDateTimePaddingSettings paddingSettings;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
@@ -574,6 +564,25 @@ enum BoardDateTimeViewMode {
   /// Calendar only mode
   /// Shows only the Calendar view without Picker
   calendarOnly,
+}
+
+class BoardDateTimePaddingSettings {
+  const BoardDateTimePaddingSettings({
+    this.calWideWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+    this.calStdWidgetPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.calStdVerticalWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  });
+
+  /// Specify the padding for calendar wide widget
+  final EdgeInsets calWideWidgetPadding;
+
+  /// Specify the padding for calendar standard widget
+  final EdgeInsets calStdWidgetPadding;
+
+  /// Specify the padding for calendar standard vertical widget
+  final EdgeInsets calStdVerticalWidgetPadding;
 }
 
 /// Enum for specifying the view mode orientation for BoardDateTimePicker
