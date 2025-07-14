@@ -357,7 +357,8 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                   )
                 : widget.options.viewModeOrientation ==
                             BoardDateTimeOrientation.vertical &&
-                        widget.pickerType == DateTimePickerType.datetime
+                        (widget.pickerType == DateTimePickerType.datetime ||
+                            widget.pickerType == DateTimePickerType.date)
                     ? PickerCalendarStandardVerticalWidget(
                         arguments: args,
                         closeKeyboard: closeKeyboard,
