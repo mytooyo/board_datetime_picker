@@ -606,7 +606,7 @@ class _PickerCalendarStandardVerticalWidgetState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(child: picker(isWide: true)),
+              Expanded(child: picker(isWide: false)),
             ],
           ),
         ),

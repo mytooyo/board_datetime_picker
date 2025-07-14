@@ -297,50 +297,52 @@ class PickerItemWidget extends StatelessWidget {
             // initialDate: DateTime.now(),
             // minimumDate: DateTime.now().add(const Duration(days: 1)),
             options: BoardDateTimeOptions(
-                languages: const BoardPickerLanguages.en(),
-                startDayOfWeek: DateTime.sunday,
-                pickerFormat: PickerFormat.ymd,
-                // pickerMonthFormat: PickerMonthFormat.short,
-                // boardTitle: 'Board Picker',
-                // boardTitleBuilder: (context, textStyle, selectedDay) => Text(
-                //   selectedDay.toString(),
-                //   style: textStyle,
-                //   maxLines: 1,
-                // ),
-                // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
-                // viewMode: BoardDatetimeViewMode.calendarOnly,
-                withSecond: DateTimePickerType.time == pickerType,
-                customOptions: DateTimePickerType.time == pickerType
-                    ? BoardPickerCustomOptions(
-                        seconds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
-                      )
-                    : null,
-                viewModeOrientation: BoardDateTimeOrientation.vertical
-                // separators: BoardDateTimePickerSeparators(
-                //   date: PickerSeparator.slash,
-                //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {
-                //     return Container(
-                //       height: 4,
-                //       width: 8,
-                //       decoration: BoxDecoration(
-                //         color: Colors.red,
-                //         borderRadius: BorderRadius.circular(2),
-                //       ),
-                //     );
-                //   },
-                //   time: PickerSeparator.colon,
-                //   timeSeparatorBuilder: (context, defaultTextStyle) {
-                //     return Container(
-                //       height: 8,
-                //       width: 4,
-                //       decoration: BoxDecoration(
-                //         color: Colors.blue,
-                //         borderRadius: BorderRadius.circular(2),
-                //       ),
-                //     );
-                //   },
-                // ),
-                ),
+              languages: const BoardPickerLanguages.en(),
+              startDayOfWeek: DateTime.sunday,
+              pickerFormat: PickerFormat.ymd,
+              // pickerMonthFormat: PickerMonthFormat.short,
+              // boardTitle: 'Board Picker',
+              // boardTitleBuilder: (context, textStyle, selectedDay) => Text(
+              //   selectedDay.toString(),
+              //   style: textStyle,
+              //   maxLines: 1,
+              // ),
+              // pickerSubTitles: BoardDateTimeItemTitles(year: 'year'),
+              // viewMode: BoardDatetimeViewMode.calendarOnly,
+              withSecond: DateTimePickerType.time == pickerType,
+              customOptions: DateTimePickerType.time == pickerType
+                  ? BoardPickerCustomOptions(
+                      seconds: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+                    )
+                  : null,
+              // viewModeOrientation: BoardDateTimeOrientation.vertical,
+              // calStdVerticalWidgetPadding:
+              //    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              // separators: BoardDateTimePickerSeparators(
+              //   date: PickerSeparator.slash,
+              //   dateTimeSeparatorBuilder: (context, defaultTextStyle) {
+              //     return Container(
+              //       height: 4,
+              //       width: 8,
+              //       decoration: BoxDecoration(
+              //         color: Colors.red,
+              //         borderRadius: BorderRadius.circular(2),
+              //       ),
+              //     );
+              //   },
+              //   time: PickerSeparator.colon,
+              //   timeSeparatorBuilder: (context, defaultTextStyle) {
+              //     return Container(
+              //       height: 8,
+              //       width: 4,
+              //       decoration: BoxDecoration(
+              //         color: Colors.blue,
+              //         borderRadius: BorderRadius.circular(2),
+              //       ),
+              //     );
+              //   },
+              // ),
+            ),
             // Specify if you want changes in the picker to take effect immediately.
             valueNotifier: date,
             controller: controller,
