@@ -162,7 +162,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             },
             wide: isWide,
             subTitle: x.subTitle,
-            inputable: args.options.inputable,
+            inputable: pickerIsInputable() && args.options.inputable,
             embeddedOptions: widget.embeddedOptions,
           ),
         ),
@@ -238,6 +238,16 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         ),
       ),
     );
+  }
+
+  bool pickerIsInputable() {
+    /// Set inputable to False when both calendar and pickers are shown on screen:
+    /// when in vertical view mode and the pickerType is datetime
+    if (args.options.viewModeOrientation == BoardDateTimeOrientation.vertical &&
+        args.pickerType == DateTimePickerType.datetime) {
+      return false;
+    }
+    return true;
   }
 
   /// Function to return a list of DateType to insert a separator from PickerFormat.
