@@ -242,9 +242,9 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
 
   bool pickerIsInputable() {
     /// Set inputable to False when both calendar and pickers are shown on screen:
-    /// when in vertical view mode and the pickerType is datetime
+    /// when in vertical view mode and the pickerType is datetime or date
     if (args.options.viewModeOrientation == BoardDateTimeOrientation.vertical &&
-        args.pickerType == DateTimePickerType.datetime) {
+        (args.pickerType == DateTimePickerType.datetime || args.pickerType == DateTimePickerType.date)) {
       return false;
     }
     return true;
