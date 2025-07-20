@@ -60,6 +60,8 @@ class ItemWidgetState extends State<ItemWidget>
   int selectedIndex = 0;
   bool isTextEditing = false;
 
+  bool _isAnimating = false;
+
   /// Timer for debouncing process
   Timer? debouceTimer;
   Timer? wheelDebouceTimer;
@@ -191,6 +193,7 @@ class ItemWidgetState extends State<ItemWidget>
   }
 
   void onChange(int index) {
+    if (_isAnimating) return;
     setState(() {
       selectedIndex = index;
     });
@@ -220,11 +223,16 @@ class ItemWidgetState extends State<ItemWidget>
   void toAnimateChange(int index, {bool button = false}) {
     if (!widget.option.itemMap.keys.contains(index)) return;
     selectedIndex = getWheelIndex(index);
-    scrollController.animateToItem(
+    _isAnimating = true;
+    scrollController
+        .animateToItem(
       index,
       duration: duration,
       curve: Curves.easeIn,
-    );
+    )
+        .then((_) {
+      _isAnimating = false;
+    });
   }
 
   Timer? _updateTimer;
@@ -252,11 +260,16 @@ class ItemWidgetState extends State<ItemWidget>
       if (!mounted) return;
 
       if (needAnimation) {
-        scrollController.animateToItem(
+        _isAnimating = true;
+        scrollController
+            .animateToItem(
           selectedIndex,
           duration: duration,
           curve: Curves.easeIn,
-        );
+        )
+            .then((_) {
+          _isAnimating = false;
+        });
       } else {
         scrollController.jumpToItem(selectedIndex);
       }
