@@ -1,3 +1,8 @@
+## 2.8.1
+
+* Added callback control during Picker animation.
+* Added vertical layout.
+
 ## 2.8.0
 
 * Added `BoardDateTimeViewMode` to control the display mode of the picker and calendar.
