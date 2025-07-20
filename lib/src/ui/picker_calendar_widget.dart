@@ -143,6 +143,11 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
 
     List<Widget> items = [];
     for (final x in args.listOptions) {
+      if (showPickerItem(x.type, options.customOptions, isWide) == false) {
+        // skip this picker item
+        continue;
+      }
+
       items.add(
         Expanded(
           flex: x.flex,
@@ -157,7 +162,7 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             },
             wide: isWide,
             subTitle: x.subTitle,
-            inputable: args.options.inputable,
+            inputable: pickerIsInputable() && args.options.inputable,
             embeddedOptions: widget.embeddedOptions,
           ),
         ),
@@ -233,6 +238,16 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
         ),
       ),
     );
+  }
+
+  bool pickerIsInputable() {
+    /// Set inputable to False when both calendar and pickers are shown on screen:
+    /// when in vertical view mode and the pickerType is datetime or date
+    if (args.options.viewModeOrientation == BoardDateTimeOrientation.vertical &&
+        (args.pickerType == DateTimePickerType.datetime || args.pickerType == DateTimePickerType.date)) {
+      return false;
+    }
+    return true;
   }
 
   /// Function to return a list of DateType to insert a separator from PickerFormat.
@@ -328,6 +343,24 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
       ),
     );
   }
+
+  bool showPickerItem(
+      DateType pickerType, BoardPickerCustomOptions? opts, bool isWide) {
+    if (opts == null ||
+        (!isWide && opts.stdModeHiddenPickers.isEmpty) ||
+        (isWide && opts.wideModeHiddenPickers.isEmpty)) {
+      // if not specified show all the pickers
+      return true;
+    }
+
+    if (isWide) {
+      // wide mode
+      return opts.wideModeHiddenPickers.contains(pickerType) == false;
+    } else {
+      // std mode
+      return opts.stdModeHiddenPickers.contains(pickerType) == false;
+    }
+  }
 }
 
 class PickerCalendarWideWidget extends PickerCalendarWidget {
@@ -389,7 +422,7 @@ class _PickerCalendarWideWidgetState
           BoxDecoration(
             color: args.options.getBackgroundColor(context),
           ),
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+      padding: args.options.paddingSettings.calWideWidgetPadding,
       child: SafeArea(
         top: false,
         child: wrap,
@@ -496,7 +529,7 @@ class _PickerCalendarStandardWidgetState
             children: [
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: args.options.paddingSettings.calStdWidgetPadding,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -543,6 +576,110 @@ class _PickerCalendarStandardWidgetState
           ),
         ),
       ],
+    );
+  }
+}
+
+class PickerCalendarStandardVerticalWidget extends PickerCalendarWidget {
+  const PickerCalendarStandardVerticalWidget({
+    super.key,
+    required super.arguments,
+    required this.closeKeyboard,
+    super.multiSelectionMaxDateBuilder,
+    required super.embeddedOptions,
+  });
+
+  final void Function() closeKeyboard;
+
+  @override
+  PickerCalendarState<PickerCalendarStandardVerticalWidget> createState() =>
+      _PickerCalendarStandardVerticalWidgetState();
+}
+
+class _PickerCalendarStandardVerticalWidgetState
+    extends PickerCalendarState<PickerCalendarStandardVerticalWidget> {
+  @override
+  Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height - kToolbarHeight;
+
+    Widget child = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        args.headerBuilder(context),
+        Expanded(
+          flex: 3,
+          child: _top(),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          flex: 2,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(child: picker(isWide: false)),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    Widget wrap = child;
+    if (args.options.isTopTitleHeader) {
+      wrap = Column(
+        children: [
+          TopTitleWidget(
+            options: args.options,
+            selectedDayNotifier: args.dateState,
+          ),
+          Expanded(child: child),
+        ],
+      );
+    }
+
+    return Container(
+      height: height,
+      decoration: args.options.backgroundDecoration ??
+          BoxDecoration(
+            color: args.options.getBackgroundColor(context),
+          ),
+      padding: args.options.paddingSettings.calStdVerticalWidgetPadding,
+      child: SafeArea(
+        top: false,
+        child: wrap,
+      ),
+    );
+  }
+
+  /// Items to be displayed on the top side in standard mode (not wide)
+  Widget _top() {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 500),
+      decoration: BoxDecoration(
+        color: args.options.getForegroundColor(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: calendar(
+              background: args.options.getForegroundColor(context),
+              isWide: false,
+            ),
+          ),
+          Positioned.fill(
+            child: Visibility(
+              visible: args.keyboardHeightRatio() < 0.5,
+              child: DuringCalendarWidget(
+                closeKeyboard: widget.closeKeyboard,
+                backgroundColor: args.options.getForegroundColor(context),
+                textColor: args.options.getTextColor(context),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

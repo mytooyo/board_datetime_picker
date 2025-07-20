@@ -1,3 +1,4 @@
+import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:flutter/material.dart';
 
 @Deprecated('Use calendarItemBuilder instead')
@@ -66,6 +67,8 @@ class BoardDateTimeOptions {
     this.separators,
     this.allowRetroactiveTime = false,
     this.viewMode = BoardDateTimeViewMode.pickerToCalendar,
+    this.viewModeOrientation = BoardDateTimeOrientation.normal,
+    this.paddingSettings = const BoardDateTimePaddingSettings(),
   }) : assert(!(boardTitle != null && boardTitleBuilder != null));
 
   /// #### Picker Background Color
@@ -261,6 +264,14 @@ class BoardDateTimeOptions {
   /// The default value is [BoardDateTimeViewMode.pickerToCalendar].
   /// Note: This setting has no effect when the picker is in wide mode.
   final BoardDateTimeViewMode viewMode;
+
+  /// Specify the view mode orientation for the BoardDateTimePicker.
+  /// The default value is [BoardDateTimeOrientation.normal].
+  /// Note: This setting has no effect when the picker is in wide mode.
+  final BoardDateTimeOrientation viewModeOrientation;
+
+  /// Option to configure settings related to widgets padding
+  final BoardDateTimePaddingSettings paddingSettings;
 }
 
 enum BoardDateButtonType { yesterday, today, tomorrow }
@@ -369,12 +380,20 @@ class BoardPickerCustomOptions {
     this.hours = const [],
     this.minutes = const [],
     this.seconds = const [],
+    this.wideModeHiddenPickers = const [],
+    this.stdModeHiddenPickers = const [],
   });
 
   /// Picker display every 15 minutes
   factory BoardPickerCustomOptions.every15minutes() => BoardPickerCustomOptions(
         minutes: [0, 15, 30, 45],
       );
+
+  /// List of picker items hidden in Wide mode
+  List<DateType> wideModeHiddenPickers;
+
+  /// List of picker items hidden in standard mode
+  List<DateType> stdModeHiddenPickers;
 }
 
 typedef BoardDateTimePickerFormat = String;
@@ -545,4 +564,35 @@ enum BoardDateTimeViewMode {
   /// Calendar only mode
   /// Shows only the Calendar view without Picker
   calendarOnly,
+}
+
+class BoardDateTimePaddingSettings {
+  const BoardDateTimePaddingSettings({
+    this.calWideWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+    this.calStdWidgetPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.calStdVerticalWidgetPadding =
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  });
+
+  /// Specify the padding for calendar wide widget
+  final EdgeInsets calWideWidgetPadding;
+
+  /// Specify the padding for calendar standard widget
+  final EdgeInsets calStdWidgetPadding;
+
+  /// Specify the padding for calendar standard vertical widget
+  final EdgeInsets calStdVerticalWidgetPadding;
+}
+
+/// Enum for specifying the view mode orientation for BoardDateTimePicker
+///
+/// This enum is used to determine the view mode of the BoardDateTimePicker.
+/// The default value is [BoardDateTimeOrientation.normal].
+enum BoardDateTimeOrientation {
+  /// Calendar on left side, picker on right side
+  normal,
+
+  /// Calendar on top, picker on bottom
+  vertical
 }

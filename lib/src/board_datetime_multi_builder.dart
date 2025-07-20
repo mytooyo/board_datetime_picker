@@ -355,15 +355,27 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                         widget.multiSelectionMaxDateBuilder,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : PickerCalendarStandardWidget(
-                    arguments: args,
-                    calendarAnimationController: calendarAnimationController,
-                    calendarAnimation: calendarAnimation,
-                    pickerFormAnimation: pickerFormAnimation,
-                    multiSelectionMaxDateBuilder:
-                        widget.multiSelectionMaxDateBuilder,
-                    embeddedOptions: widget.embeddedOptions,
-                  ),
+                : widget.options.viewModeOrientation ==
+                            BoardDateTimeOrientation.vertical &&
+                        (widget.pickerType == DateTimePickerType.datetime ||
+                            widget.pickerType == DateTimePickerType.date)
+                    ? PickerCalendarStandardVerticalWidget(
+                        arguments: args,
+                        closeKeyboard: closeKeyboard,
+                        multiSelectionMaxDateBuilder:
+                            widget.multiSelectionMaxDateBuilder,
+                        embeddedOptions: widget.embeddedOptions,
+                      )
+                    : PickerCalendarStandardWidget(
+                        arguments: args,
+                        calendarAnimationController:
+                            calendarAnimationController,
+                        calendarAnimation: calendarAnimation,
+                        pickerFormAnimation: pickerFormAnimation,
+                        multiSelectionMaxDateBuilder:
+                            widget.multiSelectionMaxDateBuilder,
+                        embeddedOptions: widget.embeddedOptions,
+                      ),
           ],
         ),
       ),
@@ -429,6 +441,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       useAmpm: widget.options.useAmpm,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       viewMode: widget.options.viewMode,
+      viewModeOrientation: widget.options.viewModeOrientation,
     );
   }
 }

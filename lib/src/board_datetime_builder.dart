@@ -403,13 +403,23 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
                     closeKeyboard: closeKeyboard,
                     embeddedOptions: widget.embeddedOptions,
                   )
-                : PickerCalendarStandardWidget(
-                    arguments: args,
-                    calendarAnimationController: calendarAnimationController,
-                    calendarAnimation: calendarAnimation,
-                    pickerFormAnimation: pickerFormAnimation,
-                    embeddedOptions: widget.embeddedOptions,
-                  ),
+                : widget.options.viewModeOrientation ==
+                            BoardDateTimeOrientation.vertical &&
+                        (widget.pickerType == DateTimePickerType.datetime ||
+                            widget.pickerType == DateTimePickerType.date)
+                    ? PickerCalendarStandardVerticalWidget(
+                        arguments: args,
+                        closeKeyboard: closeKeyboard,
+                        embeddedOptions: widget.embeddedOptions,
+                      )
+                    : PickerCalendarStandardWidget(
+                        arguments: args,
+                        calendarAnimationController:
+                            calendarAnimationController,
+                        calendarAnimation: calendarAnimation,
+                        pickerFormAnimation: pickerFormAnimation,
+                        embeddedOptions: widget.embeddedOptions,
+                      ),
           ],
         ),
       ),
@@ -475,6 +485,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       onReset: widget.options.useResetButton ? reset : null,
       customCloseButtonBuilder: widget.customCloseButtonBuilder,
       viewMode: widget.options.viewMode,
+      viewModeOrientation: widget.options.viewModeOrientation,
     );
   }
 }

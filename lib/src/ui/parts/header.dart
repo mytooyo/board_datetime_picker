@@ -39,6 +39,7 @@ class BoardDateTimeHeader extends StatefulWidget {
     required this.onReset,
     required this.customCloseButtonBuilder,
     required this.viewMode,
+    required this.viewModeOrientation,
   });
 
   /// Wide mode display flag
@@ -123,6 +124,9 @@ class BoardDateTimeHeader extends StatefulWidget {
 
   /// View mode
   final BoardDateTimeViewMode viewMode;
+
+  /// View mode Orientation
+  final BoardDateTimeOrientation viewModeOrientation;
 
   @override
   State<BoardDateTimeHeader> createState() => BoardDateTimeHeaderState();
@@ -274,7 +278,8 @@ class BoardDateTimeHeaderState extends State<BoardDateTimeHeader> {
       return const SizedBox(width: 16);
     }
 
-    if (widget.wide) {
+    if (widget.wide ||
+        widget.viewModeOrientation == BoardDateTimeOrientation.vertical) {
       return const SizedBox(width: 24);
     } else {
       return Opacity(
@@ -462,7 +467,10 @@ class _BoardDateTimeNoneButtonHeaderState
       margin: const EdgeInsets.only(top: 12, left: 8, right: 8),
       child: Row(
         children: [
-          if (widget.pickerType != DateTimePickerType.time && !widget.wide) ...[
+          if (widget.pickerType != DateTimePickerType.time &&
+              !widget.wide &&
+              widget.options.viewModeOrientation ==
+                  BoardDateTimeOrientation.normal) ...[
             CustomIconButton(
               icon: Icons.view_day_rounded,
               bgColor: widget.options.getForegroundColor(context),
