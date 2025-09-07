@@ -1,3 +1,7 @@
+## 2.8.2
+
+* Fixed an issue where `customCloseButtonBuilder` did not function for `BoardDateTimeNoneButtonHeader`.
+
 ## 2.8.1
 
 * Added callback control during Picker animation.

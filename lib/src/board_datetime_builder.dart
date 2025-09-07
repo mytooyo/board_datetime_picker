@@ -453,6 +453,7 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
         onClose: close,
         modal: widget.modal,
         pickerFocusNode: widget.pickerFocusNode,
+        customCloseButtonBuilder: widget.customCloseButtonBuilder,
       );
     }
 
