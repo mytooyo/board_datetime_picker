@@ -363,7 +363,10 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
     final baseWeekday = widget.startDayOfWeek;
     // Get how far away the first day of the week is from Sunday
     final h = DateTime.daysPerWeek - baseWeekday;
-    final d = h + (first >= 7 ? 0 : first);
+    int d = h + (first >= 7 ? 0 : first);
+    if (d >= 7) {
+      d = d - 7;
+    }
     for (var i = 0; i < d; i++) {
       list.add(Container());
     }
