@@ -22,6 +22,7 @@ class ItemWidget extends StatefulWidget {
     required this.subTitle,
     required this.inputable,
     required this.embeddedOptions,
+    required this.withSubtitle,
   });
 
   final BoardPickerItemOption option;
@@ -33,6 +34,7 @@ class ItemWidget extends StatefulWidget {
   final String? subTitle;
   final bool inputable;
   final EmbeddedOptions embeddedOptions;
+  final bool withSubtitle;
 
   @override
   State<ItemWidget> createState() => ItemWidgetState();
@@ -289,14 +291,14 @@ class ItemWidgetState extends State<ItemWidget>
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
-          if (widget.subTitle != null) ...[
+          if (widget.withSubtitle) ...[
             Container(
               height: widget.wide ? 40 : 32,
               width: double.infinity,
               alignment: Alignment.bottomCenter,
               padding: EdgeInsets.only(bottom: widget.wide ? 8 : 4),
               child: Text(
-                widget.subTitle!,
+                widget.subTitle ?? '',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: widget.textColor?.withValues(alpha: 0.5),
                       fontWeight: FontWeight.bold,
