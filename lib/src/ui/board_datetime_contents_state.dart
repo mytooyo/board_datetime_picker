@@ -37,6 +37,7 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required this.onTopActionBuilder,
     required this.customCloseButtonBuilder,
     required this.embeddedOptions,
+    required this.boxConstraints,
   });
 
   final double breakpoint;
@@ -75,6 +76,8 @@ abstract class BoardDateTimeContent<T extends BoardDateTimeCommonResult>
   final CloseButtonBuilder? customCloseButtonBuilder;
 
   final EmbeddedOptions embeddedOptions;
+
+  final BoxConstraints boxConstraints;
 }
 
 abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
@@ -88,14 +91,11 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   late Animation<double> calendarAnimation;
   late Animation<double> pickerFormAnimation;
 
-  /// Picker-wide Constraints
-  late BoxConstraints boxConstraints;
-
   /// CurveTween
   final curve = CurveTween(curve: Curves.easeInOut);
 
   /// Wide mode flag
-  bool get isWide => boxConstraints.maxWidth >= widget.breakpoint;
+  bool get isWide => widget.boxConstraints.maxWidth >= widget.breakpoint;
 
   /// DatePicker Field Options
   List<BoardPickerItemOption> itemOptions = [];
@@ -374,7 +374,8 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
           ),
         ),
       ],
-      if (DateTimePickerType.time == type && widget.options.withSecond)
+      if (widget.options.withSecond &&
+          (DateTimePickerType.time == type || isWide))
         initItemOption(
           ItemOptionArgs(
             pickerType: widget.pickerType,

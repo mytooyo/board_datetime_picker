@@ -190,21 +190,24 @@ class _BoardDateTimeBuilderState<T extends BoardDateTimeCommonResult>
     keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
 
     Widget child() {
-      return SingleBoardDateTimeContent<T>(
-        key: widget.controller.boardKey,
-        onChange: widget.onChange,
-        onResult: widget.onResult,
-        pickerType: widget.pickerType,
-        initialDate: widget.initialDate,
-        minimumDate: widget.minimumDate,
-        maximumDate: widget.maximumDate,
-        breakpoint: widget.breakpoint,
-        options: widget.options ?? const BoardDateTimeOptions(),
-        keyboardHeightNotifier: keyboardHeightNotifier,
-        headerWidget: widget.headerWidget,
-        onTopActionBuilder: widget.onTopActionBuilder,
-        embeddedOptions: const EmbeddedOptions(),
-      );
+      return LayoutBuilder(builder: (context, constraints) {
+        return SingleBoardDateTimeContent<T>(
+          key: widget.controller.boardKey,
+          onChange: widget.onChange,
+          onResult: widget.onResult,
+          pickerType: widget.pickerType,
+          initialDate: widget.initialDate,
+          minimumDate: widget.minimumDate,
+          maximumDate: widget.maximumDate,
+          breakpoint: widget.breakpoint,
+          options: widget.options ?? const BoardDateTimeOptions(),
+          keyboardHeightNotifier: keyboardHeightNotifier,
+          headerWidget: widget.headerWidget,
+          onTopActionBuilder: widget.onTopActionBuilder,
+          embeddedOptions: const EmbeddedOptions(),
+          boxConstraints: constraints,
+        );
+      });
     }
 
     if (widget.resizeBottom) {
@@ -257,6 +260,7 @@ class SingleBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required super.onTopActionBuilder,
     super.customCloseButtonBuilder,
     required super.embeddedOptions,
+    required super.boxConstraints,
   });
 
   final void Function(DateTime)? onChange;
@@ -354,15 +358,9 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        boxConstraints = constraints;
-
-        return AnimatedBuilder(
-          animation: openAnimationController,
-          builder: _openAnimationBuilder,
-        );
-      },
+    return AnimatedBuilder(
+      animation: openAnimationController,
+      builder: _openAnimationBuilder,
     );
   }
 
