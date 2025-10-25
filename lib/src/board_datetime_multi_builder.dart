@@ -48,6 +48,7 @@ class MultiBoardDateTimeContent<T extends BoardDateTimeCommonResult>
     required this.multiSelectionMaxDateBuilder,
     required super.embeddedOptions,
     required this.dateRangeMode,
+    required super.boxConstraints,
   });
 
   final BoardMultiDateTimeController? controller;
@@ -296,15 +297,9 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       keyboardHeightNotifier.value = MediaQuery.of(context).viewInsets.bottom;
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        boxConstraints = constraints;
-
-        return AnimatedBuilder(
-          animation: openAnimationController,
-          builder: _openAnimationBuilder,
-        );
-      },
+    return AnimatedBuilder(
+      animation: openAnimationController,
+      builder: _openAnimationBuilder,
     );
   }
 

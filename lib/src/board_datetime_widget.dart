@@ -351,33 +351,36 @@ class _SingleBoardDateTimeWidgetState<T extends AbstractBoardDatetimeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SingleBoardDateTimeContent(
-      key: widget.controller?.boardKey,
-      onChange: (val) {
-        date = val;
-        widget.valueNotifier?.value = val;
-        widget.onChanged?.call(val);
-      },
-      onResult: widget.onResult,
-      pickerType: widget.pickerType,
-      options: widget.options,
-      breakpoint: widget.breakpoint,
-      initialDate: date,
-      minimumDate: widget.minimumDate,
-      maximumDate: widget.maximumDate,
-      headerWidget: widget.headerWidget,
-      modal: true,
-      onCloseModal: () {
-        Navigator.of(context).pop(date);
-      },
-      onUpdateByClose: (val, val2) {
-        date = val;
-        widget.valueNotifier?.value = val;
-      },
-      onTopActionBuilder: widget.onTopActionBuilder,
-      customCloseButtonBuilder: widget.customCloseButtonBuilder,
-      embeddedOptions: widget.embeddedOptions,
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      return SingleBoardDateTimeContent(
+        key: widget.controller?.boardKey,
+        onChange: (val) {
+          date = val;
+          widget.valueNotifier?.value = val;
+          widget.onChanged?.call(val);
+        },
+        onResult: widget.onResult,
+        pickerType: widget.pickerType,
+        options: widget.options,
+        breakpoint: widget.breakpoint,
+        initialDate: date,
+        minimumDate: widget.minimumDate,
+        maximumDate: widget.maximumDate,
+        headerWidget: widget.headerWidget,
+        modal: true,
+        onCloseModal: () {
+          Navigator.of(context).pop(date);
+        },
+        onUpdateByClose: (val, val2) {
+          date = val;
+          widget.valueNotifier?.value = val;
+        },
+        onTopActionBuilder: widget.onTopActionBuilder,
+        customCloseButtonBuilder: widget.customCloseButtonBuilder,
+        embeddedOptions: widget.embeddedOptions,
+        boxConstraints: constraints,
+      );
+    });
   }
 }
 
@@ -543,37 +546,42 @@ class _MultiBoardDateTimeWidgetState<T extends AbstractMultiBoardDatetimeWidget>
       maximumDate ??= DateTime(now.year, now.month, now.day, 23, 59, 59);
     }
 
-    return MultiBoardDateTimeContent(
-      key: widget.controller?.boardKey,
-      onChange: (start, end) {
-        selection = BoardDateTimeMultiSelection(start: start, end: end);
-        // widget.valueNotifier?.value = val;
-        widget.onChanged?.call(selection);
-      },
-      onResult: widget.onResult,
-      pickerType: widget.pickerType,
-      options: widget.options,
-      breakpoint: widget.breakpoint,
-      startDate: selection.start,
-      endDate: selection.end,
-      minimumDate: minimumDate,
-      maximumDate: maximumDate,
-      headerWidget: widget.headerWidget,
-      modal: true,
-      onCloseModal: () {
-        Navigator.of(context).pop(selection);
-      },
-      onUpdateByClose: (val, val2) {
-        selection = BoardDateTimeMultiSelection(
-          start: val,
-          end: val2 ?? selection.end,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return MultiBoardDateTimeContent(
+          key: widget.controller?.boardKey,
+          onChange: (start, end) {
+            selection = BoardDateTimeMultiSelection(start: start, end: end);
+            // widget.valueNotifier?.value = val;
+            widget.onChanged?.call(selection);
+          },
+          onResult: widget.onResult,
+          pickerType: widget.pickerType,
+          options: widget.options,
+          breakpoint: widget.breakpoint,
+          startDate: selection.start,
+          endDate: selection.end,
+          minimumDate: minimumDate,
+          maximumDate: maximumDate,
+          headerWidget: widget.headerWidget,
+          modal: true,
+          onCloseModal: () {
+            Navigator.of(context).pop(selection);
+          },
+          onUpdateByClose: (val, val2) {
+            selection = BoardDateTimeMultiSelection(
+              start: val,
+              end: val2 ?? selection.end,
+            );
+          },
+          onTopActionBuilder: widget.onTopActionBuilder,
+          customCloseButtonBuilder: widget.customCloseButtonBuilder,
+          multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
+          embeddedOptions: widget.embeddedOptions,
+          dateRangeMode: widget.dateRangeMode,
+          boxConstraints: constraints,
         );
       },
-      onTopActionBuilder: widget.onTopActionBuilder,
-      customCloseButtonBuilder: widget.customCloseButtonBuilder,
-      multiSelectionMaxDateBuilder: widget.multiSelectionMaxDateBuilder,
-      embeddedOptions: widget.embeddedOptions,
-      dateRangeMode: widget.dateRangeMode,
     );
   }
 }

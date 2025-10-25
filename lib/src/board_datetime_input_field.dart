@@ -1035,36 +1035,38 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
       FocusManager.instance.primaryFocus?.unfocus();
     }
 
-    return GestureDetector(
-      onTapDown: (_) {
-        pickerFocusNode.requestFocus();
+    return GestureDetector(onTapDown: (_) {
+      pickerFocusNode.requestFocus();
+    }, child: LayoutBuilder(
+      builder: (context, constraints) {
+        return Focus(
+          focusNode: pickerFocusNode,
+          child: SingleBoardDateTimeContent(
+            key: pickerController?.key,
+            pickerFocusNode: pickerFocusNode,
+            onChange: (val) {},
+            pickerType: widget.pickerType,
+            options: widget.options,
+            breakpoint: widget.breakpoint,
+            initialDate: selectedDate ?? DateTime.now(),
+            minimumDate: widget.minimumDate,
+            maximumDate: widget.maximumDate,
+            modal: true,
+            withTextField: true,
+            onCreatedDateState: (val) {
+              pickerDateState = val;
+              pickerDateState!.addListener(pickerListener);
+            },
+            onCloseModal: onClosePicker,
+            onKeyboadClose: onClosePicker,
+            headerWidget: null,
+            onTopActionBuilder: widget.onTopActionBuilder,
+            embeddedOptions: const EmbeddedOptions(),
+            boxConstraints: constraints,
+          ),
+        );
       },
-      child: Focus(
-        focusNode: pickerFocusNode,
-        child: SingleBoardDateTimeContent(
-          key: pickerController?.key,
-          pickerFocusNode: pickerFocusNode,
-          onChange: (val) {},
-          pickerType: widget.pickerType,
-          options: widget.options,
-          breakpoint: widget.breakpoint,
-          initialDate: selectedDate ?? DateTime.now(),
-          minimumDate: widget.minimumDate,
-          maximumDate: widget.maximumDate,
-          modal: true,
-          withTextField: true,
-          onCreatedDateState: (val) {
-            pickerDateState = val;
-            pickerDateState!.addListener(pickerListener);
-          },
-          onCloseModal: onClosePicker,
-          onKeyboadClose: onClosePicker,
-          headerWidget: null,
-          onTopActionBuilder: widget.onTopActionBuilder,
-          embeddedOptions: const EmbeddedOptions(),
-        ),
-      ),
-    );
+    ));
   }
 
   /// Display small Picker when have focus
