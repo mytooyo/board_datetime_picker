@@ -141,6 +141,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
   Widget picker({required bool isWide}) {
     final separator = options.separators;
 
+    final withSubtitle = args.listOptions.any((e) => e.subTitle != null);
+
     List<Widget> items = [];
     for (final x in args.listOptions) {
       if (showPickerItem(x.type, options.customOptions, isWide) == false) {
@@ -164,42 +166,47 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
             subTitle: x.subTitle,
             inputable: pickerIsInputable() && args.options.inputable,
             embeddedOptions: widget.embeddedOptions,
+            withSubtitle: withSubtitle,
           ),
         ),
       );
 
       if (separator != null) {
+        final topPadding = withSubtitle
+            ? EdgeInsets.only(top: isWide ? 40 : 32)
+            : EdgeInsets.zero;
         final textStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: 17,
               color: args.options.getTextColor(context),
             );
+
+        Widget? child;
         if (separatorTypes.contains(x.type)) {
-          items.add(
-            separator.dateSeparatorBuilder?.call(context, textStyle) ??
-                Text(
-                  separator.date.display,
-                  style: textStyle,
-                ),
-          );
+          child = separator.dateSeparatorBuilder?.call(context, textStyle) ??
+              Text(
+                separator.date.display,
+                style: textStyle,
+              );
         } else if (x.type == DateType.hour ||
             (x.type == DateType.minute && args.options.withSecond)) {
-          items.add(
-            separator.timeSeparatorBuilder?.call(context, textStyle) ??
-                Text(
-                  separator.time.display,
-                  style: textStyle,
-                ),
-          );
+          child = separator.timeSeparatorBuilder?.call(context, textStyle) ??
+              Text(
+                separator.time.display,
+                style: textStyle,
+              );
         } else if (x.type == lastYmdDateType &&
             args.pickerType == DateTimePickerType.datetime) {
-          items.add(
-            separator.dateTimeSeparatorBuilder?.call(context, textStyle) ??
-                Text(
-                  separator.dateTime.display,
-                  style: textStyle,
-                ),
-          );
+          child =
+              separator.dateTimeSeparatorBuilder?.call(context, textStyle) ??
+                  Text(
+                    separator.dateTime.display,
+                    style: textStyle,
+                  );
+        }
+
+        if (child != null) {
+          items.add(Padding(padding: topPadding, child: child));
         }
       }
     }
@@ -244,7 +251,8 @@ abstract class PickerCalendarState<T extends PickerCalendarWidget>
     /// Set inputable to False when both calendar and pickers are shown on screen:
     /// when in vertical view mode and the pickerType is datetime or date
     if (args.options.viewModeOrientation == BoardDateTimeOrientation.vertical &&
-        (args.pickerType == DateTimePickerType.datetime || args.pickerType == DateTimePickerType.date)) {
+        (args.pickerType == DateTimePickerType.datetime ||
+            args.pickerType == DateTimePickerType.date)) {
       return false;
     }
     return true;
@@ -385,21 +393,33 @@ class _PickerCalendarWideWidgetState
   Widget build(BuildContext context) {
     double height = args.pickerType == DateTimePickerType.time ? 240 : 304;
 
-    Widget child = Row(
-      children: [
-        if (args.pickerType != DateTimePickerType.time) ...[
-          _left(),
-          const SizedBox(width: 16),
-        ],
-        Expanded(
-          child: Column(
-            children: [
-              args.headerBuilder(context),
-              Expanded(child: picker(isWide: true)),
+    Widget child = LayoutBuilder(
+      builder: (context, constraints) {
+        // Set the left width based on the screen width
+        // (aim for 40% of the total width while keeping it between 240 and 400 pixels).
+        final proposed = constraints.maxWidth * 0.40;
+        final leftWidth = proposed.clamp(240.0, 400.0);
+
+        return Row(
+          children: [
+            if (args.pickerType != DateTimePickerType.time) ...[
+              _left(leftWidth),
+              const SizedBox(width: 16),
             ],
-          ),
-        ),
-      ],
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    args.headerBuilder(context),
+                    Expanded(child: picker(isWide: true)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
     Widget wrap = child;
@@ -431,15 +451,15 @@ class _PickerCalendarWideWidgetState
   }
 
   /// Items to be displayed on the left side in wide
-  Widget _left() {
+  Widget _left(double width) {
     return Container(
-      width: 400,
+      width: width,
       decoration: BoxDecoration(
         color: args.options.getForegroundColor(context),
         borderRadius: BorderRadius.circular(12),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Stack(
         children: [
           Positioned.fill(
