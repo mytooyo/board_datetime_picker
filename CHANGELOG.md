@@ -1,3 +1,10 @@
+## 2.8.3
+
+* Fixed Empty row appears in calendar view.
+* Fixed separator does not align itself based of picker subtitles.
+* Support flexible calendar display in wide mode.
+* Supports displaying down to the second in `datetime` when using wide mode.
+
 ## 2.8.2
 
 * Fixed an issue where `customCloseButtonBuilder` did not function for `BoardDateTimeNoneButtonHeader`.
