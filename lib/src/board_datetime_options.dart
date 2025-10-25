@@ -569,7 +569,7 @@ enum BoardDateTimeViewMode {
 class BoardDateTimePaddingSettings {
   const BoardDateTimePaddingSettings({
     this.calWideWidgetPadding =
-        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+        const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
     this.calStdWidgetPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.calStdVerticalWidgetPadding =
         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

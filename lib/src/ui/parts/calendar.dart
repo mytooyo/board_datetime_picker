@@ -186,6 +186,8 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
         itemBuilder: (context, index) {
           final diff = index - initialPage;
           final date = initialDate.calcMonth(diff);
+          final children = _generateCalendarOfMonth(date);
+          const rowCount = 6;
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -199,15 +201,21 @@ abstract class CalendarWidgetState<T extends CalendarWidget> extends State<T> {
                     children: [
                       _weekdays(),
                       Expanded(
-                        child: GridView(
-                          padding: const EdgeInsets.all(0),
-                          //physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 7,
-                            childAspectRatio: 1,
-                          ),
-                          children: _generateCalendarOfMonth(date),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return GridView(
+                              padding: const EdgeInsets.all(0),
+                              //physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 7,
+                                childAspectRatio: 1.0,
+                                mainAxisExtent:
+                                    constraints.maxHeight / rowCount,
+                              ),
+                              children: children,
+                            );
+                          },
                         ),
                       ),
                     ],

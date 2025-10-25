@@ -393,21 +393,33 @@ class _PickerCalendarWideWidgetState
   Widget build(BuildContext context) {
     double height = args.pickerType == DateTimePickerType.time ? 240 : 304;
 
-    Widget child = Row(
-      children: [
-        if (args.pickerType != DateTimePickerType.time) ...[
-          _left(),
-          const SizedBox(width: 16),
-        ],
-        Expanded(
-          child: Column(
-            children: [
-              args.headerBuilder(context),
-              Expanded(child: picker(isWide: true)),
+    Widget child = LayoutBuilder(
+      builder: (context, constraints) {
+        // Set the left width based on the screen width
+        // (aim for 40% of the total width while keeping it between 240 and 400 pixels).
+        final proposed = constraints.maxWidth * 0.40;
+        final leftWidth = proposed.clamp(240.0, 400.0);
+
+        return Row(
+          children: [
+            if (args.pickerType != DateTimePickerType.time) ...[
+              _left(leftWidth),
+              const SizedBox(width: 16),
             ],
-          ),
-        ),
-      ],
+            Expanded(
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    args.headerBuilder(context),
+                    Expanded(child: picker(isWide: true)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
     Widget wrap = child;
@@ -439,15 +451,15 @@ class _PickerCalendarWideWidgetState
   }
 
   /// Items to be displayed on the left side in wide
-  Widget _left() {
+  Widget _left(double width) {
     return Container(
-      width: 400,
+      width: width,
       decoration: BoxDecoration(
         color: args.options.getForegroundColor(context),
         borderRadius: BorderRadius.circular(12),
       ),
-      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
+      margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Stack(
         children: [
           Positioned.fill(
