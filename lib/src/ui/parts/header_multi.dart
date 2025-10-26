@@ -13,7 +13,9 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
     super.key,
     required this.wide,
     required this.startDate,
+    required this.startDateTitle,
     required this.endDate,
+    required this.endDateTitle,
     required this.pickerType,
     required this.keyboardHeightRatio,
     required this.calendarAnimation,
@@ -49,8 +51,12 @@ class BoardDateTimeMultiHeader extends StatefulWidget {
   /// [ValueNotifier] to start date
   final ValueNotifier<DateTime> startDate;
 
+  final String? startDateTitle;
+
   /// [ValueNotifier] to end date
   final ValueNotifier<DateTime> endDate;
+
+  final String? endDateTitle;
 
   /// Display picker type.
   final DateTimePickerType pickerType;
@@ -246,14 +252,36 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(
-                                width:
-                                    dateItemWidth * startScaleAnimation.value,
-                                height: 32 * startScaleAnimation.value,
-                                child: _datetimeItem(
-                                  widget.startDate,
-                                  MultiCurrentDateType.start,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: widget.startDateTitle == null
+                                    ? MainAxisSize.min
+                                    : MainAxisSize.max,
+                                children: [
+                                  if (widget.startDateTitle != null) ...[
+                                    Text(
+                                      widget.startDateTitle!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: widget.textColor
+                                                ?.withValues(alpha: 0.5),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                  ],
+                                  SizedBox(
+                                    width: dateItemWidth *
+                                        startScaleAnimation.value,
+                                    height: 32 * startScaleAnimation.value,
+                                    child: _datetimeItem(
+                                      widget.startDate,
+                                      MultiCurrentDateType.start,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Container(
                                 margin:
@@ -265,14 +293,37 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
                                   color: widget.backgroundColor,
                                 ),
                               ),
-                              SizedBox(
-                                width: dateItemWidth * endScaleAnimation.value,
-                                height: 32 * endScaleAnimation.value,
-                                child: _datetimeItem(
-                                  widget.endDate,
-                                  MultiCurrentDateType.end,
-                                ),
-                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: widget.endDateTitle == null
+                                    ? MainAxisSize.min
+                                    : MainAxisSize.max,
+                                children: [
+                                  if (widget.endDateTitle != null) ...[
+                                    Text(
+                                      widget.endDateTitle!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: widget.textColor
+                                                ?.withValues(alpha: 0.5),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                  ],
+                                  SizedBox(
+                                    width:
+                                        dateItemWidth * endScaleAnimation.value,
+                                    height: 32 * endScaleAnimation.value,
+                                    child: _datetimeItem(
+                                      widget.endDate,
+                                      MultiCurrentDateType.end,
+                                    ),
+                                  ),
+                                ],
+                              )
                             ],
                           );
                         },

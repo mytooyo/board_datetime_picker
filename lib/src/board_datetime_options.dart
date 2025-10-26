@@ -425,6 +425,12 @@ class BoardDateTimeItemTitles {
   final String? minute;
   final String? second;
 
+  /// Title for the "From" date in multi-selection
+  final String? multiFrom;
+
+  /// Title for the "To" date in multi-selection
+  final String? multiTo;
+
   const BoardDateTimeItemTitles({
     this.year,
     this.month,
@@ -432,6 +438,8 @@ class BoardDateTimeItemTitles {
     this.hour,
     this.minute,
     this.second,
+    this.multiFrom,
+    this.multiTo,
   });
 
   bool get notSpecified {
