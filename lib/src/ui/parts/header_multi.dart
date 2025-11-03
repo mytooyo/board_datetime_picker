@@ -221,6 +221,7 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
     final closeButtonBuilder =
         widget.customCloseButtonBuilder ?? _defaultCloseButtonBuilder;
     final rightIcon = closeButtonBuilder(context, widget.modal, widget.onClose);
+    const double spaceWidth = 12;
 
     final child = Container(
       height: widget.wide ? 64 : 52,
@@ -247,87 +248,90 @@ class _BoardDateTimeMultiHeaderState extends State<BoardDateTimeMultiHeader>
                     animation: animationController,
                     builder: (context, child) {
                       return ValueListenableBuilder(
-                        valueListenable: widget.currentDateType,
-                        builder: (context, value, child) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisSize: widget.startDateTitle == null
-                                    ? MainAxisSize.min
-                                    : MainAxisSize.max,
-                                children: [
-                                  if (widget.startDateTitle != null) ...[
-                                    Text(
-                                      widget.startDateTitle!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: widget.textColor
-                                                ?.withValues(alpha: 0.5),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                  ],
+                          valueListenable: widget.currentDateType,
+                          builder: (context, value, child) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (widget.startDateTitle != null) ...[
                                   SizedBox(
-                                    width: dateItemWidth *
-                                        startScaleAnimation.value,
-                                    height: 32 * startScaleAnimation.value,
-                                    child: _datetimeItem(
-                                      widget.startDate,
-                                      MultiCurrentDateType.start,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: dateItemWidth *
+                                              startScaleAnimation.value,
+                                          height:
+                                              20 * startScaleAnimation.value,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            widget.startDateTitle!,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: widget.textColor
+                                                      ?.withValues(alpha: 0.5),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: spaceWidth),
+                                        Container(
+                                          width: dateItemWidth *
+                                              endScaleAnimation.value,
+                                          height: 20 * endScaleAnimation.value,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            widget.endDateTitle ?? 'To',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: widget.textColor
+                                                      ?.withValues(alpha: 0.5),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                  )
                                 ],
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                height: 2,
-                                width: 12,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(1),
-                                  color: widget.backgroundColor,
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: dateItemWidth *
+                                          startScaleAnimation.value,
+                                      height: 32 * startScaleAnimation.value,
+                                      child: _datetimeItem(
+                                        widget.startDate,
+                                        MultiCurrentDateType.start,
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      height: 2,
+                                      width: spaceWidth,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(1),
+                                        color: widget.backgroundColor,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: dateItemWidth *
+                                          endScaleAnimation.value,
+                                      height: 32 * endScaleAnimation.value,
+                                      child: _datetimeItem(
+                                        widget.endDate,
+                                        MultiCurrentDateType.end,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisSize: widget.endDateTitle == null
-                                    ? MainAxisSize.min
-                                    : MainAxisSize.max,
-                                children: [
-                                  if (widget.endDateTitle != null) ...[
-                                    Text(
-                                      widget.endDateTitle!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: widget.textColor
-                                                ?.withValues(alpha: 0.5),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                  ],
-                                  SizedBox(
-                                    width:
-                                        dateItemWidth * endScaleAnimation.value,
-                                    height: 32 * endScaleAnimation.value,
-                                    child: _datetimeItem(
-                                      widget.endDate,
-                                      MultiCurrentDateType.end,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          );
-                        },
-                      );
+                              ],
+                            );
+                          });
                     },
                   ),
                 ),
