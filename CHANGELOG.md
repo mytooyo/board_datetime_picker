@@ -1,3 +1,7 @@
+## 2.8.4
+
+* Support for multi start and end date subtitle
+
 ## 2.8.3
 
 * Fixed Empty row appears in calendar view.
