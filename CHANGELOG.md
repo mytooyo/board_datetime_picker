@@ -1,3 +1,7 @@
+## 2.8.7
+
+* Reverted `SizeTransition.alignment` back to the deprecated `axisAlignment` to keep compatibility with Flutter versions earlier than 3.42, where the `alignment` parameter does not exist. (#100)
+
 ## 2.8.6
 
 * Fixed the correction flash animation using a stale foreground color after the theme changed.

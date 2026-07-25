@@ -395,7 +395,10 @@ class _SingleBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       child: SizeTransition(
         sizeFactor: animation,
         axis: Axis.vertical,
-        alignment: const Alignment(-1.0, -1.0),
+        // `alignment` is only available in Flutter 3.42+,
+        // so keep using `axisAlignment` for backward compatibility.
+        // ignore: deprecated_member_use
+        axisAlignment: -1.0,
         // child: isWide ? _widebuilder() : _standardBuilder(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
