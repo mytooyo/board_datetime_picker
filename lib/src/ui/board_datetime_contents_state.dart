@@ -124,8 +124,23 @@ abstract class BoardDatetimeContentState<T extends BoardDateTimeCommonResult,
   /// Get initial date (Specified initial date)
   DateTime? get defaultDate;
 
-  DateTime? get minimumDate => widget.minimumDate;
-  DateTime? get maximumDate => widget.maximumDate;
+  DateTime? get minimumDate {
+    final min = widget.minimumDate;
+    if (min == null) return null;
+    return DateTimeUtil.normalizeMinimumForCustomOptions(
+      min,
+      widget.options.customOptions,
+    );
+  }
+
+  DateTime? get maximumDate {
+    final max = widget.maximumDate;
+    if (max == null) return null;
+    return DateTimeUtil.normalizeMaximumForCustomOptions(
+      max,
+      widget.options.customOptions,
+    );
+  }
 
   /// Multiselection flag
   bool get multiSelection;

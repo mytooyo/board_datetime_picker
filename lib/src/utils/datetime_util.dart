@@ -1,4 +1,6 @@
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
+import 'package:collection/collection.dart';
 
 import 'board_enum.dart';
 
@@ -62,6 +64,82 @@ class DateTimeUtil {
       newVal = maximumDate;
     }
     return newVal;
+  }
+
+  /// Push [minimum] forward to the earliest hour/minute/second that is
+  /// actually reachable given the configured [custom] hour/minute/second
+  /// lists (e.g. a 15-minute step picker).
+  ///
+  /// Without this, a minimum such as 9:46 combined with minute steps
+  /// [0, 15, 30, 45] leaves the picker with an empty minute list for hour 9
+  /// (no step is >= 46), since nothing ever advances the boundary hour to
+  /// one where a step actually exists.
+  static DateTime normalizeMinimumForCustomOptions(
+    DateTime minimum,
+    BoardPickerCustomOptions? custom,
+  ) {
+    if (custom == null) return minimum;
+    var result = minimum;
+    if (custom.seconds.isNotEmpty) {
+      result = _ceilField(result, custom.seconds, DateType.second);
+    }
+    if (custom.minutes.isNotEmpty) {
+      result = _ceilField(result, custom.minutes, DateType.minute);
+    }
+    if (custom.hours.isNotEmpty) {
+      result = _ceilField(result, custom.hours, DateType.hour);
+    }
+    return result;
+  }
+
+  /// Pull [maximum] back to the latest hour/minute/second that is actually
+  /// reachable given the configured [custom] hour/minute/second lists.
+  ///
+  /// Symmetric to [normalizeMinimumForCustomOptions]: a maximum of 8:59 with
+  /// minute steps [0, 15, 30, 45] becomes 8:45, the last step that still
+  /// satisfies the maximum.
+  static DateTime normalizeMaximumForCustomOptions(
+    DateTime maximum,
+    BoardPickerCustomOptions? custom,
+  ) {
+    if (custom == null) return maximum;
+    var result = maximum;
+    if (custom.seconds.isNotEmpty) {
+      result = _floorField(result, custom.seconds, DateType.second);
+    }
+    if (custom.minutes.isNotEmpty) {
+      result = _floorField(result, custom.minutes, DateType.minute);
+    }
+    if (custom.hours.isNotEmpty) {
+      result = _floorField(result, custom.hours, DateType.hour);
+    }
+    return result;
+  }
+
+  /// Set [date]'s [type] field to the smallest [values] entry >= its
+  /// current value. If none exists, wrap to the smallest entry and carry
+  /// one unit into the next coarser field (e.g. minute -> hour).
+  static DateTime _ceilField(DateTime date, List<int> values, DateType type) {
+    final sorted = [...values]..sort();
+    final current = date.valFromType(type);
+    final next = sorted.firstWhereOrNull((v) => v >= current);
+    if (next != null) {
+      return date._withField(type, next);
+    }
+    return date._withField(type, sorted.first)._stepParentUnit(type, 1);
+  }
+
+  /// Set [date]'s [type] field to the largest [values] entry <= its
+  /// current value. If none exists, wrap to the largest entry and carry
+  /// one unit back from the next coarser field (e.g. minute -> hour).
+  static DateTime _floorField(DateTime date, List<int> values, DateType type) {
+    final sorted = [...values]..sort();
+    final current = date.valFromType(type);
+    final prev = sorted.lastWhereOrNull((v) => v <= current);
+    if (prev != null) {
+      return date._withField(type, prev);
+    }
+    return date._withField(type, sorted.last)._stepParentUnit(type, -1);
   }
 
   static int? existDay(int year, int month, int day) {
@@ -132,6 +210,38 @@ extension DateTimeExtension on DateTime {
 
   DateTime addDayWithTime(int v) {
     return DateTime(year, month, day + v, hour, minute, second);
+  }
+
+  /// Returns a copy of this date with [type]'s field replaced by [value].
+  /// Only hour, minute and second are supported (the only types that can
+  /// carry a custom step list).
+  DateTime _withField(DateType type, int value) {
+    switch (type) {
+      case DateType.hour:
+        return DateTime(year, month, day, value, minute, second);
+      case DateType.minute:
+        return DateTime(year, month, day, hour, value, second);
+      case DateType.second:
+        return DateTime(year, month, day, hour, minute, value);
+      default:
+        return this;
+    }
+  }
+
+  /// Steps the field one level coarser than [type] by [direction]
+  /// (+1/-1), letting [DateTime] normalize any overflow/underflow
+  /// (e.g. hour 24 rolls into the next day).
+  DateTime _stepParentUnit(DateType type, int direction) {
+    switch (type) {
+      case DateType.second:
+        return DateTime(year, month, day, hour, minute + direction, second);
+      case DateType.minute:
+        return DateTime(year, month, day, hour + direction, minute, second);
+      case DateType.hour:
+        return DateTime(year, month, day + direction, hour, minute, second);
+      default:
+        return this;
+    }
   }
 
   bool isMinimum(DateTime date, DateType dt, {bool equal = true}) {
