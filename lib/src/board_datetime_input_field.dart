@@ -64,12 +64,10 @@ class BoardDateTimeTextController {
   final ValueNotifier<dynamic> _notifier = ValueNotifier(null);
 
   void setText(String text) {
-    print("setText $text");
     _notifier.value = _InoutValue.from(text);
   }
 
   void setDate(DateTime date) {
-    print("setDate $date");
     _notifier.value = _InoutValue.from(date);
   }
 
@@ -78,11 +76,9 @@ class BoardDateTimeTextController {
   @protected
   void updateSelectedDate(DateTime? newDate) {
     _selectedDate = newDate;
-    print("updateSelectedDate - $_selectedDate - $hashCode");
   }
 
   DateTime? get selectedDate {
-    print("get selectedDate $_selectedDate");
     return _selectedDate;
   }
 }
@@ -510,7 +506,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
           initial != null ? DateFormat(format).format(rangeDate(initial)) : "",
     );
     textController.addListener(() {});
-    print("inittext: ${textController.text}");
 
     pickerFocusNode = PickerContentsFocusNode(
       debugLabel: 'Picker Focus Node',
@@ -565,7 +560,6 @@ class _BoardDateTimeInputFieldState<T extends BoardDateTimeCommonResult>
     textController.dispose();
     overlayAnimController.dispose();
     widget.controller?._notifier.removeListener(_controllerListener);
-    print("dispose");
     super.dispose();
   }
 

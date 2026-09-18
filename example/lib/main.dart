@@ -387,7 +387,6 @@ class PickerItemWidget extends StatelessWidget {
           );
           if (result != null) {
             date.value = result;
-            print('result: $result');
           }
         },
         child: Padding(
@@ -520,7 +519,6 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             start.value = result.start;
             end.value = result.end;
           }
-          print('result: ${start.value} - ${end.value}');
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
