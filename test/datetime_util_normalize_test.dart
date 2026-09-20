@@ -54,7 +54,10 @@ void main() {
         DateTime(2026, 9, 18, 8, 59),
         steps15,
       );
-      expect(result, DateTime(2026, 9, 18, 8, 45));
+      // Minute had to move down (59 -> 45), so the uncustomized second
+      // field is free and takes its largest reachable value (59) to give
+      // the tightest (most permissive) bound <= the original maximum.
+      expect(result, DateTime(2026, 9, 18, 8, 45, 59));
     });
 
     test('rolls back to the previous hour when no step is low enough', () {
@@ -62,7 +65,31 @@ void main() {
         DateTime(2026, 9, 18, 9, 0),
         BoardPickerCustomOptions(minutes: const [30, 45]),
       );
-      expect(result, DateTime(2026, 9, 18, 8, 45));
+      expect(result, DateTime(2026, 9, 18, 8, 45, 59));
+    });
+  });
+
+  group('regression: hour carry must reset finer fields (PR #102 review)',
+      () {
+    final customHoursAndMinutes = BoardPickerCustomOptions(
+      hours: const [9, 10, 11, 12, 13, 14, 15, 16, 17],
+      minutes: const [0, 15, 30, 45],
+    );
+
+    test('minimum 8:30 becomes 9:00, not 9:30', () {
+      final result = DateTimeUtil.normalizeMinimumForCustomOptions(
+        DateTime(2026, 9, 20, 8, 30),
+        customHoursAndMinutes,
+      );
+      expect(result, DateTime(2026, 9, 20, 9, 0));
+    });
+
+    test('maximum 18:10 becomes 17:45, not 17:00', () {
+      final result = DateTimeUtil.normalizeMaximumForCustomOptions(
+        DateTime(2026, 9, 20, 18, 10),
+        customHoursAndMinutes,
+      );
+      expect(result, DateTime(2026, 9, 20, 17, 45, 59));
     });
   });
 }
