@@ -66,23 +66,10 @@ class DateTimeUtil {
     return newVal;
   }
 
-  /// Push [minimum] forward to the earliest hour/minute/second that is
-  /// actually reachable given the configured [custom] hour/minute/second
-  /// lists (e.g. a 15-minute step picker).
-  ///
-  /// Fields are resolved from coarsest to finest (hour, then minute, then
-  /// second). Whenever a field can't stay on its original value (either
-  /// because that value isn't in its own custom list, or because a finer
-  /// field below it had to roll over), the field moves to the next
-  /// reachable value and every field below it is free to reset to its
-  /// smallest reachable value -- once a coarser field is strictly greater
-  /// than the original minimum's, any combination of the finer fields
-  /// already satisfies the minimum, so the smallest one gives the tightest
-  /// (i.e. most permissive) reachable bound.
-  ///
-  /// Without this, a minimum such as 8:30 with hours restricted to 9-17
-  /// would naively become 9:30 (hour rolled forward but minute left
-  /// untouched), when 9:00 is actually the earliest reachable time.
+  /// Pushes [minimum] forward to the earliest reachable hour/minute/second
+  /// given the [custom] step lists. Resolves hour, then minute, then second;
+  /// once a field moves past its original value, everything below it resets
+  /// to its smallest value (e.g. 8:30 with hours 9-17 becomes 9:00, not 9:30).
   static DateTime normalizeMinimumForCustomOptions(
     DateTime minimum,
     BoardPickerCustomOptions? custom,
@@ -147,17 +134,9 @@ class DateTimeUtil {
         s);
   }
 
-  /// Pull [maximum] back to the latest hour/minute/second that is actually
-  /// reachable given the configured [custom] hour/minute/second lists.
-  ///
-  /// Symmetric to [normalizeMinimumForCustomOptions]: fields are resolved
-  /// from coarsest to finest, and whenever a coarser field has to move to a
-  /// strictly smaller value, every finer field is free to reset to its
-  /// largest reachable value -- that combination is still below the
-  /// original maximum, and is the tightest (most permissive) such bound.
-  ///
-  /// A maximum of 18:10 with hours restricted to 9-17 becomes 17:45 (the
-  /// last reachable minute step within the last reachable hour), not 17:00.
+  /// Symmetric to [normalizeMinimumForCustomOptions]: pulls [maximum] back
+  /// to the latest reachable value, resetting fields below a moved one to
+  /// their largest value (e.g. 18:10 with hours 9-17 becomes 17:45, not 17:00).
   static DateTime normalizeMaximumForCustomOptions(
     DateTime maximum,
     BoardPickerCustomOptions? custom,
@@ -222,9 +201,7 @@ class DateTimeUtil {
         s);
   }
 
-  /// Returns [custom] sorted, or the full `0..fallbackLength-1` range when
-  /// [custom] is empty (i.e. that field isn't customized, so every value is
-  /// reachable).
+  /// [custom] sorted, or the full `0..fallbackLength-1` range if unset.
   static List<int> _stepList(List<int> custom, int fallbackLength) {
     if (custom.isEmpty) {
       return List<int>.generate(fallbackLength, (i) => i);
