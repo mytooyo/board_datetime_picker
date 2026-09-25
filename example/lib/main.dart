@@ -387,6 +387,7 @@ class PickerItemWidget extends StatelessWidget {
           );
           if (result != null) {
             date.value = result;
+            print('result: $result');
           }
         },
         child: Padding(
@@ -519,6 +520,7 @@ class PickerMultiSelectionItemWidget extends StatelessWidget {
             start.value = result.start;
             end.value = result.end;
           }
+          print('result: ${start.value} - ${end.value}');
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -664,14 +666,13 @@ class InputFieldWidget extends StatelessWidget {
             height: 44,
             child: BoardDateTimeInputField(
               controller: textController,
-              pickerType: DateTimePickerType.time,
-              showPicker: false,
+              pickerType: DateTimePickerType.datetime,
               options: const BoardDateTimeOptions(
                 languages: BoardPickerLanguages.en(),
                 // The following parameters are only for `time`
                 // withSecond: true,
               ),
-              initialDate: null /*DateTime.now()*/,
+              initialDate: DateTime.now(),
               maximumDate: DateTime(2040),
               minimumDate: DateTime(1900, 1, 1),
               // showPickerType: BoardDateTimeFieldPickerType.mini,
