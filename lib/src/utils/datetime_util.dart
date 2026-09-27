@@ -1,4 +1,6 @@
+import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/options/board_item_option.dart';
+import 'package:collection/collection.dart';
 
 import 'board_enum.dart';
 
@@ -62,6 +64,149 @@ class DateTimeUtil {
       newVal = maximumDate;
     }
     return newVal;
+  }
+
+  /// Pushes [minimum] forward to the earliest reachable hour/minute/second
+  /// given the [custom] step lists. Resolves hour, then minute, then second;
+  /// once a field moves past its original value, everything below it resets
+  /// to its smallest value (e.g. 8:30 with hours 9-17 becomes 9:00, not 9:30).
+  static DateTime normalizeMinimumForCustomOptions(
+    DateTime minimum,
+    BoardPickerCustomOptions? custom,
+  ) {
+    if (custom == null) return minimum;
+    if (custom.hours.isEmpty &&
+        custom.minutes.isEmpty &&
+        custom.seconds.isEmpty) {
+      return minimum;
+    }
+
+    final hours = _stepList(custom.hours, 24);
+    final minutes = _stepList(custom.minutes, 60);
+    final seconds = _stepList(custom.seconds, 60);
+
+    var h = minimum.hour;
+    var m = minimum.minute;
+    var s = minimum.second;
+    var dayCarry = 0;
+
+    while (true) {
+      final hh = hours.firstWhereOrNull((v) => v >= h);
+      if (hh == null) {
+        h = hours.first;
+        m = minutes.first;
+        s = seconds.first;
+        dayCarry = 1;
+        break;
+      }
+      if (hh > h) {
+        h = hh;
+        m = minutes.first;
+        s = seconds.first;
+        break;
+      }
+      final mm = minutes.firstWhereOrNull((v) => v >= m);
+      if (mm == null) {
+        h += 1;
+        m = 0;
+        s = 0;
+        continue;
+      }
+      if (mm > m) {
+        h = hh;
+        m = mm;
+        s = seconds.first;
+        break;
+      }
+      final ss = seconds.firstWhereOrNull((v) => v >= s);
+      if (ss == null) {
+        m += 1;
+        s = 0;
+        continue;
+      }
+      h = hh;
+      m = mm;
+      s = ss;
+      break;
+    }
+
+    return DateTime(minimum.year, minimum.month, minimum.day + dayCarry, h, m,
+        s);
+  }
+
+  /// Symmetric to [normalizeMinimumForCustomOptions]: pulls [maximum] back
+  /// to the latest reachable value, resetting fields below a moved one to
+  /// their largest value (e.g. 18:10 with hours 9-17 becomes 17:45, not 17:00).
+  static DateTime normalizeMaximumForCustomOptions(
+    DateTime maximum,
+    BoardPickerCustomOptions? custom,
+  ) {
+    if (custom == null) return maximum;
+    if (custom.hours.isEmpty &&
+        custom.minutes.isEmpty &&
+        custom.seconds.isEmpty) {
+      return maximum;
+    }
+
+    final hours = _stepList(custom.hours, 24);
+    final minutes = _stepList(custom.minutes, 60);
+    final seconds = _stepList(custom.seconds, 60);
+
+    var h = maximum.hour;
+    var m = maximum.minute;
+    var s = maximum.second;
+    var dayCarry = 0;
+
+    while (true) {
+      final hh = hours.lastWhereOrNull((v) => v <= h);
+      if (hh == null) {
+        h = hours.last;
+        m = minutes.last;
+        s = seconds.last;
+        dayCarry = -1;
+        break;
+      }
+      if (hh < h) {
+        h = hh;
+        m = minutes.last;
+        s = seconds.last;
+        break;
+      }
+      final mm = minutes.lastWhereOrNull((v) => v <= m);
+      if (mm == null) {
+        h -= 1;
+        m = 59;
+        s = 59;
+        continue;
+      }
+      if (mm < m) {
+        h = hh;
+        m = mm;
+        s = seconds.last;
+        break;
+      }
+      final ss = seconds.lastWhereOrNull((v) => v <= s);
+      if (ss == null) {
+        m -= 1;
+        s = 59;
+        continue;
+      }
+      h = hh;
+      m = mm;
+      s = ss;
+      break;
+    }
+
+    return DateTime(maximum.year, maximum.month, maximum.day + dayCarry, h, m,
+        s);
+  }
+
+  /// [custom] sorted, or the full `0..fallbackLength-1` range if unset.
+  static List<int> _stepList(List<int> custom, int fallbackLength) {
+    if (custom.isEmpty) {
+      return List<int>.generate(fallbackLength, (i) => i);
+    }
+    return [...custom]..sort();
   }
 
   static int? existDay(int year, int month, int day) {

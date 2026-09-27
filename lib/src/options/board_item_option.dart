@@ -261,8 +261,12 @@ class BoardPickerItemOption {
     return 0;
   }
 
-  /// Get the currently selected value
-  int get value => itemMap[selectedIndex]!;
+  /// Get the currently selected value.
+  /// Falls back to the first available entry (or 0) if [itemMap] is
+  /// empty or [selectedIndex] no longer points at a valid entry -- this
+  /// can legitimately happen for a custom step list whose values don't
+  /// intersect the range allowed for the current date (see [updateList]).
+  int get value => itemMap[selectedIndex] ?? itemMap.values.firstOrNull ?? 0;
 
   /// input content check
   void checkInputField() {
@@ -336,6 +340,14 @@ class BoardPickerItemOption {
   }
 
   void updateState(int tmpValue, DateTime date) {
+    if (itemMap.isEmpty) {
+      // Nothing selectable for this date (e.g. a custom step list with no
+      // entry in the currently allowed range) -- leave selectedIndex as is,
+      // there is no valid index to point at.
+      stateKey.currentState?.updateState(itemMap, selectedIndex);
+      return;
+    }
+
     // Get the index of the value that was selected
     // before the update and update it to that value
     final index = getIndexFromValue(tmpValue);
