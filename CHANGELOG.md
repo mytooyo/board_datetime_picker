@@ -1,3 +1,8 @@
+## 2.8.8
+
+* Fixed a crash that occurred when `minimumDate`/`maximumDate` did not land on any entry of a custom step list (`BoardPickerCustomOptions`). The item map for the boundary was built empty, so the picker showed an empty list and threw a null check error as soon as it was scrolled. (#102)
+* `minimumDate`/`maximumDate` are now normalized to the nearest reachable value when custom step lists are configured, rolling into the next/previous hour when the current one has no valid step. (#102)
+
 ## 2.8.7
 
 * Reverted `SizeTransition.alignment` back to the deprecated `axisAlignment` to keep compatibility with Flutter versions earlier than 3.42, where the `alignment` parameter does not exist. (#100)
