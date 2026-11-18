@@ -2,7 +2,7 @@ import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:board_datetime_picker/src/board_datetime_widget.dart';
 import 'package:board_datetime_picker/src/ui/board_datetime_contents_state.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 abstract class AbstractBoardDatetimeWidget extends StatefulWidget {
   const AbstractBoardDatetimeWidget({
