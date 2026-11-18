@@ -1,5 +1,5 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() async {
   runApp(const MyApp());

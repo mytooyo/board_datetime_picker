@@ -3,7 +3,7 @@ import 'package:board_datetime_picker/src/ui/board_datetime_contents_state.dart'
 import 'package:board_datetime_picker/src/ui/picker_calendar_widget.dart';
 import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/widgets.dart';
 
 import 'board_datetime_options.dart';
@@ -337,10 +337,7 @@ class _MultiBoardDateTimeContentState<T extends BoardDateTimeCommonResult>
       child: SizeTransition(
         sizeFactor: animation,
         axis: Axis.vertical,
-        // `alignment` is only available in Flutter 3.42+,
-        // so keep using `axisAlignment` for backward compatibility.
-        // ignore: deprecated_member_use
-        axisAlignment: -1.0,
+        alignment: AlignmentDirectional.topStart,
         // child: isWide ? _widebuilder() : _standardBuilder(),
         child: Column(
           mainAxisSize: MainAxisSize.min,

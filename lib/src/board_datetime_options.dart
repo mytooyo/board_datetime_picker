@@ -1,5 +1,5 @@
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 @Deprecated('Use calendarItemBuilder instead')
 typedef CalendarSelectionBuilder = Widget Function(

@@ -1,3 +1,13 @@
+## 3.0.0
+
+**Breaking changes**
+
+* Migrated from `package:flutter/material.dart` to the standalone [`material_ui`](https://pub.dev/packages/material_ui) package, following the deprecation of the in-framework Material library in Flutter 3.50.
+  * The minimum supported versions are now Flutter 3.50.0 and Dart 3.14.0.
+  * Your app must also use `package:material_ui` (including its `MaterialApp`). Under a `MaterialApp` from `package:flutter/material.dart`, the picker cannot find `MaterialLocalizations` / `Material` and throws. Run `dart fix --apply --code=migrate_design_widgets` in your app to migrate. If your app cannot migrate yet, keep using 2.8.x.
+  * `BoardDateTimeInputField.decoration` now takes the `InputDecoration` from `package:material_ui`.
+* Replaced the deprecated `SizeTransition.axisAlignment` with `alignment`, since Flutter versions earlier than 3.42 are no longer supported. This drops the workaround added in 2.8.7.
+
 ## 2.8.8
 
 * Fixed a crash that occurred when `minimumDate`/`maximumDate` did not land on any entry of a custom step list (`BoardPickerCustomOptions`). The item map for the boundary was built empty, so the picker showed an empty list and threw a null check error as soon as it was scrolled. (#102)

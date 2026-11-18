@@ -5,7 +5,7 @@ import 'package:board_datetime_picker/src/options/board_item_option.dart';
 import 'package:board_datetime_picker/src/utils/board_enum.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'focus_node.dart';
@@ -398,30 +398,33 @@ class ItemWidgetState extends State<ItemWidget>
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: widget.inputable
-                          ? () {
-                              setState(() {
-                                isTextEditing = true;
-                              });
-                              Future.delayed(const Duration(milliseconds: 10))
-                                  .then((_) {
-                                widget.option.focusNode.requestFocus();
-                              });
-                            }
-                          : null,
-                      borderRadius: borderRadius,
-                      child: SizedBox(
-                        height: itemSize,
-                        width: double.infinity,
+                // Tap target for switching the selected row to text input.
+                // Material and InkWell absorb hit tests even when onTap is
+                // null, so the overlay is omitted when not inputable to let
+                // drags on the selected row reach the ListWheelScrollView.
+                if (widget.inputable)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            isTextEditing = true;
+                          });
+                          Future.delayed(const Duration(milliseconds: 10))
+                              .then((_) {
+                            widget.option.focusNode.requestFocus();
+                          });
+                        },
+                        borderRadius: borderRadius,
+                        child: SizedBox(
+                          height: itemSize,
+                          width: double.infinity,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 Visibility(
                   visible: isTextEditing,
                   maintainState: widget.inputable,

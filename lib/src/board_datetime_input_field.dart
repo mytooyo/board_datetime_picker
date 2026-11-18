@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:board_datetime_picker/src/board_datetime_options.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 

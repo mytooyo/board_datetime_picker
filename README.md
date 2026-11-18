@@ -34,8 +34,13 @@ In order to add board_datetime_picker package to your project add this line to y
 
 ```yaml
 dependencies:
-    board_datetime_picker: 2.8.8
+    board_datetime_picker: 3.0.0
 ```
+
+> [!NOTE]
+> Since 3.0.0, this package is built on [`material_ui`](https://pub.dev/packages/material_ui), the standalone Material library that replaces the deprecated `package:flutter/material.dart` (Flutter 3.50).  
+> It requires Flutter 3.50.0 or later, and your app must also use `package:material_ui/material_ui.dart`. To migrate your app, run `dart fix --apply --code=migrate_design_widgets`.  
+> If your app still uses `package:flutter/material.dart`, use version 2.8.x.
 
 ## Usage
 

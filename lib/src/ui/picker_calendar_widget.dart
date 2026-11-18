@@ -4,7 +4,7 @@ import 'package:board_datetime_picker/src/ui/parts/during_calendar.dart';
 import 'package:board_datetime_picker/src/ui/parts/item.dart';
 import 'package:board_datetime_picker/src/utils/board_datetime_options_extension.dart';
 import 'package:board_datetime_picker/src/utils/datetime_util.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../board_datetime_options.dart';
 import '../utils/board_enum.dart';
